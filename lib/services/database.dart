@@ -13,4 +13,9 @@ class DatabaseService {
       'name': name,
     });
   }
+
+  //get users stream
+  Stream<QuerySnapshot> get users {
+    return userCollection.snapshots();
+  }
 }
