@@ -101,25 +101,22 @@ class _SignInState extends State<SignIn> {
                       Text(
                         error,
                         style: TextStyle(color: Colors.red, fontSize: 14.0),
-                      )
+                      ),
+                      RaisedButton(
+                        child: Text('Sign in anonimously'),
+                        onPressed: () async {
+                          dynamic result = await _auth.signInAnon();
+                          if (result == null) {
+                            print('error signing in');
+                          } else {
+                            print('signed in');
+                            print(result.uid);
+                          }
+                        },
+                      ),
                     ],
                   ),
-                )
-
-                /*RaisedButton(
-          child: Text('Sign in anonimously'),
-          onPressed: () async {
-            dynamic result = await _auth.signInAnon();
-            if (result == null) {
-              print('error signing in');
-            } else {
-              print('signed in');
-              print(result.uid);
-            }
-          },
-        ), */
-
-                ),
+                )),
           );
   }
 }
