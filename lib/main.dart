@@ -4,6 +4,7 @@ import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:test_proj/services/auth.dart';
+import 'package:flutter_map/flutter_map.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
