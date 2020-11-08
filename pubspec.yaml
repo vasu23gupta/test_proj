@@ -36,6 +36,8 @@ dependencies:
   flutter_spinkit: ^4.1.2+1
   permission_handler:
   flutter_map:
+  geolocation: 
+  location: ^3.0.0
 
 dev_dependencies:
   flutter_test:

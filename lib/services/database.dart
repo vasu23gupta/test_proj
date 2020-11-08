@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_proj/models/appUser.dart';
+import 'package:latlong/latlong.dart';
 
-class DatabaseService {
+class UserDatabaseService {
   final String uid;
-  DatabaseService({this.uid});
+  UserDatabaseService({this.uid});
 
   //collection reference
   final CollectionReference userCollection =
@@ -27,5 +28,21 @@ class DatabaseService {
   //get users stream
   Stream<List<AppUser>> get users {
     return userCollection.snapshots().map(_userListFromSnapshot);
+  }
+}
+
+class VendorDatabaseService {
+  final String id;
+  VendorDatabaseService({this.id});
+
+  //collection reference
+  final CollectionReference vendorCollection =
+      FirebaseFirestore.instance.collection('vendors');
+
+  Future updateVendorData(String name) async {
+    return await vendorCollection.doc(id).set({
+      'name': name,
+      //'coordinates': coord,
+    });
   }
 }
