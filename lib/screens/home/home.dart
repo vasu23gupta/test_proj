@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:latlong/latlong.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/services/location_service.dart';
+import 'package:test_proj/shared/constants.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -76,7 +77,7 @@ class _HomeState extends State<Home> {
             // userLocFut.then((value) => setState(() {
             //       userLoc = new LatLng(value.latitude, value.longitude);
             //       controller.move(userLoc, 13.0);
-            //       print(userLoc.latitude.toString());
+            //       print(userLoc);
             //     }));
 
             Navigator.push(

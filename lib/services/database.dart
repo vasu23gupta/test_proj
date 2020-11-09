@@ -39,10 +39,12 @@ class VendorDatabaseService {
   final CollectionReference vendorCollection =
       FirebaseFirestore.instance.collection('vendors');
 
-  Future updateVendorData(String name) async {
-    return await vendorCollection.doc(id).set({
+  Future updateVendorData(String name, LatLng coordinates) async {
+    await vendorCollection.doc(id).set({
       'name': name,
-      //'coordinates': coord,
+      'coordinates': coordinates.toString(),
     });
+
+    return vendorCollection.doc(id);
   }
 }

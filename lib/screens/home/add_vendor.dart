@@ -17,24 +17,46 @@ class _AddVendorState extends State<AddVendor> {
   LatLng userLoc = new LatLng(28.612757, 77.230445);
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
+  List<Marker> markers = [];
+  LatLng vendorLatLng;
+  String error = '';
 
   String createId(String uid) {
     DateTime now = DateTime.now();
-
     return uid +
         now.year.toString() +
         now.month.toString() +
         now.day.toString() +
         now.hour.toString() +
         now.minute.toString() +
-        now.second.toString();
+        now.second.toString() +
+        now.millisecond.toString();
   }
 
   String name = '';
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<CustomUser>(context);
-    String error = '';
+
+    void _handleTap(LatLng point) {
+      print(point);
+      setState(() {
+        markers = [];
+        vendorLatLng = point;
+        markers.add(Marker(
+            width: 45.0,
+            height: 45.0,
+            point: point,
+            builder: (context) => new Container(
+                  child: IconButton(
+                    icon: Icon(Icons.location_on),
+                    iconSize: 80.0,
+                    onPressed: () {},
+                  ),
+                )));
+      });
+    }
+
     return loading
         ? Loading()
         : Scaffold(
@@ -64,7 +86,24 @@ class _AddVendorState extends State<AddVendor> {
                       SizedBox(
                         height: 300.0,
                         width: 350.0,
-                        child: defaultMap(controller, userLoc),
+                        child: new FlutterMap(
+                          mapController: controller,
+                          options: new MapOptions(
+                            zoom: 13.0, center: userLoc,
+                            onTap: _handleTap,
+                            //center: new LatLng(userLoc.latitude, userLoc.longitude),
+                          ),
+                          layers: [
+                            new TileLayerOptions(
+                              urlTemplate:
+                                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                              subdomains: ['a', 'b', 'c'],
+                            ),
+                            new MarkerLayerOptions(
+                              markers: markers,
+                            ),
+                          ],
+                        ),
                       ),
                       SizedBox(
                         height: 20.0,
@@ -76,20 +115,21 @@ class _AddVendorState extends State<AddVendor> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () async {
-                          if (_formKey.currentState.validate()) {
+                          if (_formKey.currentState.validate() &&
+                              vendorLatLng != null) {
                             setState(() => loading = true);
                             String id = createId(user.uid);
                             dynamic result;
                             try {
                               result = await VendorDatabaseService(id: id)
-                                  .updateVendorData(name);
+                                  .updateVendorData(name, vendorLatLng);
                             } catch (e) {
                               print(e.toString());
                             }
+                            setState(() => loading = false);
                             if (result == null) {
                               setState(() {
                                 error = 'could not add vendor';
-                                loading = false;
                               });
                             }
                           }
