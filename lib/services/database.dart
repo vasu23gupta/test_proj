@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
@@ -39,12 +41,19 @@ class VendorDatabaseService {
   final CollectionReference vendorCollection =
       FirebaseFirestore.instance.collection('vendors');
 
-  Future updateVendorData(String name, LatLng coordinates) async {
+  Future updateVendorData(
+      String name, LatLng coordinates, HashSet<String> tags) async {
     await vendorCollection.doc(id).set({
       'name': name,
       'coordinates': coordinates.toString(),
+      'tags': tags.toString(),
     });
 
     return vendorCollection.doc(id);
   }
+
+  //get vendor stream
+  // Stream<QuerySnapshot> get vendors {
+  //   return vendorCollection.snapshots();
+  // }
 }

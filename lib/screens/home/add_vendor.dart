@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/customUser.dart';
@@ -20,6 +22,9 @@ class _AddVendorState extends State<AddVendor> {
   List<Marker> markers = [];
   LatLng vendorLatLng;
   String error = '';
+  String currentTag;
+  HashSet<String> tags = new HashSet<String>();
+  TextEditingController addTagController = TextEditingController();
 
   String createId(String uid) {
     DateTime now = DateTime.now();
@@ -66,85 +71,128 @@ class _AddVendorState extends State<AddVendor> {
               backgroundColor: Colors.brown[400],
               elevation: 0.0,
             ),
-            body: Container(
-                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: <Widget>[
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      TextFormField(
-                          decoration: textInputDecoration.copyWith(
-                              hintText: 'Vendor Name'),
-                          validator: (val) =>
-                              val.isEmpty ? 'Enter a name' : null,
-                          onChanged: (val) {
-                            setState(() => name = val);
-                          }),
-                      SizedBox(
-                        height: 300.0,
-                        width: 350.0,
-                        child: new FlutterMap(
-                          mapController: controller,
-                          options: new MapOptions(
-                            zoom: 13.0, center: userLoc,
-                            onTap: _handleTap,
-                            //center: new LatLng(userLoc.latitude, userLoc.longitude),
+            body: SingleChildScrollView(
+              child: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: <Widget>[
+                        //name:
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        TextFormField(
+                            decoration: textInputDecoration.copyWith(
+                                hintText: 'Vendor Name'),
+                            validator: (val) =>
+                                val.isEmpty ? 'Enter a name' : null,
+                            onChanged: (val) {
+                              setState(() => name = val);
+                            }),
+                        //map:
+                        SizedBox(
+                          height: 300.0,
+                          width: 350.0,
+                          child: new FlutterMap(
+                            mapController: controller,
+                            options: new MapOptions(
+                              zoom: 13.0, center: userLoc,
+                              onTap: _handleTap,
+                              //center: new LatLng(userLoc.latitude, userLoc.longitude),
+                            ),
+                            layers: [
+                              new TileLayerOptions(
+                                urlTemplate:
+                                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                                subdomains: ['a', 'b', 'c'],
+                              ),
+                              new MarkerLayerOptions(
+                                markers: markers,
+                              ),
+                            ],
                           ),
-                          layers: [
-                            new TileLayerOptions(
-                              urlTemplate:
-                                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                              subdomains: ['a', 'b', 'c'],
-                            ),
-                            new MarkerLayerOptions(
-                              markers: markers,
-                            ),
-                          ],
                         ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text(
-                          'ADD',
-                          style: TextStyle(color: Colors.white),
+                        //tags:
+                        SizedBox(
+                          height: 20.0,
                         ),
-                        onPressed: () async {
-                          if (_formKey.currentState.validate() &&
-                              vendorLatLng != null) {
-                            setState(() => loading = true);
-                            String id = createId(user.uid);
-                            dynamic result;
-                            try {
-                              result = await VendorDatabaseService(id: id)
-                                  .updateVendorData(name, vendorLatLng);
-                            } catch (e) {
-                              print(e.toString());
-                            }
-                            setState(() => loading = false);
-                            if (result == null) {
+                        TextFormField(
+                            controller: addTagController,
+                            decoration: textInputDecoration.copyWith(
+                                hintText: 'Enter tags'),
+                            validator: (val) => val.isEmpty && tags.isEmpty
+                                ? 'Enter atleast 1 tag'
+                                : null,
+                            onChanged: (val) {
+                              setState(() => currentTag = val);
+                            }),
+                        //add tag button:
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        RaisedButton(
+                          color: Colors.pink[400],
+                          child: Text(
+                            'Add tag',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () {
+                            addTagController.clear();
+                            if (currentTag.isNotEmpty) {
+                              tags.add(currentTag);
                               setState(() {
-                                error = 'could not add vendor';
+                                currentTag = '';
                               });
                             }
-                          }
-                        },
-                      ),
-                      SizedBox(
-                        height: 12.0,
-                      ),
-                      Text(
-                        error,
-                        style: TextStyle(color: Colors.red, fontSize: 14.0),
-                      )
-                    ],
-                  ),
-                )),
+                            print(tags);
+                          },
+                        ),
+                        //submit button:
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        RaisedButton(
+                          color: Colors.pink[400],
+                          child: Text(
+                            'ADD',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: () async {
+                            if (_formKey.currentState.validate() &&
+                                vendorLatLng != null &&
+                                tags.isNotEmpty) {
+                              setState(() => loading = true);
+                              String id = createId(user.uid);
+                              dynamic result;
+                              try {
+                                result = await VendorDatabaseService(id: id)
+                                    .updateVendorData(name, vendorLatLng, tags);
+                              } catch (e) {
+                                print(e.toString());
+                              }
+                              setState(() => loading = false);
+                              if (result == null) {
+                                setState(() {
+                                  error = 'could not add vendor';
+                                });
+                              }
+                            }
+                          },
+                        ),
+                        //error text:
+                        SizedBox(
+                          height: 12.0,
+                        ),
+                        Text(
+                          error,
+                          style: TextStyle(color: Colors.red, fontSize: 14.0),
+                        )
+                      ],
+                    ),
+                  )),
+            ),
           );
   }
 }
