@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/authenticate/authenticate.dart';
 import 'package:test_proj/screens/home/home.dart';
+import 'package:test_proj/services/database.dart';
 
 class Wrapper extends StatelessWidget {
   @override
@@ -13,7 +15,10 @@ class Wrapper extends StatelessWidget {
     if (user == null) {
       return Authenticate();
     } else {
-      return Home();
+      return StreamProvider<List<Vendor>>.value(
+        value: VendorDatabaseService().vendors,
+        child: Home(),
+      );
     }
   }
 }

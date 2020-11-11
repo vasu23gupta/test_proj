@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
+import 'package:test_proj/models/vendor.dart';
 
 class UserDatabaseService {
   final String uid;
@@ -45,15 +46,29 @@ class VendorDatabaseService {
       String name, LatLng coordinates, HashSet<String> tags) async {
     await vendorCollection.doc(id).set({
       'name': name,
-      'coordinates': coordinates.toString(),
+      'coordinates': GeoPoint(coordinates.latitude, coordinates.longitude),
       'tags': tags.toString(),
     });
 
     return vendorCollection.doc(id);
   }
 
-  //get vendor stream
-  // Stream<QuerySnapshot> get vendors {
-  //   return vendorCollection.snapshots();
-  // }
+  //vendor list from snapshot
+  List<Vendor> _vendorListFromSnapshot(QuerySnapshot snapshot) {
+    List list;
+    return snapshot.docs.map((doc) {
+      return Vendor(
+        name: doc.data()['name'] ?? '',
+        id: doc.id,
+        coordinates: LatLng(doc.data()['coordinates'].latitude,
+            doc.data()['coordinates'].longitude),
+        tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
+      );
+    }).toList();
+  }
+
+  //get vendors stream
+  Stream<List<Vendor>> get vendors {
+    return vendorCollection.snapshots().map(_vendorListFromSnapshot);
+  }
 }

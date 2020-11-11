@@ -146,7 +146,6 @@ class _AddVendorState extends State<AddVendor> {
                                 currentTag = '';
                               });
                             }
-                            print(tags);
                           },
                         ),
                         //submit button:

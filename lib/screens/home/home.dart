@@ -9,6 +9,7 @@ import 'package:latlong/latlong.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
+import 'package:test_proj/models/vendor.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -24,6 +25,13 @@ class _HomeState extends State<Home> {
   LatLng userLoc = new LatLng(28.612757, 77.230445);
   @override
   Widget build(BuildContext context) {
+    List vendors = Provider.of<List<Vendor>>(context);
+    vendors.forEach((element) {
+      print(element.id);
+      print(element.name);
+      print(element.coordinates.toString());
+      print(element.tags.toString());
+    });
     LocationService locSer = new LocationService();
     Future<LatLng> userLocFut = locSer.getLocation();
     return StreamProvider<List<AppUser>>.value(
@@ -81,9 +89,11 @@ class _HomeState extends State<Home> {
             //     }));
 
             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AddVendor()),
-            );
+                context, MaterialPageRoute(builder: (context) => AddVendor())
+                // MaterialPageRoute(builder: (context) => StreamProvider<List<Vendor>>.value(
+                //   value: VendorDatabaseService().vendors,
+                //   child:AddVendor())),
+                );
           },
         ),
       ),
