@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
@@ -45,21 +46,26 @@ class _AddVendorState extends State<AddVendor> {
 
     void _handleTap(LatLng point) {
       print(point);
-      setState(() {
-        markers = [];
-        vendorLatLng = point;
-        markers.add(Marker(
-            width: 45.0,
-            height: 45.0,
-            point: point,
-            builder: (context) => new Container(
-                  child: IconButton(
-                    icon: Icon(Icons.location_on),
-                    iconSize: 80.0,
-                    onPressed: () {},
-                  ),
-                )));
-      });
+      setState(
+        () {
+          markers = [];
+          vendorLatLng = point;
+          markers.add(
+            Marker(
+              width: 45.0,
+              height: 45.0,
+              point: point,
+              builder: (context) => new Container(
+                child: IconButton(
+                  icon: Icon(Icons.location_on),
+                  iconSize: 80.0,
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          );
+        },
+      );
     }
 
     return loading
@@ -176,6 +182,14 @@ class _AddVendorState extends State<AddVendor> {
                                 setState(() {
                                   error = 'could not add vendor';
                                 });
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        VendorDetails(vendorID: id),
+                                  ),
+                                );
                               }
                             }
                           },

@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/home/add_vendor.dart';
+import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
@@ -24,13 +26,13 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
   MapController controller = new MapController();
   LatLng userLoc = new LatLng(28.612757, 77.230445);
-  Icon appBarIcon = Icon(Icons.search);
-  dynamic appBarTitle = Text('Map');
-  String stringToSearch;
+  // Icon appBarIcon = Icon(Icons.search);
+  // dynamic appBarTitle = Text('Map');
+  // String stringToSearch;
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<CustomUser>(context);
-    List vendors = Provider.of<List<Vendor>>(context);
+    List<Vendor> vendors = Provider.of<List<Vendor>>(context);
     // vendors.forEach((element) {
     //   print(element.id);
     //   print(element.name);
@@ -61,43 +63,9 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      appBar: AppBar(
-        title: appBarTitle,
-        backgroundColor: Colors.brown[400],
-        elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-            icon: appBarIcon,
-            onPressed: () {
-              setState(
-                () {
-                  if (this.appBarIcon.icon == Icons.search) {
-                    this.appBarIcon = new Icon(Icons.close);
-                    this.appBarTitle = new TextField(
-                      // onChanged: (value) {
-                      //   setState(() {
-                      //     stringToSearch = value;
-                      //   });
-                      // },
-                      style: new TextStyle(
-                        color: Colors.white,
-                      ),
-                      decoration: new InputDecoration(
-                          prefixIcon:
-                              new Icon(Icons.search, color: Colors.white),
-                          hintText: "Search...",
-                          hintStyle: new TextStyle(color: Colors.white)),
-                    );
-                  } else {
-                    this.appBarIcon = new Icon(Icons.search);
-                    this.appBarTitle = new Text("AppBar Title");
-                  }
-                },
-              );
-            },
-          ),
-        ],
-      ),
+      // appBar: HomeAppBar(
+      //   vendors: vendors,
+      // ),
       body: new FlutterMap(
         mapController: controller,
         options: new MapOptions(

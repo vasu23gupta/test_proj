@@ -55,7 +55,7 @@ class VendorDatabaseService {
 
   //vendor list from snapshot
   List<Vendor> _vendorListFromSnapshot(QuerySnapshot snapshot) {
-    List list;
+    //List list;
     return snapshot.docs.map((doc) {
       return Vendor(
         name: doc.data()['name'] ?? '',
@@ -70,5 +70,17 @@ class VendorDatabaseService {
   //get vendors stream
   Stream<List<Vendor>> get vendors {
     return vendorCollection.snapshots().map(_vendorListFromSnapshot);
+  }
+
+  Future<Vendor> get vendor async {
+    DocumentReference documentReference = vendorCollection.doc(id);
+    DocumentSnapshot doc = await documentReference.get();
+    return Vendor(
+      name: doc.data()['name'] ?? '',
+      id: doc.id,
+      coordinates: LatLng(doc.data()['coordinates'].latitude,
+          doc.data()['coordinates'].longitude),
+      tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
+    );
   }
 }

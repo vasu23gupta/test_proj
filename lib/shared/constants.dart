@@ -19,6 +19,50 @@ const textInputDecoration = InputDecoration(
   ),
 );
 
+Icon appBarIcon = Icon(Icons.search);
+dynamic appBarTitle = Text('Map');
+String stringToSearch;
+
+AppBar homeAppBar(
+    Icon appBarIcon, dynamic appBarTitle, String stringToSearch, State state) {
+  return AppBar(
+    title: appBarTitle,
+    backgroundColor: Colors.brown[400],
+    elevation: 0.0,
+    actions: <Widget>[
+      IconButton(
+        icon: appBarIcon,
+        onPressed: () {
+          state.setState(
+            () {
+              if (appBarIcon.icon == Icons.search) {
+                appBarIcon = Icon(Icons.close);
+                appBarTitle = TextField(
+                  onChanged: (value) {
+                    state.setState(() {
+                      stringToSearch = value;
+                    });
+                  },
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                      hintText: "Search...",
+                      hintStyle: TextStyle(color: Colors.white)),
+                );
+              } else {
+                appBarIcon = Icon(Icons.search);
+                appBarTitle = Text("AppBar Title");
+              }
+            },
+          );
+        },
+      ),
+    ],
+  );
+}
+
 FlutterMap defaultMap(MapController controller, LatLng userLoc) {
   return new FlutterMap(
     mapController: controller,

@@ -8,4 +8,9 @@ class Vendor {
   HashSet<String> tags;
 
   Vendor({this.id, this.coordinates, this.name, this.tags});
+
+  bool contains(String string) {
+    if (tags.contains(string) || name.contains(string)) return true;
+    return false;
+  }
 }
