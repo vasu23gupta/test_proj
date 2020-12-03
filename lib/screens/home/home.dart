@@ -63,9 +63,9 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      // appBar: HomeAppBar(
-      //   vendors: vendors,
-      // ),
+      appBar: HomeSearchBar(
+        vendors: vendors,
+      ),
       body: new FlutterMap(
         mapController: controller,
         options: new MapOptions(
