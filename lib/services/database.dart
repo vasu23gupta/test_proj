@@ -1,5 +1,6 @@
 import 'dart:collection';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
@@ -83,4 +84,38 @@ class VendorDatabaseService {
       tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
     );
   }
+}
+
+class VendorDBService {
+  String baseUrl = "http://10.0.2.2:3000/vendors/";
+
+  Future<http.Response> addVendor(
+      String name, LatLng coordinates, HashSet<String> tags) async {
+    var body = jsonEncode({
+      'name': name,
+      'lat': coordinates.latitude.toString(),
+      'lng': coordinates.longitude.toString(),
+      'tags': tags.toString(),
+    });
+    final response = await http.post(
+      baseUrl,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    return response;
+  }
+
+  Future<Vendor> getVendor(String id) async {
+    final response = await http.get(baseUrl + id);
+    //print('response: ' + response.statusCode.toString());
+    return Vendor.fromJson(jsonDecode(response.body));
+  }
+
+  // fetchVendorList() async {
+  //   final response = await http.get(baseUrl, headers: {
+  //     'Content-Type': 'application/json',
+  //   });
+
+  //   print(response.body);
+  //
 }

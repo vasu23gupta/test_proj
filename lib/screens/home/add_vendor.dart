@@ -1,7 +1,9 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/shared/constants.dart';
@@ -27,25 +29,24 @@ class _AddVendorState extends State<AddVendor> {
   HashSet<String> tags = new HashSet<String>();
   TextEditingController addTagController = TextEditingController();
 
-  String createId(String uid) {
-    DateTime now = DateTime.now();
-    return uid +
-        now.year.toString() +
-        now.month.toString() +
-        now.day.toString() +
-        now.hour.toString() +
-        now.minute.toString() +
-        now.second.toString() +
-        now.millisecond.toString();
-  }
+  // String createId(String uid) {
+  //   DateTime now = DateTime.now();
+  //   return uid +
+  //       now.year.toString() +
+  //       now.month.toString() +
+  //       now.day.toString() +
+  //       now.hour.toString() +
+  //       now.minute.toString() +
+  //       now.second.toString() +
+  //       now.millisecond.toString();
+  // }
 
   String name = '';
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    //final user = Provider.of<CustomUser>(context);
 
     void _handleTap(LatLng point) {
-      print(point);
       setState(
         () {
           markers = [];
@@ -74,7 +75,6 @@ class _AddVendorState extends State<AddVendor> {
             backgroundColor: Colors.brown[50],
             appBar: AppBar(
               title: Text('Add Vendor'),
-              backgroundColor: Colors.brown[400],
               elevation: 0.0,
             ),
             body: SingleChildScrollView(
@@ -169,20 +169,33 @@ class _AddVendorState extends State<AddVendor> {
                                 vendorLatLng != null &&
                                 tags.isNotEmpty) {
                               setState(() => loading = true);
-                              String id = createId(user.uid);
-                              dynamic result;
-                              try {
-                                result = await VendorDatabaseService(id: id)
-                                    .updateVendorData(name, vendorLatLng, tags);
-                              } catch (e) {
-                                print(e.toString());
-                              }
+                              //String id = createId(user.uid);
+                              Response result;
+                              result = await VendorDBService()
+                                  .addVendor(name, vendorLatLng, tags);
+                              // try {
+                              //   // result = await VendorDatabaseService(id: id)
+                              //   //     .updateVendorData(name, vendorLatLng, tags);
+                              //   result = await VendorDBService()
+                              //       .addVendor(name, vendorLatLng, tags);
+                              //   print("result: " + result.toString());
+                              // } catch (e) {
+                              //   print(e.toString());
+                              // }
                               setState(() => loading = false);
-                              if (result == null) {
+                              // if (result == null) {
+                              //   setState(() {
+                              //     error = 'could not add vendor';
+                              //   });
+                              if (result.statusCode != 200) {
                                 setState(() {
+                                  print(result.statusCode);
                                   error = 'could not add vendor';
                                 });
                               } else {
+                                String id = jsonDecode(result.body)['_id'];
+                                //print(jsonDecode(result.body));
+                                //print(id);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

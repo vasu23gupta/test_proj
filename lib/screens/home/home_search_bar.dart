@@ -21,7 +21,6 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
   Widget build(BuildContext context) {
     return AppBar(
       title: appBarTitle,
-      backgroundColor: Colors.brown[400],
       elevation: 0.0,
       actions: <Widget>[
         IconButton(

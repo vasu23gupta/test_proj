@@ -26,13 +26,13 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
   MapController controller = new MapController();
   LatLng userLoc = new LatLng(28.612757, 77.230445);
+  VendorDBService _dbService = VendorDBService();
   // Icon appBarIcon = Icon(Icons.search);
   // dynamic appBarTitle = Text('Map');
   // String stringToSearch;
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<CustomUser>(context);
-    List<Vendor> vendors = Provider.of<List<Vendor>>(context);
     // vendors.forEach((element) {
     //   print(element.id);
     //   print(element.name);
@@ -64,8 +64,8 @@ class _HomeState extends State<Home> {
         ),
       ),
       appBar: HomeSearchBar(
-        vendors: vendors,
-      ),
+          //vendors: vendors,
+          ),
       body: new FlutterMap(
         mapController: controller,
         options: new MapOptions(
@@ -93,21 +93,35 @@ class _HomeState extends State<Home> {
           // ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.location_searching),
-        onPressed: () {
-          // userLocFut.then((value) => setState(() {
-          //       userLoc = new LatLng(value.latitude, value.longitude);
-          //       controller.move(userLoc, 13.0);
-          //     }));
-
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => AddVendor())
-              // MaterialPageRoute(builder: (context) => StreamProvider<List<Vendor>>.value(
-              //   value: VendorDatabaseService().vendors,
-              //   child:AddVendor())),
-              );
-        },
+      //floatingActionButtonLocation: FloatingActionButtonLocation.,
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              heroTag: null,
+              child: Icon(Icons.location_searching),
+              onPressed: () {
+                userLocFut.then((value) => setState(() {
+                      userLoc = new LatLng(value.latitude, value.longitude);
+                      controller.move(userLoc, 13.0);
+                    }));
+              },
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              heroTag: null,
+              child: Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AddVendor()));
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

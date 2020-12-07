@@ -15,10 +15,7 @@ class Wrapper extends StatelessWidget {
     if (user == null) {
       return Authenticate();
     } else {
-      return StreamProvider<List<Vendor>>.value(
-        value: VendorDatabaseService().vendors,
-        child: Home(),
-      );
+      return Home();
     }
   }
 }
