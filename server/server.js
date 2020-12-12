@@ -4,7 +4,10 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const app = express();
 const port = 3000;
-//const bodyParser = require("body-parser")
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -22,7 +25,7 @@ async function connectDB(){
 connectDB();
 
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.send('Welcome to test_proj');
 })
 
 app.listen(port);

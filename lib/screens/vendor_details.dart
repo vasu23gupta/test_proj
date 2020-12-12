@@ -29,6 +29,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       loading = false;
       this.vendor = vd;
+      print(vendor.coordinates);
     });
   }
 
