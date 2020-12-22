@@ -22,7 +22,7 @@ class Vendor {
   }
 
   bool contains(String string) {
-    if (tags.contains(string) || name.contains(string)) return true;
+    if (tags.contains(string) || name.startsWith(string)) return true;
     return false;
   }
 }

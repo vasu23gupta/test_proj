@@ -34,6 +34,17 @@ router.get('/search/:query', async(req,res)=>{
 
     const searchString = req.params.query;
     //res.json({message:searchString});
+    /* try {
+        const vendors=await Vendor.find({$text:{$search: searchString}})
+        for (var i=0;i<vendors.length;i++)
+        {
+            vendors[i]=json(vendors[i]);
+        }
+        res.json(vendors)
+    }catch(err)
+    {
+        res.json({message: err})
+    } */
     Vendor.find({$text:{$search: searchString}}).exec(function(err,docs){
         if(err) {
             res.json({message: err});
@@ -42,7 +53,6 @@ router.get('/search/:query', async(req,res)=>{
             res.json(docs);
         }
     });
-
 })
 
 //add a vendor
