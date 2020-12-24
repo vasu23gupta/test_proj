@@ -13,13 +13,15 @@ import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 
 class AddVendor extends StatefulWidget {
+  LatLng userLoc;
+  AddVendor({this.userLoc});
   @override
   _AddVendorState createState() => _AddVendorState();
 }
 
 class _AddVendorState extends State<AddVendor> {
   MapController controller = new MapController();
-  LatLng userLoc = new LatLng(28.612757, 77.230445);
+
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   List<Marker> markers = [];
@@ -44,6 +46,7 @@ class _AddVendorState extends State<AddVendor> {
   String name = '';
   @override
   Widget build(BuildContext context) {
+    LatLng userLoc = widget.userLoc;
     //final user = Provider.of<CustomUser>(context);
 
     void _handleTap(LatLng point) {
@@ -104,7 +107,7 @@ class _AddVendorState extends State<AddVendor> {
                           child: new FlutterMap(
                             mapController: controller,
                             options: new MapOptions(
-                              zoom: 13.0, center: userLoc,
+                              zoom: 18.45, center: userLoc,
                               onTap: _handleTap,
                               //center: new LatLng(userLoc.latitude, userLoc.longitude),
                             ),

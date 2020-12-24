@@ -32,6 +32,9 @@ class _HomeState extends State<Home> {
   // String stringToSearch;
   @override
   Widget build(BuildContext context) {
+    //LatLng middlePoint = controller.center;
+    //controller.
+
     final user = Provider.of<CustomUser>(context);
     // vendors.forEach((element) {
     //   print(element.id);
@@ -69,7 +72,7 @@ class _HomeState extends State<Home> {
       body: new FlutterMap(
         mapController: controller,
         options: new MapOptions(
-          zoom: 13.0,
+          zoom: 18.45,
           center: userLoc,
           //center: new LatLng(userLoc.latitude, userLoc.longitude),
         ),
@@ -77,6 +80,9 @@ class _HomeState extends State<Home> {
           new TileLayerOptions(
             urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
             subdomains: ['a', 'b', 'c'],
+          ),
+          new MarkerLayerOptions(
+            markers: [],
           ),
           // new MarkerLayerOptions(
           //   markers: [
@@ -103,10 +109,17 @@ class _HomeState extends State<Home> {
               heroTag: null,
               child: Icon(Icons.location_searching),
               onPressed: () {
-                userLocFut.then((value) => setState(() {
+                userLocFut.then(
+                  (value) => setState(
+                    () {
                       userLoc = new LatLng(value.latitude, value.longitude);
-                      controller.move(userLoc, 13.0);
-                    }));
+                      controller.move(
+                        userLoc,
+                        18.45,
+                      );
+                    },
+                  ),
+                );
               },
             ),
           ),
@@ -116,8 +129,14 @@ class _HomeState extends State<Home> {
               heroTag: null,
               child: Icon(Icons.add),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddVendor()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddVendor(
+                      userLoc: controller.center,
+                    ),
+                  ),
+                );
               },
             ),
           ),
