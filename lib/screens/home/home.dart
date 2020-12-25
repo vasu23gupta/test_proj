@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -23,18 +25,59 @@ class Home extends StatefulWidget {
 //Future<LocationData> ld= location.getLocation();
 
 class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => updateMarkers().whenComplete(() => setState(() {})));
+    //updateMarkers().whenComplete(() => setState(() {}));
+  }
+
+  void delayUpdate() async {
+    loadingMarkers = true;
+    await Future.delayed(Duration(milliseconds: 1000), () {});
+    loadingMarkers = false;
+  }
+
+  Future<void> updateMarkers() async {
+    //vendorMarkers.clear();
+    vendors.clear();
+    delayUpdate();
+    vendors = await _dbService.vendorsInScreen(controller.bounds);
+    for (Vendor vendor in vendors) {
+      vendorMarkers.add(
+        new Marker(
+          width: 45.0,
+          height: 45.0,
+          point: vendor.coordinates,
+          builder: (context) => new Container(
+            child: IconButton(
+              icon: Icon(Icons.location_pin),
+              iconSize: 80.0,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+    }
+    print(vendorMarkers);
+  }
+
+  bool loadingMarkers = false;
   final AuthService _auth = AuthService();
   MapController controller = new MapController();
   LatLng userLoc = new LatLng(28.612757, 77.230445);
   VendorDBService _dbService = VendorDBService();
+  List<Vendor> vendors = [];
+  List<Marker> vendorMarkers = [];
   // Icon appBarIcon = Icon(Icons.search);
   // dynamic appBarTitle = Text('Map');
   // String stringToSearch;
   @override
   Widget build(BuildContext context) {
+    //updateMarkers().whenComplete(() => setState(() {}));
     //LatLng middlePoint = controller.center;
     //controller.
-
     final user = Provider.of<CustomUser>(context);
     // vendors.forEach((element) {
     //   print(element.id);
@@ -72,6 +115,12 @@ class _HomeState extends State<Home> {
       body: new FlutterMap(
         mapController: controller,
         options: new MapOptions(
+          onPositionChanged: (position, hasGesture) async {
+            if (!loadingMarkers) {
+              updateMarkers().whenComplete(() => setState);
+            }
+            //print(controller.bounds.northEast.longitude);
+          },
           zoom: 18.45,
           center: userLoc,
           //center: new LatLng(userLoc.latitude, userLoc.longitude),
@@ -82,7 +131,7 @@ class _HomeState extends State<Home> {
             subdomains: ['a', 'b', 'c'],
           ),
           new MarkerLayerOptions(
-            markers: [],
+            markers: vendorMarkers,
           ),
           // new MarkerLayerOptions(
           //   markers: [
@@ -99,7 +148,6 @@ class _HomeState extends State<Home> {
           // ),
         ],
       ),
-      //floatingActionButtonLocation: FloatingActionButtonLocation.,
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

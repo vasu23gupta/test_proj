@@ -13,7 +13,7 @@ import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 
 class AddVendor extends StatefulWidget {
-  LatLng userLoc;
+  final LatLng userLoc;
   AddVendor({this.userLoc});
   @override
   _AddVendorState createState() => _AddVendorState();
