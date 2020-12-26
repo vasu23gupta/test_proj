@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
@@ -196,14 +197,17 @@ class _AddVendorState extends State<AddVendor> {
                                   error = 'could not add vendor';
                                 });
                               } else {
-                                String id = jsonDecode(result.body)['_id'];
+                                //String id = jsonDecode(result.body)['_id'];
                                 //print(jsonDecode(result.body));
                                 //print(id);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        VendorDetails(vendorID: id),
+                                    builder: (context) => VendorDetails(
+                                      vendor: Vendor.fromJson(
+                                        jsonDecode(result.body),
+                                      ),
+                                    ),
                                   ),
                                 );
                               }

@@ -5,8 +5,9 @@ import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 
 class VendorDetails extends StatefulWidget {
-  final String vendorID;
-  VendorDetails({this.vendorID});
+  final Vendor vendor;
+  //final String vendorID;
+  VendorDetails({this.vendor});
   @override
   _VendorDetailsState createState() => _VendorDetailsState();
 }
@@ -23,32 +24,31 @@ class _VendorDetailsState extends State<VendorDetails> {
   // final String vid;
   // _VendorDetailsState({this.vid});
 
-  Future<void> loadVendor() async {
-    //print(widget.vendorID);
-    Vendor vd = await VendorDBService().getVendor(widget.vendorID);
-    setState(() {
-      loading = false;
-      this.vendor = vd;
-      print(vendor.coordinates);
-    });
-  }
+  //Future<void> loadVendor() async {
+  //   //print(widget.vendorID);
+  //   Vendor vd = await VendorDBService().getVendor(widget.vendorID);
+  //   setState(() {
+  //     loading = false;
+  //     this.vendor = vd;
+  //     //print(vendor.coordinates);
+  //   });
+  // }
 
-  @override
-  void initState() {
-    super.initState();
-    loadVendor();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   loadVendor();
+  // }
 
-  bool loading = true;
-  Vendor vendor;
+  //bool loading = false;
+
   @override
   Widget build(BuildContext context) {
-    return loading
-        ? Loading()
-        : Scaffold(
-            appBar: AppBar(
-              title: Text(vendor.name),
-            ),
-          );
+    Vendor vendor = widget.vendor;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(vendor.name),
+      ),
+    );
   }
 }

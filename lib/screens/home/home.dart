@@ -10,6 +10,7 @@ import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
+import 'package:test_proj/screens/vendor_details.dart';
 import 'package:latlong/latlong.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/services/location_service.dart';
@@ -20,9 +21,6 @@ class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
-
-//Location location = new Location();
-//Future<LocationData> ld= location.getLocation();
 
 class _HomeState extends State<Home> {
   @override
@@ -40,27 +38,40 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> updateMarkers() async {
-    //vendorMarkers.clear();
-    vendors.clear();
     delayUpdate();
-    vendors = await _dbService.vendorsInScreen(controller.bounds);
+    //vendorMarkers.clear();
+    //vendors.clear();
+    for (Vendor vendor in await _dbService.vendorsInScreen(controller.bounds)) {
+      if (!vendors.contains(vendor)) vendors.add(vendor);
+    }
     for (Vendor vendor in vendors) {
-      vendorMarkers.add(
-        new Marker(
-          width: 45.0,
-          height: 45.0,
-          point: vendor.coordinates,
-          builder: (context) => new Container(
-            child: IconButton(
-              icon: Icon(Icons.location_pin),
-              iconSize: 80.0,
-              onPressed: () {},
-            ),
-          ),
+      Marker marker = new Marker(
+        //anchorPos: AnchorPos.align(AnchorAlign.center),
+        width: 45.0,
+        height: 45.0,
+        point: vendor.coordinates,
+        builder: (context) => IconButton(
+          //alignment: Alignment.bottomRight,
+          icon: Icon(Icons.circle),
+          iconSize: 40.0,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VendorDetails(
+                  vendor: vendor,
+                ),
+              ),
+            );
+          },
         ),
       );
+      if (!vendorMarkers.contains(marker)) {
+        vendorMarkers.add(marker);
+      }
     }
-    print(vendorMarkers);
+    //print(vendors.length);
+    //print(vendorMarkers.length);
   }
 
   bool loadingMarkers = false;
