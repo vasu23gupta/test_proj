@@ -4,7 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/home/add_vendor.dart';
-import 'package:test_proj/screens/home/home_search_bar.dart';
+//import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
@@ -13,6 +13,7 @@ import 'package:location/location.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/models/vendor.dart';
+import 'package:test_proj/screens/Search/Search.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -63,9 +64,19 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      appBar: HomeSearchBar(
-          //vendors: vendors,
-          ),
+      appBar: AppBar(
+        title: Text('Map'),
+        elevation: 0.0,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Search()));
+            },
+          )
+        ],
+      ),
       body: new FlutterMap(
         mapController: controller,
         options: new MapOptions(

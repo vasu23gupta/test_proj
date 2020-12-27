@@ -15,8 +15,8 @@ class Vendor {
       name: json['name'],
       // coordinates:
       //     new LatLng(double.parse(json['lat']), double.parse(json['lng'])),
-      coordinates: new LatLng(json['location']['coordinates'][1],
-          json['location']['coordinates'][0]),
+      coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
+          json['location']['coordinates'][0].toDouble()),
       tags: HashSet.from(json['tags'].split("(.*?)")),
     );
   }

@@ -25,14 +25,38 @@ router.get('/:vendorId', async (req, res) => {
 //search
 router.get('/search/:query', async(req,res)=>{
 
-    // try{
-    //     const vendors = await Vendor.find({"name": {'$regex': req.params.query, '$options': '$i'}});
-    //     res.json(vendors);
-    // }catch(err) {
-    //     res.json({message: err});
-    // }
+    let searchText = req.params.query;
+    searchText=searchText.trim();
+    //let searchRegex= searchText;
+    var searchTexts=searchText.split(" ");
+    var searchTextList=[];
+    for(i=0;i<searchTexts.length;i++)
+    {
+        searchTextList.push({
+            name:{
+              $regex: searchTexts[i]
+            }
+          })
+    }
+    var fullTextSearchOptions = {
+        "$text":{
+          "$search": searchText
+        }
+      };
+      
+      var regexSearchOptions = {
+          $or: searchTextList
+      };
+      Vendor.find(regexSearchOptions, function(err, docs){
 
-    const searchString = req.params.query;
+        if(err){
+          res.json({message: err});
+        }else if(docs){
+          res.json(docs);
+        }
+      
+      });
+    
     //res.json({message:searchString});
     /* try {
         const vendors=await Vendor.find({$text:{$search: searchString}})
@@ -45,14 +69,16 @@ router.get('/search/:query', async(req,res)=>{
     {
         res.json({message: err})
     } */
-    Vendor.find({$text:{$search: searchString}}).exec(function(err,docs){
-        if(err) {
-            res.json({message: err});
-        }
-        else{
-            res.json(docs);
-        }
-    });
+
+    // const searchString=req.params.query;
+    // Vendor.find({$text:{$search: searchString}}).exec(function(err,docs){
+    //     if(err) {
+    //         res.json({message: err});
+    //     }
+    //     else{
+    //         res.json(docs);
+    //     }
+    // });
 })
 
 //add a vendor
