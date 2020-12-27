@@ -138,7 +138,7 @@ class _HomeState extends State<Home> {
         ),
         layers: [
           new TileLayerOptions(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            urlTemplate: "<com.mapbox.mapboxsdk.maps.MapView",
             subdomains: ['a', 'b', 'c'],
           ),
           new MarkerLayerOptions(
