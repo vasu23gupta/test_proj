@@ -118,7 +118,16 @@ class VendorDBService {
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJson(json))
         .toList();
-    print(list);
+    //print(list);
+    return list;
+  }
+
+  Future getVendorsSearch(String query) async {
+    final response = await http.get(baseUrl + '/search/' + query);
+    var list = (jsonDecode(response.body))
+        .map((json) => Vendor.fromJson(json))
+        .toList();
+    //print(list);
     return list;
   }
 
