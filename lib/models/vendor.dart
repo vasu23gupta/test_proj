@@ -1,5 +1,7 @@
 import 'dart:collection';
+import 'package:flutter/cupertino.dart';
 import 'package:latlong/latlong.dart';
+import 'package:quiver/core.dart';
 
 class Vendor {
   String id;
@@ -21,8 +23,20 @@ class Vendor {
     );
   }
 
+  bool operator ==(other) {
+    return (other is Vendor &&
+        other.id == id &&
+        other.name == name &&
+        other.coordinates == coordinates &&
+        other.tags == tags);
+  }
+
   bool contains(String string) {
     if (tags.contains(string) || name.startsWith(string)) return true;
     return false;
   }
+
+  @override
+  int get hashCode =>
+      hash4(name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
 }

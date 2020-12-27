@@ -20,7 +20,38 @@ router.get('/:vendorId', async (req, res) => {
     } catch (err) {
         res.json({message: err});
     }
-})
+});
+
+//get all within bounds
+router.get('/:neLat/:neLng/:swLat/:swLng', async(req,res)=>{
+    var neLat = req.params.neLat;
+    var neLng = req.params.neLng;
+    var swLat = req.params.swLat;
+    var swLng = req.params.swLng;
+    Vendor.find().where('location').within({
+        type: 'Polygon',
+        coordinates: [[
+            [neLng,neLat],
+            [neLng,swLat],
+            [swLng,swLat],
+            [swLng,neLat],
+            [neLng,neLat]
+        ]]
+    }).exec(function(err,docs){
+        if(err) {
+            res.json({message: err});
+        }
+        else{
+            res.json(docs);
+        }
+    })
+
+});
+
+//for testing
+router.get('/test', async(req,res)=>{
+    res.json(req.body);
+});
 
 //search
 router.get('/search/:query', async(req,res)=>{

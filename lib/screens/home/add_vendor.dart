@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
@@ -13,13 +14,15 @@ import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 
 class AddVendor extends StatefulWidget {
+  final LatLng userLoc;
+  AddVendor({this.userLoc});
   @override
   _AddVendorState createState() => _AddVendorState();
 }
 
 class _AddVendorState extends State<AddVendor> {
   MapController controller = new MapController();
-  LatLng userLoc = new LatLng(28.612757, 77.230445);
+
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   List<Marker> markers = [];
@@ -44,6 +47,7 @@ class _AddVendorState extends State<AddVendor> {
   String name = '';
   @override
   Widget build(BuildContext context) {
+    LatLng userLoc = widget.userLoc;
     //final user = Provider.of<CustomUser>(context);
 
     void _handleTap(LatLng point) {
@@ -104,7 +108,7 @@ class _AddVendorState extends State<AddVendor> {
                           child: new FlutterMap(
                             mapController: controller,
                             options: new MapOptions(
-                              zoom: 13.0, center: userLoc,
+                              zoom: 18.45, center: userLoc,
                               onTap: _handleTap,
                               //center: new LatLng(userLoc.latitude, userLoc.longitude),
                             ),
@@ -193,14 +197,17 @@ class _AddVendorState extends State<AddVendor> {
                                   error = 'could not add vendor';
                                 });
                               } else {
-                                String id = jsonDecode(result.body)['_id'];
+                                //String id = jsonDecode(result.body)['_id'];
                                 //print(jsonDecode(result.body));
                                 //print(id);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        VendorDetails(vendorID: id),
+                                    builder: (context) => VendorDetails(
+                                      vendor: Vendor.fromJson(
+                                        jsonDecode(result.body),
+                                      ),
+                                    ),
                                   ),
                                 );
                               }

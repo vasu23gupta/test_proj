@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_proj/models/appUser.dart';
@@ -119,6 +120,30 @@ class VendorDBService {
         .toList();
     print(list);
     return list;
+  }
+
+  Future<List<Vendor>> vendorsInScreen(LatLngBounds bounds) async {
+    String neLat = bounds.northEast.latitude.toString();
+    String neLng = bounds.northEast.longitude.toString();
+    String swLat = bounds.southWest.latitude.toString();
+    String swLng = bounds.southWest.longitude.toString();
+    final response = await http.get(
+        baseUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng,
+        headers: {
+          'content-type': 'application/json',
+        });
+
+    // Iterable jsonList = json.decode(response.body);
+    // List<Vendor> vendors =
+    //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
+    //print(baseUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
+    //print(response.statusCode);
+    //print(json.decode(response.body));
+
+    List<Vendor> vendors = (json.decode(response.body) as List)
+        .map((i) => Vendor.fromJson(i))
+        .toList();
+    return vendors;
   }
 
   // fetchVendorList() async {
