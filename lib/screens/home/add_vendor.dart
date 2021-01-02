@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
@@ -12,6 +13,8 @@ import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:dio/dio.dart' as dio;
 
 class AddVendor extends StatefulWidget {
   final LatLng userLoc;
@@ -21,8 +24,9 @@ class AddVendor extends StatefulWidget {
 }
 
 class _AddVendorState extends State<AddVendor> {
+  List<Asset> images = List<Asset>();
   MapController controller = new MapController();
-
+  List<String> imageIds = new List<String>();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   List<Marker> markers = [];
@@ -49,6 +53,41 @@ class _AddVendorState extends State<AddVendor> {
   Widget build(BuildContext context) {
     LatLng userLoc = widget.userLoc;
     //final user = Provider.of<CustomUser>(context);
+
+    String _error = 'No Error Dectected';
+
+    Future<void> loadAssets() async {
+      List<Asset> resultList = List<Asset>();
+      //String error = 'No Error Dectected';
+
+      try {
+        resultList = await MultiImagePicker.pickImages(
+          maxImages: 300,
+          enableCamera: true,
+          selectedAssets: images,
+          cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+          materialOptions: MaterialOptions(
+            //actionBarColor: "#abcdef",
+            actionBarTitle: "Example App",
+            allViewTitle: "All Photos",
+            useDetailsView: false,
+            selectCircleStrokeColor: "#000000",
+          ),
+        );
+      } on Exception catch (e) {
+        _error = e.toString();
+      }
+
+      // If the widget was removed from the tree while the asynchronous platform
+      // message was in flight, we want to discard the reply rather than calling
+      // setState to update our non-existent appearance.
+      if (!mounted) return;
+
+      setState(() {
+        images = resultList;
+        print(images.length);
+      });
+    }
 
     void _handleTap(LatLng point) {
       setState(
@@ -124,6 +163,28 @@ class _AddVendorState extends State<AddVendor> {
                             ],
                           ),
                         ),
+                        //add images
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        RaisedButton(
+                          color: Colors.pink[400],
+                          child: Text(
+                            'Upload Images',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          onPressed: loadAssets,
+                        ),
+                        // ListView.builder(
+                        //   itemCount: images.length,
+                        //   itemBuilder: (context, index) {
+                        //     String path;
+                        //     FlutterAbsolutePath.getAbsolutePath(
+                        //         images[index].identifier).then((value) => path=value);
+                        //     return Image.asset(path);
+                        //   },
+                        //   scrollDirection: Axis.horizontal,
+                        // ),
                         //tags:
                         SizedBox(
                           height: 20.0,
@@ -169,14 +230,37 @@ class _AddVendorState extends State<AddVendor> {
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () async {
+                            //validation
                             if (_formKey.currentState.validate() &&
                                 vendorLatLng != null &&
-                                tags.isNotEmpty) {
+                                tags.isNotEmpty &&
+                                images.length != 0) {
                               setState(() => loading = true);
+                              VendorDBService vdbs = new VendorDBService();
+
+                              //uploading images individually
+                              //adding their ids to list
+                              for (var imgAsset in images) {
+                                String path =
+                                    await FlutterAbsolutePath.getAbsolutePath(
+                                        imgAsset.identifier);
+
+                                dio.Response imgResponse =
+                                    await vdbs.addImage(path);
+                                if (imgResponse.statusCode == 200) {
+                                  String imgId = imgResponse.data['_id'];
+                                  imageIds.add(imgId);
+                                } else {
+                                  print(imgResponse.statusCode);
+                                }
+                              }
+                              for (var pointer in imageIds) {
+                                print(pointer);
+                              }
                               //String id = createId(user.uid);
                               Response result;
-                              result = await VendorDBService()
-                                  .addVendor(name, vendorLatLng, tags);
+                              result = await vdbs.addVendor(
+                                  name, vendorLatLng, tags, imageIds);
                               // try {
                               //   // result = await VendorDatabaseService(id: id)
                               //   //     .updateVendorData(name, vendorLatLng, tags);

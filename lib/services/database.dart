@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
+import 'package:dio/dio.dart';
 
 class UserDatabaseService {
   final String uid;
@@ -88,20 +89,42 @@ class VendorDatabaseService {
 }
 
 class VendorDBService {
+  String url = "http://10.0.2.2:3000/";
   String baseUrl = "http://10.0.2.2:3000/vendors/";
+  var dio = Dio();
 
-  Future<http.Response> addVendor(
-      String name, LatLng coordinates, HashSet<String> tags) async {
+  Future<http.Response> addVendor(String name, LatLng coordinates,
+      HashSet<String> tags, List<String> imgs) async {
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
       'lng': coordinates.longitude.toString(),
       'tags': tags.toString(),
+      'images': imgs
     });
     final response = await http.post(
       baseUrl,
       headers: {'content-type': 'application/json'},
       body: body,
+    );
+    return response;
+  }
+
+  // Future<http.Response> addImage(String imgBase64) async {
+  //   final response = http.post(
+  //     url + 'images/' + imgBase64,
+  //   );
+  //   return response;
+  // }
+
+  Future<Response> addImage(String path) async {
+    FormData formData = FormData.fromMap({
+      "vendorImg": await MultipartFile.fromFile(path),
+    });
+
+    final response = await dio.post(
+      url + 'images/',
+      data: formData,
     );
     return response;
   }

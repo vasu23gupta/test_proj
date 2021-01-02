@@ -8,10 +8,15 @@ class Vendor {
   String name;
   LatLng coordinates;
   HashSet<String> tags;
+  List<String> images;
 
-  Vendor({this.id, this.coordinates, this.name, this.tags});
+  Vendor({this.id, this.coordinates, this.name, this.tags, this.images});
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
+    List<String> temp = [];
+    for (var item in json['images']) {
+      temp.add(item.toString());
+    }
     return Vendor(
       id: json['_id'],
       name: json['name'],
@@ -20,6 +25,7 @@ class Vendor {
       coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
           json['location']['coordinates'][0].toDouble()),
       tags: HashSet.from(json['tags'].split("(.*?)")),
+      images: temp,
     );
   }
 
@@ -28,7 +34,8 @@ class Vendor {
         other.id == id &&
         other.name == name &&
         other.coordinates == coordinates &&
-        other.tags == tags);
+        other.tags == tags &&
+        other.images == images);
   }
 
   bool contains(String string) {
@@ -37,6 +44,6 @@ class Vendor {
   }
 
   @override
-  int get hashCode =>
-      hash4(name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
+  int get hashCode => hashValues(name.hashCode, id.hashCode,
+      coordinates.hashCode, tags.hashCode, images.hashCode);
 }

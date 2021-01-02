@@ -1,7 +1,12 @@
 const express = require('express');
+//var fs = require('fs');
 const router = express.Router();
 const Vendor = require('../models/Vendor');
+//const Image = require('../models/Image');
+//const multer  = require('multer')
+//const upload = multer({dest: './uploads/'});
 //const Point = require('../models/Vendor');
+
 // get all vendors
 router.get('/', async (req, res) => {
     try {
@@ -46,11 +51,6 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async(req,res)=>{
         }
     })
 
-});
-
-//for testing
-router.get('/test', async(req,res)=>{
-    res.json(req.body);
 });
 
 //search
@@ -118,8 +118,9 @@ router.post('/', async (req, res) => {
     const vendor = new Vendor({
         name: req.body.name,
         location: {coordinates: [req.body.lng, req.body.lat]},
-        tags: req.body.tags
-    })
+        tags: req.body.tags,
+        images: req.body.images
+    });
 
     try {
         //const savedPoint = await point.save();
@@ -155,5 +156,20 @@ router.patch('/:vendorId', async (req, res) => {
         res.json({ message: err });
     }
 });
+
+// router.post('/photo', upload.single('vendorImg'), async function(req,res){
+//     var f = req.file;
+//     //console.log(f);
+//     var image = new Image();
+//     image.img.data = fs.readFileSync(f.path)
+//     image.img.contentType = f.mimetype;
+
+//     try {
+//         const savedImage = await image.save();
+//         res.json(savedImage);
+//     } catch (err) {
+//         res.json({ message: err });
+//     }
+//    });
 
 module.exports = router;

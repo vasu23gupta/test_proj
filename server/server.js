@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+//var multer  = require('multer')
 const app = express();
 const port = 3000;
 
@@ -12,10 +13,19 @@ mongoose.set('useCreateIndex', true);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
+//app.use(multer({dest:'./uploads/'}).single('singleInputFileName'));
+// app.use(multer({ dest: './uploads/',
+//   rename: function (fieldname, filename) {
+//     return filename;
+//   },
+//  }));
 
 //import routes
 const vendorsRoute = require('./routes/vendors');
 app.use('/vendors', vendorsRoute);
+
+const imagesRoute = require('./routes/images');
+app.use('/images', imagesRoute);
 
 //db
 async function connectDB(){

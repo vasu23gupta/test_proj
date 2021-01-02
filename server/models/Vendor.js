@@ -33,9 +33,17 @@ const VendorSchema = mongoose.Schema({
         type: String,
         required: true,
         index: "text"
+    },
+    images:{
+      type: [String],
+      required: true
     }
+    // data:{
+    //   type: String,
+    //   required: true
+    // }
 });
-VendorSchema.index({name: 'text', 'tags': 'text'});
+VendorSchema.index({name: 'text', tags: 'text'});
 
 // const VendorSchema = mongoose.Schema({
 //     name: {
