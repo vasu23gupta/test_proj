@@ -1,5 +1,5 @@
-import 'dart:collection';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendorData.dart';
 
@@ -36,7 +36,7 @@ class Vendor {
         other.id == id &&
         other.name == name &&
         other.coordinates == coordinates &&
-        other.tags == tags &&
+        listEquals(other.tags, tags) &&
         other.dataId == dataId);
   }
 

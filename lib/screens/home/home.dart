@@ -71,6 +71,9 @@ class _HomeState extends State<Home> {
         vendorMarkers.add(marker);
       }
     }
+    // for (var item in vendorMarkers) {
+    //   print(item.anchor.hashCode);
+    // }
     //print(vendors.length);
     //print(vendorMarkers.length);
   }
