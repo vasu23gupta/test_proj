@@ -37,56 +37,56 @@ class UserDatabaseService {
   }
 }
 
-class VendorDatabaseService {
-  final String id;
-  VendorDatabaseService({this.id});
+// class VendorDatabaseService {
+//   final String id;
+//   VendorDatabaseService({this.id});
 
-  //collection reference
-  final CollectionReference vendorCollection =
-      FirebaseFirestore.instance.collection('vendors');
+//   //collection reference
+//   final CollectionReference vendorCollection =
+//       FirebaseFirestore.instance.collection('vendors');
 
-  Future updateVendorData(
-      String name, LatLng coordinates, HashSet<String> tags) async {
-    await vendorCollection.doc(id).set({
-      'name': name,
-      'coordinates': GeoPoint(coordinates.latitude, coordinates.longitude),
-      'tags': tags.toString(),
-    });
+//   Future updateVendorData(
+//       String name, LatLng coordinates, HashSet<String> tags) async {
+//     await vendorCollection.doc(id).set({
+//       'name': name,
+//       'coordinates': GeoPoint(coordinates.latitude, coordinates.longitude),
+//       'tags': tags.toString(),
+//     });
 
-    return vendorCollection.doc(id);
-  }
+//     return vendorCollection.doc(id);
+//   }
 
-  //vendor list from snapshot
-  List<Vendor> _vendorListFromSnapshot(QuerySnapshot snapshot) {
-    //List list;
-    return snapshot.docs.map((doc) {
-      return Vendor(
-        name: doc.data()['name'] ?? '',
-        id: doc.id,
-        coordinates: LatLng(doc.data()['coordinates'].latitude,
-            doc.data()['coordinates'].longitude),
-        tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
-      );
-    }).toList();
-  }
+//   //vendor list from snapshot
+//   List<Vendor> _vendorListFromSnapshot(QuerySnapshot snapshot) {
+//     //List list;
+//     return snapshot.docs.map((doc) {
+//       return Vendor(
+//         name: doc.data()['name'] ?? '',
+//         id: doc.id,
+//         coordinates: LatLng(doc.data()['coordinates'].latitude,
+//             doc.data()['coordinates'].longitude),
+//         tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
+//       );
+//     }).toList();
+//   }
 
-  //get vendors stream
-  Stream<List<Vendor>> get vendors {
-    return vendorCollection.snapshots().map(_vendorListFromSnapshot);
-  }
+//   //get vendors stream
+//   Stream<List<Vendor>> get vendors {
+//     return vendorCollection.snapshots().map(_vendorListFromSnapshot);
+//   }
 
-  Future<Vendor> get vendor async {
-    DocumentReference documentReference = vendorCollection.doc(id);
-    DocumentSnapshot doc = await documentReference.get();
-    return Vendor(
-      name: doc.data()['name'] ?? '',
-      id: doc.id,
-      coordinates: LatLng(doc.data()['coordinates'].latitude,
-          doc.data()['coordinates'].longitude),
-      tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
-    );
-  }
-}
+//   Future<Vendor> get vendor async {
+//     DocumentReference documentReference = vendorCollection.doc(id);
+//     DocumentSnapshot doc = await documentReference.get();
+//     return Vendor(
+//       name: doc.data()['name'] ?? '',
+//       id: doc.id,
+//       coordinates: LatLng(doc.data()['coordinates'].latitude,
+//           doc.data()['coordinates'].longitude),
+//       tags: HashSet.from(doc.data()['tags'].split("(.*?)")),
+//     );
+//   }
+// }
 
 class VendorDBService {
   static String url = "http://10.0.2.2:3000/";
@@ -96,14 +96,14 @@ class VendorDBService {
   static Dio dio = Dio();
 
   Future<http.Response> addVendor(String name, LatLng coordinates,
-      HashSet<String> tags, List<String> imgs) async {
+      List<String> tags, List<String> imgs) async {
     http.Response vendorDataResponse = await addVendorData(imgs);
     String vendorDataId = jsonDecode(vendorDataResponse.body)['_id'];
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
       'lng': coordinates.longitude.toString(),
-      'tags': tags.toString(),
+      'tags': tags,
       'data': vendorDataId
     });
     final response = await http.post(

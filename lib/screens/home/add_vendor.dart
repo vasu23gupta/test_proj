@@ -33,7 +33,7 @@ class _AddVendorState extends State<AddVendor> {
   LatLng vendorLatLng;
   String error = '';
   String currentTag;
-  HashSet<String> tags = new HashSet<String>();
+  List<String> tags = new List<String>();
   TextEditingController addTagController = TextEditingController();
 
   Widget previewImages() {

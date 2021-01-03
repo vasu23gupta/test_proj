@@ -7,13 +7,17 @@ class Vendor {
   String id;
   String name;
   LatLng coordinates;
-  HashSet<String> tags;
+  List<String> tags;
   String dataId;
   VendorData data;
 
   Vendor({this.id, this.coordinates, this.name, this.tags, this.dataId});
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
+    List<String> temp = new List<String>();
+    for (var item in json['tags']) {
+      temp.add(item.toString());
+    }
     return Vendor(
       id: json['_id'],
       name: json['name'],
@@ -21,7 +25,8 @@ class Vendor {
       //     new LatLng(double.parse(json['lat']), double.parse(json['lng'])),
       coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
           json['location']['coordinates'][0].toDouble()),
-      tags: HashSet.from(json['tags'].split("(.*?)")),
+      //tags: HashSet.from(json['tags'].split("(.*?)")),
+      tags: temp,
       dataId: json['data'],
     );
   }

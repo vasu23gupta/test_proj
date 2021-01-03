@@ -30,7 +30,7 @@ const VendorSchema = mongoose.Schema({
     },
   },
   tags: {
-    type: String,
+    type: [String],
     required: true,
     index: "text"
   },
