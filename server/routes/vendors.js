@@ -119,7 +119,7 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         location: {coordinates: [req.body.lng, req.body.lat]},
         tags: req.body.tags,
-        images: req.body.images
+        data: req.body.data
     });
 
     try {

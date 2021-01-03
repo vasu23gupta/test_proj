@@ -89,21 +89,35 @@ class VendorDatabaseService {
 }
 
 class VendorDBService {
-  String url = "http://10.0.2.2:3000/";
-  String baseUrl = "http://10.0.2.2:3000/vendors/";
-  var dio = Dio();
+  static String url = "http://10.0.2.2:3000/";
+  static String vendorsUrl = url + "vendors/";
+  static String vendorDataUrl = url + "vendordata/";
+  static String imagesUrl = url + "images/";
+  static Dio dio = Dio();
 
   Future<http.Response> addVendor(String name, LatLng coordinates,
       HashSet<String> tags, List<String> imgs) async {
+    http.Response vendorDataResponse = await addVendorData(imgs);
+    String vendorDataId = jsonDecode(vendorDataResponse.body)['_id'];
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
       'lng': coordinates.longitude.toString(),
       'tags': tags.toString(),
-      'images': imgs
+      'data': vendorDataId
     });
     final response = await http.post(
-      baseUrl,
+      vendorsUrl,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    return response;
+  }
+
+  Future<http.Response> addVendorData(List<String> imgs) async {
+    var body = jsonEncode({'images': imgs});
+    final response = await http.post(
+      vendorDataUrl,
       headers: {'content-type': 'application/json'},
       body: body,
     );
@@ -123,21 +137,21 @@ class VendorDBService {
     });
 
     final response = await dio.post(
-      url + 'images/',
+      imagesUrl,
       data: formData,
     );
     return response;
   }
 
   Future<Vendor> getVendor(String id) async {
-    final response = await http.get(baseUrl + id);
+    final response = await http.get(vendorsUrl + id);
     //print('response: ' + response.statusCode.toString());
     print(Vendor.fromJson(jsonDecode(response.body)));
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
   Future getVendors() async {
-    final response = await http.get(baseUrl);
+    final response = await http.get(vendorsUrl);
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJson(json))
         .toList();
@@ -146,7 +160,7 @@ class VendorDBService {
   }
 
   Future getVendorsSearch(String query) async {
-    final response = await http.get(baseUrl + '/search/' + query);
+    final response = await http.get(vendorsUrl + '/search/' + query);
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJson(json))
         .toList();
@@ -160,7 +174,7 @@ class VendorDBService {
     String swLat = bounds.southWest.latitude.toString();
     String swLng = bounds.southWest.longitude.toString();
     final response = await http.get(
-        baseUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng,
+        vendorsUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng,
         headers: {
           'content-type': 'application/json',
         });

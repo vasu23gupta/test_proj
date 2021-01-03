@@ -13,37 +13,33 @@ const mongoose = require('mongoose');
 // });
 
 const VendorSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        index: "text"
+  name: {
+    type: String,
+    required: true,
+    index: "text"
+  },
+  location: {
+    type: {
+      type: String,
+      default: 'Point',
     },
-    location:{
-        type: {
-          type: String,
-          default: 'Point',
-        },
-        coordinates: {
-          type: [Number],
-          required: true,
-          index: "2dsphere"
-        },
+    coordinates: {
+      type: [Number],
+      required: true,
+      index: "2dsphere"
     },
-    tags: {
-        type: String,
-        required: true,
-        index: "text"
-    },
-    images:{
-      type: [String],
-      required: true
-    }
-    // data:{
-    //   type: String,
-    //   required: true
-    // }
+  },
+  tags: {
+    type: String,
+    required: true,
+    index: "text"
+  },
+  data:{
+    type: String,
+    required: true
+  }
 });
-VendorSchema.index({name: 'text', tags: 'text'});
+VendorSchema.index({ name: 'text', tags: 'text' });
 
 // const VendorSchema = mongoose.Schema({
 //     name: {

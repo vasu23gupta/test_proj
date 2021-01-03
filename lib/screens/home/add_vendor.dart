@@ -36,17 +36,32 @@ class _AddVendorState extends State<AddVendor> {
   HashSet<String> tags = new HashSet<String>();
   TextEditingController addTagController = TextEditingController();
 
-  // String createId(String uid) {
-  //   DateTime now = DateTime.now();
-  //   return uid +
-  //       now.year.toString() +
-  //       now.month.toString() +
-  //       now.day.toString() +
-  //       now.hour.toString() +
-  //       now.minute.toString() +
-  //       now.second.toString() +
-  //       now.millisecond.toString();
-  // }
+  Widget previewImages() {
+    if (images.length == 0)
+      return Container();
+    else {
+      return SizedBox(
+        height: 150,
+        child: ListView.builder(
+          itemCount: images.length,
+          itemBuilder: (context, index) {
+            // String path;
+            // FlutterAbsolutePath.getAbsolutePath(images[index].identifier)
+            //     .then((value) => path = value);
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: AssetThumb(
+                asset: images[index],
+                width: 150,
+                height: 150,
+              ),
+            );
+          },
+          scrollDirection: Axis.horizontal,
+        ),
+      );
+    }
+  }
 
   String name = '';
   @override
@@ -120,195 +135,183 @@ class _AddVendorState extends State<AddVendor> {
               title: Text('Add Vendor'),
               elevation: 0.0,
             ),
-            body: SingleChildScrollView(
-              child: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: <Widget>[
-                        //name:
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        TextFormField(
-                            decoration: textInputDecoration.copyWith(
-                                hintText: 'Vendor Name'),
-                            validator: (val) =>
-                                val.isEmpty ? 'Enter a name' : null,
-                            onChanged: (val) {
-                              setState(() => name = val);
-                            }),
-                        //map:
-                        SizedBox(
-                          height: 300.0,
-                          width: 350.0,
-                          child: new FlutterMap(
-                            mapController: controller,
-                            options: new MapOptions(
-                              zoom: 18.45, center: userLoc,
-                              onTap: _handleTap,
-                              //center: new LatLng(userLoc.latitude, userLoc.longitude),
-                            ),
-                            layers: [
-                              new TileLayerOptions(
-                                urlTemplate:
-                                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                subdomains: ['a', 'b', 'c'],
-                              ),
-                              new MarkerLayerOptions(
-                                markers: markers,
-                              ),
-                            ],
-                          ),
-                        ),
-                        //add images
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        RaisedButton(
-                          color: Colors.pink[400],
-                          child: Text(
-                            'Upload Images',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: loadAssets,
-                        ),
-                        // ListView.builder(
-                        //   itemCount: images.length,
-                        //   itemBuilder: (context, index) {
-                        //     String path;
-                        //     FlutterAbsolutePath.getAbsolutePath(
-                        //         images[index].identifier).then((value) => path=value);
-                        //     return Image.asset(path);
-                        //   },
-                        //   scrollDirection: Axis.horizontal,
-                        // ),
-                        //tags:
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        TextFormField(
-                            controller: addTagController,
-                            decoration: textInputDecoration.copyWith(
-                                hintText: 'Enter tags'),
-                            validator: (val) => val.isEmpty && tags.isEmpty
-                                ? 'Enter atleast 1 tag'
-                                : null,
-                            onChanged: (val) {
-                              setState(() => currentTag = val);
-                            }),
-                        //add tag button:
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        RaisedButton(
-                          color: Colors.pink[400],
-                          child: Text(
-                            'Add tag',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () {
-                            addTagController.clear();
-                            if (currentTag.isNotEmpty) {
-                              tags.add(currentTag);
-                              setState(() {
-                                currentTag = '';
-                              });
-                            }
-                          },
-                        ),
-                        //submit button:
-                        SizedBox(
-                          height: 20.0,
-                        ),
-                        RaisedButton(
-                          color: Colors.pink[400],
-                          child: Text(
-                            'ADD',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () async {
-                            //validation
-                            if (_formKey.currentState.validate() &&
-                                vendorLatLng != null &&
-                                tags.isNotEmpty &&
-                                images.length != 0) {
-                              setState(() => loading = true);
-                              VendorDBService vdbs = new VendorDBService();
-
-                              //uploading images individually
-                              //adding their ids to list
-                              for (var imgAsset in images) {
-                                String path =
-                                    await FlutterAbsolutePath.getAbsolutePath(
-                                        imgAsset.identifier);
-
-                                dio.Response imgResponse =
-                                    await vdbs.addImage(path);
-                                if (imgResponse.statusCode == 200) {
-                                  String imgId = imgResponse.data['_id'];
-                                  imageIds.add(imgId);
-                                } else {
-                                  print(imgResponse.statusCode);
-                                }
-                              }
-                              for (var pointer in imageIds) {
-                                print(pointer);
-                              }
-                              //String id = createId(user.uid);
-                              Response result;
-                              result = await vdbs.addVendor(
-                                  name, vendorLatLng, tags, imageIds);
-                              // try {
-                              //   // result = await VendorDatabaseService(id: id)
-                              //   //     .updateVendorData(name, vendorLatLng, tags);
-                              //   result = await VendorDBService()
-                              //       .addVendor(name, vendorLatLng, tags);
-                              //   print("result: " + result.toString());
-                              // } catch (e) {
-                              //   print(e.toString());
-                              // }
-                              setState(() => loading = false);
-                              // if (result == null) {
-                              //   setState(() {
-                              //     error = 'could not add vendor';
-                              //   });
-                              if (result.statusCode != 200) {
-                                setState(() {
-                                  print(result.statusCode);
-                                  error = 'could not add vendor';
-                                });
-                              } else {
-                                //String id = jsonDecode(result.body)['_id'];
-                                //print(jsonDecode(result.body));
-                                //print(id);
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => VendorDetails(
-                                      vendor: Vendor.fromJson(
-                                        jsonDecode(result.body),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                        ),
-                        //error text:
-                        SizedBox(
-                          height: 12.0,
-                        ),
-                        Text(
-                          error,
-                          style: TextStyle(color: Colors.red, fontSize: 14.0),
-                        )
-                      ],
+            body: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: <Widget>[
+                    //name:
+                    SizedBox(
+                      height: 20.0,
                     ),
-                  )),
+                    TextFormField(
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Vendor Name'),
+                        validator: (val) => val.isEmpty ? 'Enter a name' : null,
+                        onChanged: (val) {
+                          setState(() => name = val);
+                        }),
+                    //map:
+                    SizedBox(
+                      height: 300.0,
+                      width: 350.0,
+                      child: new FlutterMap(
+                        mapController: controller,
+                        options: new MapOptions(
+                          zoom: 18.45, center: userLoc,
+                          onTap: _handleTap,
+                          //center: new LatLng(userLoc.latitude, userLoc.longitude),
+                        ),
+                        layers: [
+                          new TileLayerOptions(
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                          new MarkerLayerOptions(
+                            markers: markers,
+                          ),
+                        ],
+                      ),
+                    ),
+                    //add images
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    RaisedButton(
+                      color: Colors.pink[400],
+                      child: Text(
+                        'Upload Images',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: loadAssets,
+                    ),
+                    previewImages(),
+                    //tags:
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    TextFormField(
+                        controller: addTagController,
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Enter tags'),
+                        validator: (val) => val.isEmpty && tags.isEmpty
+                            ? 'Enter atleast 1 tag'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => currentTag = val);
+                        }),
+                    //add tag button:
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    RaisedButton(
+                      color: Colors.pink[400],
+                      child: Text(
+                        'Add tag',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () {
+                        addTagController.clear();
+                        if (currentTag.isNotEmpty) {
+                          tags.add(currentTag);
+                          setState(() {
+                            currentTag = '';
+                          });
+                        }
+                      },
+                    ),
+                    //submit button:
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    RaisedButton(
+                      color: Colors.pink[400],
+                      child: Text(
+                        'ADD',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () async {
+                        //validation
+                        if (_formKey.currentState.validate() &&
+                            vendorLatLng != null &&
+                            tags.isNotEmpty &&
+                            images.length != 0) {
+                          setState(() => loading = true);
+                          VendorDBService vdbs = new VendorDBService();
+
+                          //uploading images individually
+                          //adding their ids to list
+                          for (var imgAsset in images) {
+                            String path =
+                                await FlutterAbsolutePath.getAbsolutePath(
+                                    imgAsset.identifier);
+
+                            dio.Response imgResponse =
+                                await vdbs.addImage(path);
+                            if (imgResponse.statusCode == 200) {
+                              String imgId = imgResponse.data['_id'];
+                              imageIds.add(imgId);
+                            } else {
+                              print(imgResponse.statusCode);
+                            }
+                          }
+                          for (var pointer in imageIds) {
+                            print(pointer);
+                          }
+                          //String id = createId(user.uid);
+                          Response result;
+                          result = await vdbs.addVendor(
+                              name, vendorLatLng, tags, imageIds);
+                          // try {
+                          //   // result = await VendorDatabaseService(id: id)
+                          //   //     .updateVendorData(name, vendorLatLng, tags);
+                          //   result = await VendorDBService()
+                          //       .addVendor(name, vendorLatLng, tags);
+                          //   print("result: " + result.toString());
+                          // } catch (e) {
+                          //   print(e.toString());
+                          // }
+                          setState(() => loading = false);
+                          // if (result == null) {
+                          //   setState(() {
+                          //     error = 'could not add vendor';
+                          //   });
+                          if (result.statusCode != 200) {
+                            setState(() {
+                              print(result.statusCode);
+                              error = 'could not add vendor';
+                            });
+                          } else {
+                            //String id = jsonDecode(result.body)['_id'];
+                            //print(jsonDecode(result.body));
+                            //print(id);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VendorDetails(
+                                  vendor: Vendor.fromJson(
+                                    jsonDecode(result.body),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                    //error text:
+                    SizedBox(
+                      height: 12.0,
+                    ),
+                    Text(
+                      error,
+                      style: TextStyle(color: Colors.red, fontSize: 14.0),
+                    )
+                  ],
+                ),
+              ),
             ),
           );
   }
