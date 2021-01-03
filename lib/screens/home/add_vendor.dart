@@ -24,6 +24,8 @@ class AddVendor extends StatefulWidget {
 }
 
 class _AddVendorState extends State<AddVendor> {
+  String description = '';
+  String name = '';
   List<Asset> images = List<Asset>();
   MapController controller = new MapController();
   List<String> imageIds = new List<String>();
@@ -63,7 +65,6 @@ class _AddVendorState extends State<AddVendor> {
     }
   }
 
-  String name = '';
   @override
   Widget build(BuildContext context) {
     LatLng userLoc = widget.userLoc;
@@ -188,6 +189,18 @@ class _AddVendorState extends State<AddVendor> {
                       onPressed: loadAssets,
                     ),
                     previewImages(),
+                    //description
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    TextFormField(
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Vendor description'),
+                        validator: (val) =>
+                            val.isEmpty ? 'Enter description' : null,
+                        onChanged: (val) {
+                          setState(() => description = val);
+                        }),
                     //tags:
                     SizedBox(
                       height: 20.0,
@@ -236,7 +249,6 @@ class _AddVendorState extends State<AddVendor> {
                         //validation
                         if (_formKey.currentState.validate() &&
                             vendorLatLng != null &&
-                            tags.isNotEmpty &&
                             images.length != 0) {
                           setState(() => loading = true);
                           VendorDBService vdbs = new VendorDBService();
@@ -263,7 +275,7 @@ class _AddVendorState extends State<AddVendor> {
                           //String id = createId(user.uid);
                           Response result;
                           result = await vdbs.addVendor(
-                              name, vendorLatLng, tags, imageIds);
+                              name, vendorLatLng, tags, imageIds, description);
                           // try {
                           //   // result = await VendorDatabaseService(id: id)
                           //   //     .updateVendorData(name, vendorLatLng, tags);

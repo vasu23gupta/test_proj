@@ -96,8 +96,8 @@ class VendorDBService {
   static Dio dio = Dio();
 
   Future<http.Response> addVendor(String name, LatLng coordinates,
-      List<String> tags, List<String> imgs) async {
-    http.Response vendorDataResponse = await addVendorData(imgs);
+      List<String> tags, List<String> imgs, String description) async {
+    http.Response vendorDataResponse = await addVendorData(imgs, description);
     String vendorDataId = jsonDecode(vendorDataResponse.body)['_id'];
     var body = jsonEncode({
       'name': name,
@@ -114,8 +114,9 @@ class VendorDBService {
     return response;
   }
 
-  Future<http.Response> addVendorData(List<String> imgs) async {
-    var body = jsonEncode({'images': imgs});
+  Future<http.Response> addVendorData(
+      List<String> imgs, String description) async {
+    var body = jsonEncode({'images': imgs, 'description': description});
     final response = await http.post(
       vendorDataUrl,
       headers: {'content-type': 'application/json'},

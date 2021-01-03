@@ -5,6 +5,10 @@ const VendorDataSchema = mongoose.Schema({
         type: [String],
         required: true
     },
+    description:{
+        type: String,
+        required: true
+    }
 });
 
 module.exports = mongoose.model('VendorData', VendorDataSchema);

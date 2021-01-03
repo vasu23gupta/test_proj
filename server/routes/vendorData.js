@@ -26,7 +26,8 @@ router.get('/:vendorDataId', async (req, res) => {
 //add vendor data
 router.post('/', async (req, res) => {
     const vendorData = new VendorData({
-        images: req.body.images
+        images: req.body.images,
+        description: req.body.description
     });
 
     try {
@@ -37,7 +38,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-//delete vendor
+//delete vendor data
 router.delete('/:vendorDataId', async (req, res) => {
     try {
         const removedVendorData = await Vendor.deleteOne({ _id: req.params.vendorDataId });
@@ -47,7 +48,7 @@ router.delete('/:vendorDataId', async (req, res) => {
     }
 });
 
-//update vendor
+//update vendor data
 router.patch('/:vendorDataId', async (req, res) => {
     try {
         const updatedVendorData = await VendorData.updateOne({ _id: req.params.vendorDataId }, {
