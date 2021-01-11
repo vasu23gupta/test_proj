@@ -63,32 +63,42 @@ AppBar homeAppBar(
   );
 }
 
-FlutterMap defaultMap(MapController controller, LatLng userLoc) {
-  return new FlutterMap(
-    mapController: controller,
-    options: new MapOptions(
-      zoom: 13.0,
-      center: userLoc,
-      //center: new LatLng(userLoc.latitude, userLoc.longitude),
-    ),
-    layers: [
-      new TileLayerOptions(
-        urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        subdomains: ['a', 'b', 'c'],
-      ),
-      // new MarkerLayerOptions(
-      //   markers: [
-      //     new Marker(
-      //       width: 45.0,
-      //       height: 45.0,
-      //       //point: new LatLng(28.612757, 77.230445),
-      //       point: userLoc,
-      //       builder: (ctx) => new Container(
-      //         child: new FlutterLogo(),
-      //       ),
-      //     ),
-      //   ],
-      // ),
-    ],
-  );
+class VendorFilter extends StatefulWidget {
+  final List<String> selectedFilters;
+  final String text;
+  VendorFilter({this.text, this.selectedFilters});
+  @override
+  _VendorFilterState createState() => _VendorFilterState();
+}
+
+class _VendorFilterState extends State<VendorFilter> {
+  bool _isSelected = false;
+  @override
+  Widget build(BuildContext context) {
+    return FilterChip(
+      labelPadding: EdgeInsets.all(5),
+      label: Text(widget.text),
+      backgroundColor: Colors.white,
+      padding: EdgeInsets.all(5),
+      selected: _isSelected,
+      selectedColor: Colors.blue,
+      onSelected: (val) {
+        setState(() {
+          _isSelected = val;
+          if (val) {
+            widget.selectedFilters.add(widget.text);
+          } else {
+            widget.selectedFilters.removeWhere((String name) {
+              return name == widget.text;
+            });
+          }
+          // String filters = '';
+          // for (var item in widget.selectedFilters) {
+          //   filters += item;
+          // }
+          // print(filters);
+        });
+      },
+    );
+  }
 }

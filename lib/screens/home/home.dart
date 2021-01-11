@@ -83,6 +83,15 @@ class _HomeState extends State<Home> {
   MapController controller = new MapController();
   LatLng userLoc = new LatLng(28.612757, 77.230445);
   VendorDBService _dbService = VendorDBService();
+  List<String> selectedFilters = new List();
+  List<String> filters = [
+    "Food",
+    "Repair",
+    "Crafts",
+    "Daily essentials",
+    "rehrhrh",
+    "ju65u65w"
+  ];
   List<Vendor> vendors = [];
   List<Marker> vendorMarkers = [];
   // Icon appBarIcon = Icon(Icons.search);
@@ -137,40 +146,67 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      body: new FlutterMap(
-        mapController: controller,
-        options: new MapOptions(
-          onPositionChanged: (position, hasGesture) async {
-            if (!loadingMarkers) {
-              updateMarkers().whenComplete(() => setState);
-            }
-            //print(controller.bounds.northEast.longitude);
-          },
-          zoom: 18.45,
-          center: userLoc,
-          //center: new LatLng(userLoc.latitude, userLoc.longitude),
-        ),
-        layers: [
-          new TileLayerOptions(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c'],
+      body: Stack(
+        children: <Widget>[
+          FlutterMap(
+            mapController: controller,
+            options: new MapOptions(
+              onPositionChanged: (position, hasGesture) async {
+                if (!loadingMarkers && controller.zoom > 16.5) {
+                  updateMarkers().whenComplete(() => setState);
+                }
+                //print(controller.bounds.northEast.longitude);
+              },
+              zoom: 18.45,
+              center: userLoc,
+              //center: new LatLng(userLoc.latitude, userLoc.longitude),
+            ),
+            layers: [
+              new TileLayerOptions(
+                urlTemplate:
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                subdomains: ['a', 'b', 'c'],
+              ),
+              new MarkerLayerOptions(
+                markers: vendorMarkers,
+              ),
+              // new MarkerLayerOptions(
+              //   markers: [
+              //     new Marker(
+              //       width: 45.0,
+              //       height: 45.0,
+              //       //point: new LatLng(28.612757, 77.230445),
+              //       point: userLoc,
+              //       builder: (ctx) => new Container(
+              //         child: new FlutterLogo(),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+            ],
           ),
-          new MarkerLayerOptions(
-            markers: vendorMarkers,
+          Positioned(
+            top: 10.0,
+            child: ListView.builder(
+              itemCount: filters.length,
+              itemBuilder: (context, index) {
+                return Row(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.all(5),
+                      child: VendorFilter(
+                        text: filters[index],
+                        selectedFilters: selectedFilters,
+                      ),
+                    ),
+                  ],
+                );
+              },
+              scrollDirection: Axis.horizontal,
+            ),
+            height: 60.0,
+            width: MediaQuery.of(context).size.width,
           ),
-          // new MarkerLayerOptions(
-          //   markers: [
-          //     new Marker(
-          //       width: 45.0,
-          //       height: 45.0,
-          //       //point: new LatLng(28.612757, 77.230445),
-          //       point: userLoc,
-          //       builder: (ctx) => new Container(
-          //         child: new FlutterLogo(),
-          //       ),
-          //     ),
-          //   ],
-          // ),
         ],
       ),
       floatingActionButton: Column(
