@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/home/add_vendor.dart';
 //import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
@@ -55,12 +57,21 @@ class _HomeState extends State<Home> {
           //alignment: Alignment.bottomRight,
           icon: Icon(Icons.circle),
           iconSize: 40.0,
-          onPressed: () {
+          onPressed: () async {
+            VendorData data =
+                await _dbService.getVendorDescription(vendor.dataId);
+            /* List<Asset> images = new List<Asset>();
+            for (var image in data.images) {
+              images.add(await _dbService.getVendorImage(image));
+            } */
+            //print(images);
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => VendorDetails(
                   vendor: vendor,
+                  vd: data,
+                  //  images: images,
                 ),
               ),
             );

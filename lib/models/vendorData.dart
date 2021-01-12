@@ -1,8 +1,10 @@
+import 'package:test_proj/models/Review.dart';
+
 class VendorData {
   String id;
   List<String> images;
   String description;
-
+  List<Review> reviews;
   VendorData({this.id, this.images, this.description});
 
   factory VendorData.fromJson(Map<String, dynamic> json) {

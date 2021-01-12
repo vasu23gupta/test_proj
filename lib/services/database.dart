@@ -1,12 +1,16 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:dio/dio.dart';
+import 'package:test_proj/models/vendorData.dart';
 
 class UserDatabaseService {
   final String uid;
@@ -125,6 +129,17 @@ class VendorDBService {
     return response;
   }
 
+  Future<http.Response> addVendorReview(Review review) async {
+    var body = jsonEncode({
+      "Review": {'review': review.review, 'by': review.byUser}
+    });
+    final response = await http.patch(
+      vendorDataUrl,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    return response;
+  }
   // Future<http.Response> addImage(String imgBase64) async {
   //   final response = http.post(
   //     url + 'images/' + imgBase64,
@@ -149,6 +164,16 @@ class VendorDBService {
     //print('response: ' + response.statusCode.toString());
     print(Vendor.fromJson(jsonDecode(response.body)));
     return Vendor.fromJson(jsonDecode(response.body));
+  }
+
+  Future<VendorData> getVendorDescription(String id) async {
+    final response = await http.get(vendorDataUrl + id);
+    return VendorData.fromJson(jsonDecode(response.body));
+  }
+
+  Future<dynamic> getVendorImage(String imageId) async {
+    final response = await http.get(imagesUrl + imageId);
+    return MemoryImage(jsonDecode(response.body)['data']);
   }
 
   Future getVendors() async {

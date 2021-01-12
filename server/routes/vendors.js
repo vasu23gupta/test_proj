@@ -68,6 +68,11 @@ router.get('/search/:query', async(req,res)=>{
               $regex: searchTexts[i]
             }
           })
+          searchTextList.push({
+            tags:{
+              $regex: searchTexts[i]
+            }
+          })
     }
     var fullTextSearchOptions = {
         "$text":{

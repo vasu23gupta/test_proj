@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
+
+import '../vendor_details.dart';
 
 class Search extends StatefulWidget {
   @override
@@ -10,6 +13,8 @@ class Search extends StatefulWidget {
 class _SearchState extends State<Search> {
   Widget buildSuggestions() {
     //print('enter');
+    var selectedIndex;
+
     return Column(
       children: <Widget>[
         new Expanded(
@@ -21,10 +26,21 @@ class _SearchState extends State<Search> {
                     Vendor resultList = this.searchResults[index];
                     //print(entered);
                     return ListTile(
-                      //  onTap: () {
-                      //selectedIndex = index;
-                      //showResults(context);
-                      //  },
+                      onTap: () async {
+                        VendorData data = await VendorDBService()
+                            .getVendorDescription(resultList.dataId);
+                        selectedIndex = index;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VendorDetails(
+                              vendor: resultList,
+                              vd: data,
+                            ),
+                          ),
+                        );
+                        //Navigator.pop(context);
+                      },
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

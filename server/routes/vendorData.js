@@ -54,6 +54,7 @@ router.patch('/:vendorDataId', async (req, res) => {
         const updatedVendorData = await VendorData.updateOne({ _id: req.params.vendorDataId }, {
             $set: {
                 //set params
+                reviews: reviews.add(req.body.Review),
 
             }
         });
