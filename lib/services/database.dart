@@ -171,9 +171,10 @@ class VendorDBService {
     return VendorData.fromJson(jsonDecode(response.body));
   }
 
-  Future<dynamic> getVendorImage(String imageId) async {
-    final response = await http.get(imagesUrl + imageId);
-    return MemoryImage(jsonDecode(response.body)['data']);
+  NetworkImage getVendorImage(String imageId) {
+    //final response = await http.get(imagesUrl + imageId);
+    return NetworkImage(imagesUrl + imageId);
+    //jsonDecode(response.body)['data']);
   }
 
   Future getVendors() async {

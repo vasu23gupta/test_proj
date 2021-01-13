@@ -10,6 +10,8 @@ import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -121,10 +123,10 @@ class _VendorDetailsState extends State<VendorDetails> {
                 },
               ),
             ),
-            body: Container(
-              alignment: Alignment.topCenter,
+            body: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
+                  //map
                   SizedBox(
                     height: 300.0,
                     //width: 350.0,
@@ -152,11 +154,11 @@ class _VendorDetailsState extends State<VendorDetails> {
                       children: [
                         Text(
                           "Description",
-                          style: TextStyle(fontSize: 30),
+                          style: TextStyle(fontSize: 30, color: Colors.grey),
                         ),
                         Text(
                           description,
-                          style: TextStyle(fontSize: 20, color: Colors.grey),
+                          style: TextStyle(fontSize: 20),
                         ),
                         Row(
                           children: textTags,
@@ -164,6 +166,44 @@ class _VendorDetailsState extends State<VendorDetails> {
                         ),
                         Divider(),
                         //previewImages(),
+                        //photos
+                        //https://pub.dev/packages/photo_view
+                        Container(
+                          height: 600.0,
+                          child: PhotoViewGallery.builder(
+                            scrollPhysics: const BouncingScrollPhysics(),
+                            builder: (BuildContext context, int index) {
+                              return PhotoViewGalleryPageOptions(
+                                maxScale:
+                                    PhotoViewComputedScale.contained * 2.0,
+                                minScale:
+                                    PhotoViewComputedScale.contained * 0.8,
+                                imageProvider: _dbService
+                                    .getVendorImage(vData.imageIDs[index]),
+                                heroAttributes: PhotoViewHeroAttributes(
+                                    tag: vData.imageIDs[index]),
+                              );
+                            },
+                            itemCount: vData.imageIDs.length,
+                            loadingBuilder: (context, event) => Center(
+                              child: Container(
+                                width: 20.0,
+                                height: 20.0,
+                                child: CircularProgressIndicator(
+                                  value: event == null
+                                      ? 0
+                                      : event.cumulativeBytesLoaded /
+                                          event.expectedTotalBytes,
+                                ),
+                              ),
+                            ),
+                            backgroundDecoration: BoxDecoration(
+                              color: Theme.of(context).canvasColor,
+                            ),
+                            //pageController: widget.pageController,
+                            //onPageChanged: onPageChanged,
+                          ),
+                        )
                       ],
                     ),
                   ),
