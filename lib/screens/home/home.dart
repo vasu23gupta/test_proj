@@ -58,8 +58,6 @@ class _HomeState extends State<Home> {
           icon: Icon(Icons.circle),
           iconSize: 40.0,
           onPressed: () async {
-            VendorData data =
-                await _dbService.getVendorDescription(vendor.dataId);
             /* List<Asset> images = new List<Asset>();
             for (var image in data.images) {
               images.add(await _dbService.getVendorImage(image));
@@ -70,7 +68,6 @@ class _HomeState extends State<Home> {
               MaterialPageRoute(
                 builder: (context) => VendorDetails(
                   vendor: vendor,
-                  vd: data,
                   //  images: images,
                 ),
               ),

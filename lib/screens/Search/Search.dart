@@ -27,15 +27,12 @@ class _SearchState extends State<Search> {
                     //print(entered);
                     return ListTile(
                       onTap: () async {
-                        VendorData data = await VendorDBService()
-                            .getVendorDescription(resultList.dataId);
                         selectedIndex = index;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => VendorDetails(
                               vendor: resultList,
-                              vd: data,
                             ),
                           ),
                         );

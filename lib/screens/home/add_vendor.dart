@@ -302,13 +302,11 @@ class _AddVendorState extends State<AddVendor> {
                             //print(id);
                             Vendor vendor =
                                 Vendor.fromJson(jsonDecode(result.body));
-                            VendorData vData = await VendorDBService()
-                                .getVendorDescription(vendor.dataId);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    VendorDetails(vendor: vendor, vd: vData),
+                                    VendorDetails(vendor: vendor),
                               ),
                             );
                           }

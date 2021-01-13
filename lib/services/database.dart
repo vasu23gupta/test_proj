@@ -166,8 +166,8 @@ class VendorDBService {
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
-  Future<VendorData> getVendorDescription(String id) async {
-    final response = await http.get(vendorDataUrl + id);
+  Future<VendorData> getVendorDescription(Vendor vendor) async {
+    final response = await http.get(vendorDataUrl + vendor.dataId);
     return VendorData.fromJson(jsonDecode(response.body));
   }
 
