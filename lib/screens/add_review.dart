@@ -3,15 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/models/vendor.dart';
+import 'package:test_proj/models/vendorData.dart';
+import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class AddReview extends StatefulWidget {
+  final VendorData vendorData;
+  AddReview({this.vendorData});
   @override
   _AddReviewState createState() => _AddReviewState();
 }
 
 class _AddReviewState extends State<AddReview> {
+  String error = "";
+  VendorDBService _dbService = VendorDBService();
   Review review = Review();
   TextEditingController mycontroller = new TextEditingController();
   @override
@@ -23,7 +30,28 @@ class _AddReviewState extends State<AddReview> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),
-            onPressed: () {},
+            onPressed: () async {
+              if (review.stars != 0) {
+                final response =
+                    await _dbService.addVendorReview(review, widget.vendorData);
+                if (response.statusCode == 200) {
+                  mycontroller.clear();
+                  setState(() {
+                    error = "Successfully added";
+                  });
+                } else {
+                  setState(() {
+                    error = "Could not add review";
+                  });
+                }
+                //print(response.body.toString());
+              } else {
+                setState(() {
+                  error =
+                      "Please make sure that review is not empty and rating is selected";
+                });
+              }
+            },
           )
         ],
         title: Text("add a review"),
@@ -56,6 +84,10 @@ class _AddReviewState extends State<AddReview> {
             onChanged: (val) {
               setState(() => review.review = val);
             },
+          ),
+          Text(
+            error,
+            style: TextStyle(color: Colors.red, fontSize: 14.0),
           ),
         ],
       ),

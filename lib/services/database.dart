@@ -97,6 +97,7 @@ class VendorDBService {
   static String vendorsUrl = url + "vendors/";
   static String vendorDataUrl = url + "vendordata/";
   static String imagesUrl = url + "images/";
+  static String reviewsUrl = url + "reviews/";
   static Dio dio = Dio();
 
   Future<http.Response> addVendor(String name, LatLng coordinates,
@@ -129,27 +130,25 @@ class VendorDBService {
     return response;
   }
 
-  Future<http.Response> addVendorReview(Review review) async {
-    var body = jsonEncode({
-      "Review": {
-        'review': review.review,
-        'by': review.byUser,
-        'stars': review.stars
-      }
-    });
-    final response = await http.patch(
-      vendorDataUrl,
+  Future<http.Response> addVendorReview(
+      Review review, VendorData vendorData) async {
+    var body = jsonEncode(
+        {'review': review.review, 'by': review.byUser, 'stars': review.stars});
+
+    final reviewResponse = await http.post(
+      reviewsUrl,
       headers: {'content-type': 'application/json'},
       body: body,
     );
+    String reviewId = jsonDecode(reviewResponse.body)['_id'];
+
+    final response = await http.patch(
+      vendorDataUrl + vendorData.id,
+      headers: {'content-type': 'application/json'},
+      body: jsonEncode({'reviewId': reviewId}),
+    );
     return response;
   }
-  // Future<http.Response> addImage(String imgBase64) async {
-  //   final response = http.post(
-  //     url + 'images/' + imgBase64,
-  //   );
-  //   return response;
-  // }
 
   Future<Response> addImage(String path) async {
     FormData formData = FormData.fromMap({

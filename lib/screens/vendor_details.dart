@@ -216,7 +216,9 @@ class _VendorDetailsState extends State<VendorDetails> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => AddReview(),
+                          builder: (context) => AddReview(
+                            vendorData: vData,
+                          ),
                         ),
                       );
                     },
