@@ -1,5 +1,6 @@
 class Review {
   String byUser;
   String review;
-  Review({this.byUser, this.review});
+  double stars;
+  Review({this.byUser, this.review, this.stars});
 }

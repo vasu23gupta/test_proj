@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
+import 'package:test_proj/screens/add_review.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
@@ -148,64 +149,77 @@ class _VendorDetailsState extends State<VendorDetails> {
                       ],
                     ),
                   ),
-                  ListTile(
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Description",
-                          style: TextStyle(fontSize: 30, color: Colors.grey),
-                        ),
-                        Text(
-                          description,
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        Row(
-                          children: textTags,
-                          textDirection: TextDirection.ltr,
-                        ),
-                        Divider(),
-                        //previewImages(),
-                        //photos
-                        //https://pub.dev/packages/photo_view
-                        Container(
-                          height: 600.0,
-                          child: PhotoViewGallery.builder(
-                            scrollPhysics: const BouncingScrollPhysics(),
-                            builder: (BuildContext context, int index) {
-                              return PhotoViewGalleryPageOptions(
-                                maxScale:
-                                    PhotoViewComputedScale.contained * 2.0,
-                                minScale:
-                                    PhotoViewComputedScale.contained * 0.8,
-                                imageProvider: _dbService
-                                    .getVendorImage(vData.imageIDs[index]),
-                                heroAttributes: PhotoViewHeroAttributes(
-                                    tag: vData.imageIDs[index]),
-                              );
-                            },
-                            itemCount: vData.imageIDs.length,
-                            loadingBuilder: (context, event) => Center(
-                              child: Container(
-                                width: 20.0,
-                                height: 20.0,
-                                child: CircularProgressIndicator(
-                                  value: event == null
-                                      ? 0
-                                      : event.cumulativeBytesLoaded /
-                                          event.expectedTotalBytes,
-                                ),
-                              ),
-                            ),
-                            backgroundDecoration: BoxDecoration(
-                              color: Theme.of(context).canvasColor,
-                            ),
-                            //pageController: widget.pageController,
-                            //onPageChanged: onPageChanged,
+                  Text(
+                    "Description",
+                    style: TextStyle(fontSize: 30, color: Colors.grey),
+                  ),
+                  Text(
+                    description,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Row(
+                    children: textTags,
+                    textDirection: TextDirection.ltr,
+                  ),
+                  //Divider(),
+                  //previewImages(),
+                  //photos
+                  //https://pub.dev/packages/photo_view
+                  Container(
+                    height: 500.0,
+                    child: PhotoViewGallery.builder(
+                      scrollPhysics: const BouncingScrollPhysics(),
+                      builder: (BuildContext context, int index) {
+                        return PhotoViewGalleryPageOptions(
+                          maxScale: PhotoViewComputedScale.contained * 2.0,
+                          minScale: PhotoViewComputedScale.contained * 0.8,
+                          imageProvider:
+                              _dbService.getVendorImage(vData.imageIDs[index]),
+                          heroAttributes: PhotoViewHeroAttributes(
+                              tag: vData.imageIDs[index]),
+                        );
+                      },
+                      itemCount: vData.imageIDs.length,
+                      loadingBuilder: (context, event) => Center(
+                        child: Container(
+                          width: 20.0,
+                          height: 20.0,
+                          child: CircularProgressIndicator(
+                            value: event == null
+                                ? 0
+                                : event.cumulativeBytesLoaded /
+                                    event.expectedTotalBytes,
                           ),
-                        )
-                      ],
+                        ),
+                      ),
+                      backgroundDecoration: BoxDecoration(
+                        color: Theme.of(context).canvasColor,
+                      ),
+                      //pageController: widget.pageController,
+                      //onPageChanged: onPageChanged,
                     ),
+                  ),
+                  Text(
+                    "Reviews",
+                    style: TextStyle(fontSize: 30, color: Colors.grey),
+                  ),
+                  /*
+                  reviews
+                  */
+                  RaisedButton(
+                    color: Colors.pink[400],
+                    child: Text(
+                      'Add review',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddReview(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -213,14 +227,6 @@ class _VendorDetailsState extends State<VendorDetails> {
             floatingActionButton: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    onPressed: () {},
-                    child: Icon(Icons.add),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: FloatingActionButton(
@@ -236,7 +242,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                     },
                     child: Icon(Icons.navigation),
                   ),
-                )
+                ),
               ],
             ),
           );

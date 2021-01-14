@@ -131,7 +131,11 @@ class VendorDBService {
 
   Future<http.Response> addVendorReview(Review review) async {
     var body = jsonEncode({
-      "Review": {'review': review.review, 'by': review.byUser}
+      "Review": {
+        'review': review.review,
+        'by': review.byUser,
+        'stars': review.stars
+      }
     });
     final response = await http.patch(
       vendorDataUrl,
