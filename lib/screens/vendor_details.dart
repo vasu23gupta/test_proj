@@ -33,12 +33,20 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   @override
   void initState() {
+    print("init");
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) =>
-        _dbService.getVendorDescription(vendor).then((value) => setState(() {
-              vData = value;
-              loading = false;
-            })));
+    if (vData == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) =>
+          _dbService.getVendorDescription(vendor).then((value) => setState(() {
+                vendor.data = value;
+                vData = vendor.data;
+                loading = false;
+              })));
+
+      // for (var item in vData.reviewIds) {
+      //   _dbService.getReview(item).then((value) => vData.reviews.add(value));
+      // }
+    }
   }
 
   @override
@@ -203,9 +211,17 @@ class _VendorDetailsState extends State<VendorDetails> {
                     "Reviews",
                     style: TextStyle(fontSize: 30, color: Colors.grey),
                   ),
-                  /*
-                  reviews
-                  */
+                  //reviews
+                  // ListView.builder(
+                  //   itemCount: vData.reviewIds.length,
+                  //   itemBuilder: (context, index) {
+                  //     return Padding(
+                  //       padding: const EdgeInsets.all(2.0),
+                  //       child: vData.reviews[index].widget,
+                  //     );
+                  //   },
+                  // ),
+                  //add review button
                   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(

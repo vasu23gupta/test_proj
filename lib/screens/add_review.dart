@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +19,7 @@ class AddReview extends StatefulWidget {
 }
 
 class _AddReviewState extends State<AddReview> {
-  String error = "";
+  String alertText = "";
   VendorDBService _dbService = VendorDBService();
   Review review = Review();
   TextEditingController mycontroller = new TextEditingController();
@@ -37,17 +39,18 @@ class _AddReviewState extends State<AddReview> {
                 if (response.statusCode == 200) {
                   mycontroller.clear();
                   setState(() {
-                    error = "Successfully added";
+                    review = Review.fromJson(jsonDecode(response.body));
+                    alertText = "Successfully added";
                   });
                 } else {
                   setState(() {
-                    error = "Could not add review";
+                    alertText = "Could not add review";
                   });
                 }
                 //print(response.body.toString());
               } else {
                 setState(() {
-                  error =
+                  alertText =
                       "Please make sure that review is not empty and rating is selected";
                 });
               }
@@ -86,7 +89,7 @@ class _AddReviewState extends State<AddReview> {
             },
           ),
           Text(
-            error,
+            alertText,
             style: TextStyle(color: Colors.red, fontSize: 14.0),
           ),
         ],
