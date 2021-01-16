@@ -12,8 +12,9 @@ import 'package:test_proj/shared/constants.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class AddReview extends StatefulWidget {
-  final VendorData vendorData;
-  AddReview({this.vendorData});
+  //final VendorData vendorData;
+  final Vendor vendor;
+  AddReview({this.vendor});
   @override
   _AddReviewState createState() => _AddReviewState();
 }
@@ -35,7 +36,7 @@ class _AddReviewState extends State<AddReview> {
             onPressed: () async {
               if (review.stars != 0) {
                 final response =
-                    await _dbService.addVendorReview(review, widget.vendorData);
+                    await _dbService.addVendorReview(review, widget.vendor);
                 if (response.statusCode == 200) {
                   mycontroller.clear();
                   setState(() {

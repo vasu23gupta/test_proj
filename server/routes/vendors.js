@@ -124,7 +124,8 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         location: {coordinates: [req.body.lng, req.body.lat]},
         tags: req.body.tags,
-        data: req.body.data
+        images: req.body.images,
+        description: req.body.description
     });
 
     try {
@@ -147,13 +148,12 @@ router.delete('/:vendorId', async (req, res) => {
     }
 });
 
-//update vendor
+//add review
 router.patch('/:vendorId', async (req, res) => {
     try {
         const updatedVendor = await Vendor.updateOne({ _id: req.params.vendorId }, {
-            $set: {
-                //set params
-
+            $push: {
+                reviews: req.body.reviewId
             }
         });
         res.json(updatedVendor);

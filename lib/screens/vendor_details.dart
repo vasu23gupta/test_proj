@@ -28,25 +28,25 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   VendorDBService _dbService = VendorDBService();
   Vendor vendor;
-  VendorData vData;
-  bool loading = true;
+  //VendorData vData;
+  bool loading = false;
 
   @override
   void initState() {
-    print("init");
+    print(vendor.imageIDs.length);
     super.initState();
-    if (vData == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) =>
-          _dbService.getVendorDescription(vendor).then((value) => setState(() {
-                vendor.data = value;
-                vData = vendor.data;
-                loading = false;
-              })));
+    // if (vData == null) {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) =>
+    //       _dbService.getVendorDescription(vendor).then((value) => setState(() {
+    //             vendor.data = value;
+    //             vData = vendor.data;
+    //             loading = false;
+    //           })));
 
-      // for (var item in vData.reviewIds) {
-      //   _dbService.getReview(item).then((value) => vData.reviews.add(value));
-      // }
-    }
+    //   // for (var item in vData.reviewIds) {
+    //   //   _dbService.getReview(item).then((value) => vData.reviews.add(value));
+    //   // }
+    // }
   }
 
   @override
@@ -57,7 +57,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     //   description = await db.getVendorDescription(vendor.dataId).description;
     // }
 
-    if (!loading) description = vData.description;
+    if (!loading) description = vendor.description;
     LatLng vendorLoc = widget.vendor.coordinates;
     List<String> tags = vendor.tags;
     List<Text> textTags = tags
@@ -182,12 +182,12 @@ class _VendorDetailsState extends State<VendorDetails> {
                           maxScale: PhotoViewComputedScale.contained * 2.0,
                           minScale: PhotoViewComputedScale.contained * 0.8,
                           imageProvider:
-                              _dbService.getVendorImage(vData.imageIDs[index]),
+                              _dbService.getVendorImage(vendor.imageIDs[index]),
                           heroAttributes: PhotoViewHeroAttributes(
-                              tag: vData.imageIDs[index]),
+                              tag: vendor.imageIDs[index]),
                         );
                       },
-                      itemCount: vData.imageIDs.length,
+                      itemCount: vendor.imageIDs.length,
                       loadingBuilder: (context, event) => Center(
                         child: Container(
                           width: 20.0,
@@ -233,7 +233,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => AddReview(
-                            vendorData: vData,
+                            vendor: vendor,
                           ),
                         ),
                       );

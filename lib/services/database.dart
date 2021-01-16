@@ -95,21 +95,22 @@ class UserDatabaseService {
 class VendorDBService {
   static String url = "http://10.0.2.2:3000/";
   static String vendorsUrl = url + "vendors/";
-  static String vendorDataUrl = url + "vendordata/";
+  //static String vendorDataUrl = url + "vendordata/";
   static String imagesUrl = url + "images/";
   static String reviewsUrl = url + "reviews/";
   static Dio dio = Dio();
 
   Future<http.Response> addVendor(String name, LatLng coordinates,
       List<String> tags, List<String> imgs, String description) async {
-    http.Response vendorDataResponse = await addVendorData(imgs, description);
-    String vendorDataId = jsonDecode(vendorDataResponse.body)['_id'];
+    //http.Response vendorDataResponse = await addVendorData(imgs, description);
+    //String vendorDataId = jsonDecode(vendorDataResponse.body)['_id'];
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
       'lng': coordinates.longitude.toString(),
       'tags': tags,
-      'data': vendorDataId
+      'images': imgs,
+      'description': description
     });
     final response = await http.post(
       vendorsUrl,
@@ -119,19 +120,18 @@ class VendorDBService {
     return response;
   }
 
-  Future<http.Response> addVendorData(
-      List<String> imgs, String description) async {
-    var body = jsonEncode({'images': imgs, 'description': description});
-    final response = await http.post(
-      vendorDataUrl,
-      headers: {'content-type': 'application/json'},
-      body: body,
-    );
-    return response;
-  }
+  // Future<http.Response> addVendorData(
+  //     List<String> imgs, String description) async {
+  //   var body = jsonEncode({'images': imgs, 'description': description});
+  //   final response = await http.post(
+  //     vendorDataUrl,
+  //     headers: {'content-type': 'application/json'},
+  //     body: body,
+  //   );
+  //   return response;
+  // }
 
-  Future<http.Response> addVendorReview(
-      Review review, VendorData vendorData) async {
+  Future<http.Response> addVendorReview(Review review, Vendor vendor) async {
     var body = jsonEncode(
         {'review': review.review, 'by': review.byUser, 'stars': review.stars});
 
@@ -143,7 +143,7 @@ class VendorDBService {
     String reviewId = jsonDecode(reviewResponse.body)['_id'];
 
     final response = await http.patch(
-      vendorDataUrl + vendorData.id,
+      vendorsUrl + vendor.id,
       headers: {'content-type': 'application/json'},
       body: jsonEncode({'reviewId': reviewId}),
     );
@@ -176,10 +176,10 @@ class VendorDBService {
     return Review.fromJson(jsonDecode(response.body));
   }
 
-  Future<VendorData> getVendorDescription(Vendor vendor) async {
-    final response = await http.get(vendorDataUrl + vendor.dataId);
-    return VendorData.fromJson(jsonDecode(response.body));
-  }
+  // Future<VendorData> getVendorDescription(Vendor vendor) async {
+  //   final response = await http.get(vendorDataUrl + vendor.dataId);
+  //   return VendorData.fromJson(jsonDecode(response.body));
+  // }
 
   NetworkImage getVendorImage(String imageId) {
     //final response = await http.get(imagesUrl + imageId);
@@ -222,7 +222,7 @@ class VendorDBService {
     //print(baseUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
     //print(response.statusCode);
     //print(json.decode(response.body));
-
+    print(response.body);
     List<Vendor> vendors = (json.decode(response.body) as List)
         .map((i) => Vendor.fromJson(i))
         .toList();
