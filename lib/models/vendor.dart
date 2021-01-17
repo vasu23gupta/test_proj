@@ -11,7 +11,7 @@ class Vendor {
   List<String> tags;
   //String dataId;
   //List<NetworkImage> images;
-  List<String> imageIDs;
+  List<String> imageIds;
   String description;
   List<String> reviewIds;
   List<Review> reviews;
@@ -23,7 +23,15 @@ class Vendor {
       this.name,
       this.tags,
       this.description,
-      this.imageIDs});
+      this.imageIds});
+
+  Vendor.fromCoords({this.id, this.coordinates});
+
+  Vendor.fromJsonCoords(Map<String, dynamic> json) {
+    this.id = json['_id'];
+    this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
+        json['location']['coordinates'][0].toDouble());
+  }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     List<String> temp = new List<String>();
@@ -44,7 +52,7 @@ class Vendor {
         //tags: HashSet.from(json['tags'].split("(.*?)")),
         description: json['description'],
         tags: temp,
-        imageIDs: temp2
+        imageIds: temp2
         //dataId: json['data'],
         );
   }

@@ -140,13 +140,15 @@ class VendorDBService {
       headers: {'content-type': 'application/json'},
       body: body,
     );
+    //print(reviewResponse.statusCode);
     String reviewId = jsonDecode(reviewResponse.body)['_id'];
 
     final response = await http.patch(
       vendorsUrl + vendor.id,
       headers: {'content-type': 'application/json'},
-      body: jsonEncode({'reviewId': reviewId}),
+      body: jsonEncode({'reviewId': reviewId, 'stars': review.stars}),
     );
+    //print(response.statusCode);
     return response;
   }
 
@@ -165,9 +167,64 @@ class VendorDBService {
   Future<Vendor> getVendor(String id) async {
     final response = await http.get(vendorsUrl + id);
     //print('response: ' + response.statusCode.toString());
-    print(Vendor.fromJson(jsonDecode(response.body)));
+    //print(Review.fromJson(jsonDecode(response.body)));
     return Vendor.fromJson(jsonDecode(response.body));
   }
+
+  // Future<Vendor> getVendor(
+  //     {String id = "null",
+  //     Vendor vendor,
+  //     bool name = false,
+  //     bool tags = false,
+  //     bool coordinates = false,
+  //     bool description = false,
+  //     bool imageIds = false,
+  //     bool reviewIds = false}) async {
+  //   print(coordinates);
+  //   // if (id != null) {
+  //   //   final response = await http.get(vendorsUrl + id);
+  //   //   //print('response: ' + response.statusCode.toString());
+  //   //   //print(Vendor.fromJson(jsonDecode(response.body)));
+  //   //   return Vendor.fromJson(jsonDecode(response.body));
+  //   // } else {
+  //   final response = await http.get(vendorsUrl +
+  //       id +
+  //       '/' +
+  //       name.toString() +
+  //       '/' +
+  //       tags.toString() +
+  //       '/' +
+  //       coordinates.toString() +
+  //       '/' +
+  //       description.toString() +
+  //       '/' +
+  //       imageIds.toString() +
+  //       '/' +
+  //       reviewIds.toString() +
+  //       '/');
+
+  //   var json = jsonDecode(response.body);
+  //   print(json);
+  //   if (name) vendor.name = json['name'];
+  //   if (tags) vendor.tags = List.castFrom<dynamic, String>(json['tags']);
+  //   if (coordinates)
+  //     vendor.coordinates = new LatLng(
+  //         json['location']['coordinates'][1].toDouble(),
+  //         json['location']['coordinates'][0].toDouble());
+  //   if (description) vendor.description = json['description'];
+  //   if (imageIds)
+  //     vendor.imageIds = List.castFrom<dynamic, String>(json['images']);
+  //   if (reviewIds)
+  //     vendor.reviewIds = List.castFrom<dynamic, String>(json['reviews']);
+  //   //List<dynamic> temp = json['tags'];
+  //   //temp.cast()
+  //   return vendor;
+  //   //   }
+  // }
+
+  // Future<Vendor> getVendor({Vendor vendor, }){
+
+  // }
 
   Future<Review> getReview(String id) async {
     final response = await http.get(reviewsUrl + id);
@@ -197,7 +254,8 @@ class VendorDBService {
   }
 
   Future getVendorsSearch(String query) async {
-    final response = await http.get(vendorsUrl + '/search/' + query);
+    final response =
+        await http.get(vendorsUrl + '/search/' + query.toLowerCase());
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJson(json))
         .toList();
@@ -219,12 +277,12 @@ class VendorDBService {
     // Iterable jsonList = json.decode(response.body);
     // List<Vendor> vendors =
     //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
-    //print(baseUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
+    //print(vendorsUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
     //print(response.statusCode);
     //print(json.decode(response.body));
-    print(response.body);
+    //print(response.body);
     List<Vendor> vendors = (json.decode(response.body) as List)
-        .map((i) => Vendor.fromJson(i))
+        .map((i) => Vendor.fromJsonCoords(i))
         .toList();
     return vendors;
   }

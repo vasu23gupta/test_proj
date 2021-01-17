@@ -23,30 +23,58 @@ router.get('/:vendorId', async (req, res) => {
         const vendor = await Vendor.findById(req.params.vendorId);
         res.json(vendor);
     } catch (err) {
-        res.json({message: err});
+        res.json({ message: err });
     }
 });
 
+// //get one vendor by id with optional parameters
+// router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews', async (req, res) => {
+// //    if (req.params.vendorId=="null") {
+//         try {
+//             const vendor = await Vendor.findById(req.params.vendorId, { 
+//                 name: req.params.name,
+//                 location: req.params.location,
+//                 tags: req.params.tags,
+//                 images: req.params.images,
+//                 description: req.params.description,
+//                 reviews: req.params.reviews,
+//              });
+//              //console.log(vendor);
+//             res.json(vendor);
+//         } catch (err) {
+//             res.json({ message: err });
+//         }
+// //    }
+//     // else{
+//     //     try {
+//     //         const vendor = await Vendor.findById(req.params.vendorId);
+//     //         res.json(vendor);
+//     //     } catch (err) {
+//     //         res.json({ message: err });
+//     //     }
+//     // }
+// });
+
 //get all within bounds
-router.get('/:neLat/:neLng/:swLat/:swLng', async(req,res)=>{
+router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
     var neLat = req.params.neLat;
     var neLng = req.params.neLng;
     var swLat = req.params.swLat;
     var swLng = req.params.swLng;
-    Vendor.find().where('location').within({
+    Vendor.find({}, { location: true }).where('location').within({
         type: 'Polygon',
         coordinates: [[
-            [neLng,neLat],
-            [neLng,swLat],
-            [swLng,swLat],
-            [swLng,neLat],
-            [neLng,neLat]
+            [neLng, neLat],
+            [neLng, swLat],
+            [swLng, swLat],
+            [swLng, neLat],
+            [neLng, neLat]
         ]]
-    }).exec(function(err,docs){
-        if(err) {
-            res.json({message: err});
+    }).exec(function (err, docs) {
+        if (err) {
+            res.json({ message: err });
         }
-        else{
+        else {
             res.json(docs);
         }
     })
@@ -54,45 +82,44 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async(req,res)=>{
 });
 
 //search
-router.get('/search/:query', async(req,res)=>{
+router.get('/search/:query', async (req, res) => {
 
     let searchText = req.params.query;
-    searchText=searchText.trim();
+    searchText = searchText.trim();
     //let searchRegex= searchText;
-    var searchTexts=searchText.split(" ");
-    var searchTextList=[];
-    for(i=0;i<searchTexts.length;i++)
-    {
+    var searchTexts = searchText.split(" ");
+    var searchTextList = [];
+    for (i = 0; i < searchTexts.length; i++) {
         searchTextList.push({
-            name:{
-              $regex: searchTexts[i]
+            name: {
+                $regex: searchTexts[i]
             }
-          })
-          searchTextList.push({
-            tags:{
-              $regex: searchTexts[i]
+        })
+        searchTextList.push({
+            tags: {
+                $regex: searchTexts[i]
             }
-          })
+        })
     }
     var fullTextSearchOptions = {
-        "$text":{
-          "$search": searchText
+        "$text": {
+            "$search": searchText
         }
-      };
-      
-      var regexSearchOptions = {
-          $or: searchTextList
-      };
-      Vendor.find(regexSearchOptions, function(err, docs){
+    };
 
-        if(err){
-          res.json({message: err});
-        }else if(docs){
-          res.json(docs);
+    var regexSearchOptions = {
+        $or: searchTextList
+    };
+    Vendor.find(regexSearchOptions, function (err, docs) {
+
+        if (err) {
+            res.json({ message: err });
+        } else if (docs) {
+            res.json(docs);
         }
-      
-      });
-    
+
+    });
+
     //res.json({message:searchString});
     /* try {
         const vendors=await Vendor.find({$text:{$search: searchString}})
@@ -122,10 +149,13 @@ router.post('/', async (req, res) => {
     //const point = new Point({ type: req.body.type, coordinates: [req.body.lng, req.body.lat] });
     const vendor = new Vendor({
         name: req.body.name,
-        location: {coordinates: [req.body.lng, req.body.lat]},
+        location: { coordinates: [req.body.lng, req.body.lat] },
         tags: req.body.tags,
         images: req.body.images,
-        description: req.body.description
+        description: req.body.description,
+        totalReviews: 0,
+        totalStars: 0,
+        rating: 0
     });
 
     try {
@@ -154,7 +184,9 @@ router.patch('/:vendorId', async (req, res) => {
         const updatedVendor = await Vendor.updateOne({ _id: req.params.vendorId }, {
             $push: {
                 reviews: req.body.reviewId
-            }
+            },
+            $inc: { totalReviews: 1, totalStars: req.body.stars },
+            $set: {$divide: ["$totalStars", "$totalReviews"]}
         });
         res.json(updatedVendor);
     } catch (err) {

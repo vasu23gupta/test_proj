@@ -29,24 +29,35 @@ class _VendorDetailsState extends State<VendorDetails> {
   VendorDBService _dbService = VendorDBService();
   Vendor vendor;
   //VendorData vData;
-  bool loading = false;
+  bool loading = true;
 
   @override
   void initState() {
-    print(vendor.imageIDs.length);
     super.initState();
-    // if (vData == null) {
-    //   WidgetsBinding.instance.addPostFrameCallback((_) =>
-    //       _dbService.getVendorDescription(vendor).then((value) => setState(() {
-    //             vendor.data = value;
-    //             vData = vendor.data;
-    //             loading = false;
-    //           })));
+    // WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
+    //     .getVendor(
+    //       id: vendor.id,
+    //       vendor: vendor,
+    //       name: vendor.name == null,
+    //       tags: vendor.tags == null,
+    //       description: vendor.description == null,
+    //       imageIds: vendor.imageIds == null,
+    //       reviewIds: vendor.reviewIds == null,
+    //       coordinates: vendor.coordinates == null,
+    //     )
+    //     .then((value) => setState(() {
+    //           vendor = value;
+    //           loading = false;
+    //         })));
 
-    //   // for (var item in vData.reviewIds) {
-    //   //   _dbService.getReview(item).then((value) => vData.reviews.add(value));
-    //   // }
-    // }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
+        .getVendor(
+          vendor.id,
+        )
+        .then((value) => setState(() {
+              vendor = value;
+              loading = false;
+            })));
   }
 
   @override
@@ -59,13 +70,13 @@ class _VendorDetailsState extends State<VendorDetails> {
 
     if (!loading) description = vendor.description;
     LatLng vendorLoc = widget.vendor.coordinates;
-    List<String> tags = vendor.tags;
-    List<Text> textTags = tags
-        .map((tag) => Text(
-              tag,
-              style: TextStyle(fontSize: 20, color: Colors.blue),
-            ))
-        .toList();
+    // List<String> tags = vendor.tags;
+    // List<Text> textTags = tags
+    //     .map((tag) => Text(
+    //           tag,
+    //           style: TextStyle(fontSize: 20, color: Colors.blue),
+    //         ))
+    //     .toList();
     //getDescription(vendor).whenComplete(() => setState);
     //Future<String> vendorDescription = getDescription(vendor);
     MapController controller = new MapController();
@@ -166,7 +177,13 @@ class _VendorDetailsState extends State<VendorDetails> {
                     style: TextStyle(fontSize: 20),
                   ),
                   Row(
-                    children: textTags,
+                    children: vendor.tags
+                        .map((tag) => Text(
+                              tag,
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.blue),
+                            ))
+                        .toList(),
                     textDirection: TextDirection.ltr,
                   ),
                   //Divider(),
@@ -182,12 +199,12 @@ class _VendorDetailsState extends State<VendorDetails> {
                           maxScale: PhotoViewComputedScale.contained * 2.0,
                           minScale: PhotoViewComputedScale.contained * 0.8,
                           imageProvider:
-                              _dbService.getVendorImage(vendor.imageIDs[index]),
+                              _dbService.getVendorImage(vendor.imageIds[index]),
                           heroAttributes: PhotoViewHeroAttributes(
-                              tag: vendor.imageIDs[index]),
+                              tag: vendor.imageIds[index]),
                         );
                       },
-                      itemCount: vendor.imageIDs.length,
+                      itemCount: vendor.imageIds.length,
                       loadingBuilder: (context, event) => Center(
                         child: Container(
                           width: 20.0,
