@@ -15,6 +15,7 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -51,19 +52,19 @@ class _VendorDetailsState extends State<VendorDetails> {
     });
   }
 
-  getCurrentIndexToBeFetched() {
+  int getCurrentIndexToBeFetched() {
     return vendorReviewIndexToBeFetched;
   }
 
   getFiveReviews() async {
-    print(this.vendor.name);
+    //print(this.vendor.name);
     for (int i = 0;
         getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
         i++) {
       /* setState(() {
         reviewsLoading = true;
       }); */
-      print(getCurrentIndexToBeFetched());
+      //print(getCurrentIndexToBeFetched());
       await getReviews(vendor.reviewIds[getCurrentIndexToBeFetched()]);
     }
     setState(() {
@@ -71,10 +72,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     });
   }
 
-  getVendor() async {
-    setState(() {
-      loading = true;
-    });
+  Future<void> getVendor() async {
     Vendor v = await _dbService.getVendor(vendor.id);
     setState(() {
       this.vendor = v;
@@ -129,7 +127,6 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     scrollController.dispose();
     super.dispose();
   }
@@ -137,11 +134,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   @override
   Widget build(BuildContext context) {
     String description = "";
-    // void getDescription(Vendor vendor) async {
-    //   VendorDBService db = new VendorDBService();
-    //   description = await db.getVendorDescription(vendor.dataId).description;
-    // }
-    bool changed = false;
+    //bool changed = false;
     if (!loading) {
       description = vendor.description;
       //getFiveReviews();
@@ -173,43 +166,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     }
     //print(vendorReviews.length);
     LatLng vendorLoc = widget.vendor.coordinates;
-    // List<String> tags = vendor.tags;
-    // List<Text> textTags = tags
-    //     .map((tag) => Text(
-    //           tag,
-    //           style: TextStyle(fontSize: 20, color: Colors.blue),
-    //         ))
-    //     .toList();
-    //getDescription(vendor).whenComplete(() => setState);
-    //Future<String> vendorDescription = getDescription(vendor);
     MapController controller = new MapController();
-    //List<Asset> images = widget.images;
-    // Widget previewImages() {
-    //   if (images.length == 0)
-    //     return Container();
-    //   else {
-    //     return SizedBox(
-    //       height: 150,
-    //       child: ListView.builder(
-    //         itemCount: images.length,
-    //         itemBuilder: (context, index) {
-    //           // String path;
-    //           // FlutterAbsolutePath.getAbsolutePath(images[index].identifier)
-    //           //     .then((value) => path = value);
-    //           return Padding(
-    //             padding: const EdgeInsets.all(8.0),
-    //             child: AssetThumb(
-    //               asset: images[index],
-    //               width: 150,
-    //               height: 150,
-    //             ),
-    //           );
-    //         },
-    //         scrollDirection: Axis.horizontal,
-    //       ),
-    //     );
-    //   }
-    // }
 
     Marker vendorMarker = new Marker(
       //anchorPos: AnchorPos.align(AnchorAlign.center),
@@ -220,20 +177,9 @@ class _VendorDetailsState extends State<VendorDetails> {
         //alignment: Alignment.bottomRight,
         icon: Icon(Icons.circle),
         iconSize: 40.0,
-        onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => VendorDetails(
-          //       vendor: vendor,
-          //     ),
-          //   ),
-          // );
-        },
+        onPressed: () {},
       ),
     );
-    List<Marker> vendorMarkers = new List();
-    vendorMarkers.add(vendorMarker);
     return loading
         ? Loading()
         : Scaffold(
@@ -266,7 +212,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                           subdomains: ['a', 'b', 'c'],
                         ),
                         new MarkerLayerOptions(
-                          markers: vendorMarkers,
+                          markers: [vendorMarker],
                         ),
                       ],
                     ),
@@ -282,7 +228,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                   Row(
                     children: vendor.tags
                         .map((tag) => Text(
-                              tag,
+                              tag + " ",
                               style:
                                   TextStyle(fontSize: 20, color: Colors.blue),
                             ))
@@ -290,7 +236,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                     textDirection: TextDirection.ltr,
                   ),
                   //Divider(),
-                  //previewImages(),
                   //photos
                   //https://pub.dev/packages/photo_view
                   Container(
@@ -298,6 +243,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                     child: PhotoViewGallery.builder(
                       scrollPhysics: const BouncingScrollPhysics(),
                       builder: (BuildContext context, int index) {
+                        //print(index);
                         return PhotoViewGalleryPageOptions(
                           maxScale: PhotoViewComputedScale.contained * 2.0,
                           minScale: PhotoViewComputedScale.contained * 0.8,
@@ -331,6 +277,10 @@ class _VendorDetailsState extends State<VendorDetails> {
                     "Reviews",
                     style: TextStyle(fontSize: 30, color: Colors.grey),
                   ),
+                  Text(
+                    vendor.stars.toString() + " Stars",
+                    style: TextStyle(fontSize: 30, color: Colors.grey),
+                  ),
                   //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
                   //reviews
                   reviewsLoading
@@ -344,6 +294,11 @@ class _VendorDetailsState extends State<VendorDetails> {
                                 return ListTile(
                                   title: Column(
                                     children: [
+                                      Text(
+                                        vendorReviews[index].stars.toString(),
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.black),
+                                      ),
                                       Text(
                                         vendorReviews[index].review,
                                         style: TextStyle(

@@ -140,7 +140,6 @@ class VendorDBService {
       headers: {'content-type': 'application/json'},
       body: body,
     );
-    //print(reviewResponse.statusCode);
     String reviewId = jsonDecode(reviewResponse.body)['_id'];
 
     final response = await http.patch(
@@ -148,7 +147,6 @@ class VendorDBService {
       headers: {'content-type': 'application/json'},
       body: jsonEncode({'reviewId': reviewId, 'stars': review.stars}),
     );
-    //print(response.statusCode);
     return response;
   }
 

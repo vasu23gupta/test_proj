@@ -39,8 +39,9 @@ class _AddReviewState extends State<AddReview> {
                     await _dbService.addVendorReview(review, widget.vendor);
                 if (response.statusCode == 200) {
                   mycontroller.clear();
+                  //print(response.body);
                   setState(() {
-                    review = Review.fromJson(jsonDecode(response.body));
+                    //review = Review.fromJson(jsonDecode(response.body));
                     alertText = "Successfully added";
                   });
                 } else {

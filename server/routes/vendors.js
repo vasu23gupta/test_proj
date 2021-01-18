@@ -180,20 +180,28 @@ router.delete('/:vendorId', async (req, res) => {
 
 //add review
 router.patch('/:vendorId', async (req, res) => {
-    
+
     try {
-        const updatedVendor = await Vendor.updateOne({ _id: req.params.vendorId }, {
+        var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
             $push: {
                 reviews: req.body.reviewId
             },
             $inc: { totalReviews: 1, totalStars: req.body.stars },
-            $set:{$divide:{}},
-            new:true,
         });
 
-        res.json(updatedVendor);
+        var vendor = await Vendor.findById(req.params.vendorId, {totalReviews: 1, totalStars:1, _id:0});
+        const totalReviews=vendor.totalReviews;
+        const totalStars=vendor.totalStars;
+        const rating = totalStars/totalReviews;
+
+        var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
+            $set: {rating: rating}
+        });
+
+        res.json(updateResult);
     }
-     catch (err) {
+    catch (err) {
+        console.log(err);
         res.json({ message: err });
     }
 });

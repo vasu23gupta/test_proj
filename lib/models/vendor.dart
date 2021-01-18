@@ -15,6 +15,7 @@ class Vendor {
   String description;
   List<String> reviewIds = [];
   List<Review> reviews;
+  double stars;
   //VendorData data;
 
   Vendor(
@@ -24,7 +25,8 @@ class Vendor {
       this.tags,
       this.description,
       this.imageIds,
-      this.reviewIds});
+      this.reviewIds,
+      this.stars});
 
   Vendor.fromCoords({this.id, this.coordinates});
 
@@ -48,19 +50,19 @@ class Vendor {
       temp3.add(item);
     }
     return Vendor(
-        id: json['_id'],
-        name: json['name'],
-        // coordinates:
-        //     new LatLng(double.parse(json['lat']), double.parse(json['lng'])),
-        coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
-            json['location']['coordinates'][0].toDouble()),
-        //tags: HashSet.from(json['tags'].split("(.*?)")),
-        description: json['description'],
-        tags: temp,
-        imageIds: temp2,
-        reviewIds: temp3
-        //dataId: json['data'],
-        );
+      id: json['_id'],
+      name: json['name'],
+      // coordinates:
+      //     new LatLng(double.parse(json['lat']), double.parse(json['lng'])),
+      coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
+          json['location']['coordinates'][0].toDouble()),
+      //tags: HashSet.from(json['tags'].split("(.*?)")),
+      description: json['description'],
+      tags: temp,
+      imageIds: temp2,
+      reviewIds: temp3,
+      stars: json['rating'].toDouble(),
+    );
   }
 
   bool operator ==(other) {
