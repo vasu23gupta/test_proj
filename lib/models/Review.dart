@@ -12,7 +12,7 @@ class Review {
       id: json['_id'],
       byUser: json['by'],
       review: json['review'],
-      stars: json['stars'],
+      stars: json['stars'].toDouble(),
     );
   }
 

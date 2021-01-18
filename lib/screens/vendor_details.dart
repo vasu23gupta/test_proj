@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/add_review.dart';
@@ -28,12 +30,73 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   VendorDBService _dbService = VendorDBService();
   Vendor vendor;
+  List<Review> vendorReviews = [];
+  var vendorReviewIndexToBeFetched = 0;
   //VendorData vData;
   bool loading = true;
+  bool reviewsLoading = false;
+  bool getNewReviews = true;
+  getReviews(
+    String id,
+  ) async {
+    setState(() {
+      reviewsLoading = true;
+      getNewReviews = false;
+    });
+    Review review = await _dbService.getReview(id);
+    setState(() {
+      vendorReviews.add(review);
+      vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
+      //print(vendorReviewIndexToBeFetched);
+    });
+  }
 
+  getCurrentIndexToBeFetched() {
+    return vendorReviewIndexToBeFetched;
+  }
+
+  getFiveReviews() async {
+    print(this.vendor.name);
+    for (int i = 0;
+        getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
+        i++) {
+      /* setState(() {
+        reviewsLoading = true;
+      }); */
+      print(getCurrentIndexToBeFetched());
+      await getReviews(vendor.reviewIds[getCurrentIndexToBeFetched()]);
+    }
+    setState(() {
+      reviewsLoading = false;
+    });
+  }
+
+  getVendor() async {
+    setState(() {
+      loading = true;
+    });
+    Vendor v = await _dbService.getVendor(vendor.id);
+    setState(() {
+      this.vendor = v;
+      loading = false;
+    });
+  }
+
+  ScrollController scrollController = new ScrollController();
   @override
   void initState() {
     super.initState();
+    getVendor();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        setState(() {
+          getNewReviews = true;
+        });
+      }
+    });
+    //print(this.vendor.name);
+    //getFiveReviews(vendorReviewIndexToBeFetched);
     // WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
     //     .getVendor(
     //       id: vendor.id,
@@ -50,14 +113,25 @@ class _VendorDetailsState extends State<VendorDetails> {
     //           loading = false;
     //         })));
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
-        .getVendor(
-          vendor.id,
-        )
-        .then((value) => setState(() {
-              vendor = value;
-              loading = false;
-            })));
+    /* WidgetsBinding.instance.addPostFrameCallback((_) {
+      _dbService
+          .getVendor(
+            vendor.id,
+          )
+          .then((value) => setState(() {
+                vendor = value;
+                print(vendor.reviewIds);
+                loading = false;
+              }));
+    }); */
+    //if (!loading) print(this.vendor.name);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -67,8 +141,37 @@ class _VendorDetailsState extends State<VendorDetails> {
     //   VendorDBService db = new VendorDBService();
     //   description = await db.getVendorDescription(vendor.dataId).description;
     // }
-
-    if (!loading) description = vendor.description;
+    bool changed = false;
+    if (!loading) {
+      description = vendor.description;
+      //getFiveReviews();
+      /* if (vendor.reviewIds.isNotEmpty) {
+        List<Review> reviews = new List<Review>();
+        for (var reviewId in vendor.reviewIds) {
+          print("e");
+          _dbService
+              .getReview(
+            reviewId,
+          )
+              .then((value) {
+            reviews.add(value);
+            changed = true;
+            print(value.review);
+          });
+        }
+        if (changed) {
+          setState(() {
+            vendorReviews = reviews;
+            changed = false;
+            print(vendorReviews.length);
+          });
+        }
+      } */
+    }
+    if (!reviewsLoading && !loading && getNewReviews) {
+      getFiveReviews();
+    }
+    //print(vendorReviews.length);
     LatLng vendorLoc = widget.vendor.coordinates;
     // List<String> tags = vendor.tags;
     // List<Text> textTags = tags
@@ -228,16 +331,49 @@ class _VendorDetailsState extends State<VendorDetails> {
                     "Reviews",
                     style: TextStyle(fontSize: 30, color: Colors.grey),
                   ),
+                  //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
                   //reviews
-                  // ListView.builder(
-                  //   itemCount: vData.reviewIds.length,
-                  //   itemBuilder: (context, index) {
-                  //     return Padding(
+                  reviewsLoading
+                      ? Loading()
+                      : Container(
+                          height: 280,
+                          child: ListView.builder(
+                              controller: scrollController,
+                              itemCount: vendorReviews.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Column(
+                                    children: [
+                                      Text(
+                                        vendorReviews[index].review,
+                                        style: TextStyle(
+                                            fontSize: 20, color: Colors.black),
+                                      ),
+                                      Text(
+                                        "by: ",
+                                        style: TextStyle(
+                                            fontSize: 12, color: Colors.grey),
+                                      ),
+                                      Text(
+                                        vendorReviews[index].byUser,
+                                        style: TextStyle(
+                                            fontSize: 12, color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                        ),
+                  /*  */
+                  //Padding(
                   //       padding: const EdgeInsets.all(2.0),
                   //       child: vData.reviews[index].widget,
                   //     );
                   //   },
                   // ),
+                  SizedBox(
+                    height: 20,
+                  ),
                   //add review button
                   RaisedButton(
                     color: Colors.pink[400],
