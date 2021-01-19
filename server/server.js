@@ -30,6 +30,9 @@ app.use('/images', imagesRoute);
 const vendorDataRoute = require('./routes/vendorData');
 app.use('/vendordata', vendorDataRoute);
 
+const reviewRoute = require('./routes/reviews');
+app.use('/reviews', reviewRoute);
+
 //db
 async function connectDB(){
     await mongoose.connect("mongodb+srv://testUser:testPass@cluster0.neji0.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });

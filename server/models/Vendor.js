@@ -34,9 +34,29 @@ const VendorSchema = mongoose.Schema({
     required: true,
     index: "text"
   },
-  data:{
-    type: String,
+  images: {
+    type: [String],
     required: true
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  reviews: {
+    type: [String],
+    required: false,
+  },
+  totalStars:{
+    type: Number,
+    required: true,
+  },
+  totalReviews:{
+    type: Number,
+    required: true,
+  },
+  rating:{
+    type: Number,
+    required: true,
   }
 });
 VendorSchema.index({ name: 'text', tags: 'text' });

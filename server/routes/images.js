@@ -28,9 +28,17 @@ const upload = multer({
 
 //get an image by id
 router.get('/:imageId', async (req, res) => {
+    //https://stackoverflow.com/questions/28440369/rendering-a-base64-png-with-express
     try {
-        const image = await Image.findById(req.params.imageId);
-        res.json(image);
+        var imageBase64 = await Image.findById(req.params.imageId);
+        imageBase64=imageBase64['img']['data'];
+        //console.log(imageBase64);
+        const image = Buffer.from(imageBase64, 'base64');
+        res.writeHead(200, {
+            'Content-Type': 'image',
+            'Content-Length': image.length
+        });
+        res.end(image);
     } catch (err) {
         res.json({message: err});
     }

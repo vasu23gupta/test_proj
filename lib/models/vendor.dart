@@ -2,21 +2,52 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendorData.dart';
+import 'Review.dart';
 
 class Vendor {
   String id;
   String name;
   LatLng coordinates;
   List<String> tags;
-  String dataId;
-  VendorData data;
+  //String dataId;
+  //List<NetworkImage> images;
+  List<String> imageIds;
+  String description;
+  List<String> reviewIds = [];
+  List<Review> reviews;
+  double stars;
+  //VendorData data;
 
-  Vendor({this.id, this.coordinates, this.name, this.tags, this.dataId});
+  Vendor(
+      {this.id,
+      this.coordinates,
+      this.name,
+      this.tags,
+      this.description,
+      this.imageIds,
+      this.reviewIds,
+      this.stars});
+
+  Vendor.fromCoords({this.id, this.coordinates});
+
+  Vendor.fromJsonCoords(Map<String, dynamic> json) {
+    this.id = json['_id'];
+    this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
+        json['location']['coordinates'][0].toDouble());
+  }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     List<String> temp = new List<String>();
+    List<String> temp2 = new List<String>();
+    List<String> temp3 = new List<String>();
     for (var item in json['tags']) {
       temp.add(item.toString());
+    }
+    for (var item in json['images']) {
+      temp2.add(item.toString());
+    }
+    for (var item in json['reviews']) {
+      temp3.add(item);
     }
     return Vendor(
       id: json['_id'],
@@ -26,18 +57,22 @@ class Vendor {
       coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
           json['location']['coordinates'][0].toDouble()),
       //tags: HashSet.from(json['tags'].split("(.*?)")),
+      description: json['description'],
       tags: temp,
-      dataId: json['data'],
+      imageIds: temp2,
+      reviewIds: temp3,
+      stars: json['rating'].toDouble(),
     );
   }
 
   bool operator ==(other) {
     return (other is Vendor &&
-        other.id == id &&
-        other.name == name &&
-        other.coordinates == coordinates &&
-        listEquals(other.tags, tags) &&
-        other.dataId == dataId);
+            other.id == id &&
+            other.name == name &&
+            other.coordinates == coordinates &&
+            listEquals(other.tags, tags)
+        //other.dataId == dataId,
+        );
   }
 
   bool contains(String string) {
@@ -46,6 +81,6 @@ class Vendor {
   }
 
   @override
-  int get hashCode => hashValues(name.hashCode, id.hashCode,
-      coordinates.hashCode, tags.hashCode, dataId.hashCode);
+  int get hashCode => hashValues(
+      name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
 }

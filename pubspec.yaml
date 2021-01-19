@@ -45,6 +45,9 @@ dependencies:
   multi_image_picker: ^4.7.14
   flutter_absolute_path: ^1.0.6
   dio:
+  map_launcher: ^1.1.2
+  photo_view: ^0.10.3
+  flutter_rating_bar: ^3.2.0+1
 
 dev_dependencies:
   flutter_test:

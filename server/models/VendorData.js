@@ -8,6 +8,10 @@ const VendorDataSchema = mongoose.Schema({
     description:{
         type: String,
         required: true
+    },
+    reviews: {
+        type: [String],
+        required: false,
     }
 });
 

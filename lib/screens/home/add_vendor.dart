@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
+import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
@@ -299,14 +300,13 @@ class _AddVendorState extends State<AddVendor> {
                             //String id = jsonDecode(result.body)['_id'];
                             //print(jsonDecode(result.body));
                             //print(id);
+                            Vendor vendor =
+                                Vendor.fromJson(jsonDecode(result.body));
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => VendorDetails(
-                                  vendor: Vendor.fromJson(
-                                    jsonDecode(result.body),
-                                  ),
-                                ),
+                                builder: (context) =>
+                                    VendorDetails(vendor: vendor),
                               ),
                             );
                           }

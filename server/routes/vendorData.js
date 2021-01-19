@@ -19,7 +19,7 @@ router.get('/:vendorDataId', async (req, res) => {
         const vendorData = await VendorData.findById(req.params.vendorDataId);
         res.json(vendorData);
     } catch (err) {
-        res.json({message: err});
+        res.json({ message: err });
     }
 });
 
@@ -49,16 +49,17 @@ router.delete('/:vendorDataId', async (req, res) => {
 });
 
 //update vendor data
+//https://stackoverflow.com/questions/33049707/push-items-into-mongo-array-via-mongoose
 router.patch('/:vendorDataId', async (req, res) => {
     try {
         const updatedVendorData = await VendorData.updateOne({ _id: req.params.vendorDataId }, {
-            $set: {
-                //set params
-
+            $push: {
+                reviews: req.body.reviewId
             }
         });
-        res.json(updatedDataVendor);
+        res.json(updatedVendorData);
     } catch (err) {
+        console.log(err);
         res.json({ message: err });
     }
 });
