@@ -7,6 +7,7 @@ import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
+import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -44,6 +45,15 @@ class _AddReviewState extends State<AddReview> {
                     //review = Review.fromJson(jsonDecode(response.body));
                     alertText = "Successfully added";
                   });
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VendorDetails(
+                        vendor: widget.vendor,
+                      ),
+                    ),
+                  );
                 } else {
                   setState(() {
                     alertText = "Could not add review";

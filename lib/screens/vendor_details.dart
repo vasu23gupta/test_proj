@@ -7,6 +7,7 @@ import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/add_review.dart';
+import 'package:test_proj/screens/home/add_vendor.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
@@ -48,7 +49,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       vendorReviews.add(review);
       vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
-      //print(vendorReviewIndexToBeFetched);
+      print(vendorReviewIndexToBeFetched);
     });
   }
 
@@ -283,42 +284,42 @@ class _VendorDetailsState extends State<VendorDetails> {
                   ),
                   //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
                   //reviews
-                  reviewsLoading
-                      ? Loading()
-                      : Container(
-                          height: 280,
-                          child: ListView.builder(
-                              controller: scrollController,
-                              itemCount: vendorReviews.length,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  title: Column(
-                                    children: [
-                                      Text(
-                                        vendorReviews[index].stars.toString(),
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.black),
-                                      ),
-                                      Text(
-                                        vendorReviews[index].review,
-                                        style: TextStyle(
-                                            fontSize: 20, color: Colors.black),
-                                      ),
-                                      Text(
-                                        "by: ",
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.grey),
-                                      ),
-                                      Text(
-                                        vendorReviews[index].byUser,
-                                        style: TextStyle(
-                                            fontSize: 12, color: Colors.grey),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }),
-                        ),
+                  //reviewsLoading
+                  //    ? Loading()
+                  /* : */ Container(
+                    height: 280,
+                    child: ListView.builder(
+                        controller: scrollController,
+                        itemCount: vendorReviews.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title: Column(
+                              children: [
+                                Text(
+                                  vendorReviews[index].stars.toString(),
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.black),
+                                ),
+                                Text(
+                                  vendorReviews[index].review,
+                                  style: TextStyle(
+                                      fontSize: 20, color: Colors.black),
+                                ),
+                                Text(
+                                  "by: ",
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                                Text(
+                                  vendorReviews[index].byUser,
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                  ),
                   /*  */
                   //Padding(
                   //       padding: const EdgeInsets.all(2.0),
@@ -337,6 +338,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () {
+                      Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
