@@ -177,7 +177,8 @@ class VendorDBService {
   //     bool coordinates = false,
   //     bool description = false,
   //     bool imageIds = false,
-  //     bool reviewIds = false}) async {
+  //     bool reviewIds = false,
+  //     bool stars = false}) async {
   //   print(coordinates);
   //   // if (id != null) {
   //   //   final response = await http.get(vendorsUrl + id);
@@ -185,7 +186,7 @@ class VendorDBService {
   //   //   //print(Vendor.fromJson(jsonDecode(response.body)));
   //   //   return Vendor.fromJson(jsonDecode(response.body));
   //   // } else {
-  //   final response = await http.get(vendorsUrl +
+  //   String url = vendorsUrl +
   //       id +
   //       '/' +
   //       name.toString() +
@@ -199,7 +200,11 @@ class VendorDBService {
   //       imageIds.toString() +
   //       '/' +
   //       reviewIds.toString() +
-  //       '/');
+  //       '/' +
+  //       stars.toString() +
+  //       '/';
+  //   print(url);
+  //   final response = await http.get(url);
 
   //   var json = jsonDecode(response.body);
   //   print(json);
@@ -214,6 +219,7 @@ class VendorDBService {
   //     vendor.imageIds = List.castFrom<dynamic, String>(json['images']);
   //   if (reviewIds)
   //     vendor.reviewIds = List.castFrom<dynamic, String>(json['reviews']);
+  //   if (stars) vendor.stars = json['rating'];
   //   //List<dynamic> temp = json['tags'];
   //   //temp.cast()
   //   return vendor;

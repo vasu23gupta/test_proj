@@ -27,33 +27,37 @@ router.get('/:vendorId', async (req, res) => {
     }
 });
 
-// //get one vendor by id with optional parameters
-// router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews', async (req, res) => {
-// //    if (req.params.vendorId=="null") {
-//         try {
-//             const vendor = await Vendor.findById(req.params.vendorId, { 
-//                 name: req.params.name,
-//                 location: req.params.location,
-//                 tags: req.params.tags,
-//                 images: req.params.images,
-//                 description: req.params.description,
-//                 reviews: req.params.reviews,
-//              });
-//              //console.log(vendor);
-//             res.json(vendor);
-//         } catch (err) {
-//             res.json({ message: err });
-//         }
-// //    }
-//     // else{
-//     //     try {
-//     //         const vendor = await Vendor.findById(req.params.vendorId);
-//     //         res.json(vendor);
-//     //     } catch (err) {
-//     //         res.json({ message: err });
-//     //     }
-//     // }
-// });
+//get one vendor by id with optional parameters
+router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rating', async (req, res) => {
+//    if (req.params.vendorId=="null") {
+        try {
+            //console.log(req.params.name=='true'?1:0);
+            const vendor = await Vendor.findById({_id: req.params.vendorId}, { 
+                _id: 0,
+                __v:0,
+                name: req.params.name=='true'?1:0,
+                location: req.params.location=='true'?1:0,
+                tags: req.params.tags=='true'?1:0,
+                images: req.params.images=='true'?1:0,
+                description: req.params.description=='true'?1:0,
+                reviews: req.params.reviews=='true'?1:0,
+                rating: req.params.rating=='true'?1:0
+             });
+             //console.log(vendor);
+            res.json(vendor);
+        } catch (err) {
+            res.json({ message: err });
+        }
+//    }
+    // else{
+    //     try {
+    //         const vendor = await Vendor.findById(req.params.vendorId);
+    //         res.json(vendor);
+    //     } catch (err) {
+    //         res.json({ message: err });
+    //     }
+    // }
+});
 
 //get all within bounds
 router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
@@ -192,7 +196,8 @@ router.patch('/:vendorId', async (req, res) => {
         var vendor = await Vendor.findById(req.params.vendorId, {totalReviews: 1, totalStars:1, _id:0});
         const totalReviews=vendor.totalReviews;
         const totalStars=vendor.totalStars;
-        const rating = totalStars/totalReviews;
+        var rating = totalStars/totalReviews;
+        rating = Math.round((rating + Number.EPSILON) * 100) / 100
 
         var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
             $set: {rating: rating}

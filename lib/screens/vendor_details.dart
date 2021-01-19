@@ -49,7 +49,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       vendorReviews.add(review);
       vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
-      print(vendorReviewIndexToBeFetched);
+      //print(vendorReviewIndexToBeFetched);
     });
   }
 
@@ -75,6 +75,17 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   Future<void> getVendor() async {
     Vendor v = await _dbService.getVendor(vendor.id);
+    // Vendor v = await _dbService.getVendor(
+    //   id: vendor.id,
+    //   vendor: vendor,
+    //   name: vendor.name == null,
+    //   tags: vendor.tags == null,
+    //   description: vendor.description == null,
+    //   imageIds: vendor.imageIds == null,
+    //   reviewIds: vendor.reviewIds == null,
+    //   coordinates: vendor.coordinates == null,
+    //   stars: vendor.stars == null,
+    // );
     setState(() {
       this.vendor = v;
       loading = false;
