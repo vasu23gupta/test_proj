@@ -92,6 +92,17 @@ class _VendorDetailsState extends State<VendorDetails> {
     });
   }
 
+  optionsHandleTap(String value) {
+    switch (value) {
+      case 'Edit':
+        print(value);
+        break;
+      case 'Report':
+        print(value);
+        break;
+    }
+  }
+
   ScrollController scrollController = new ScrollController();
   @override
   void initState() {
@@ -197,12 +208,26 @@ class _VendorDetailsState extends State<VendorDetails> {
         : Scaffold(
             appBar: AppBar(
               title: Text(vendor.name),
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
+              actions: <Widget>[
+                //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
+                PopupMenuButton<String>(
+                  onSelected: optionsHandleTap,
+                  itemBuilder: (BuildContext context) {
+                    return {'Edit', 'Report'}.map((String choice) {
+                      return PopupMenuItem<String>(
+                        value: choice,
+                        child: Text(choice),
+                      );
+                    }).toList();
+                  },
+                )
+              ],
+              // leading: IconButton(
+              //   icon: Icon(Icons.arrow_back),
+              //   onPressed: () {
+              //     Navigator.pop(context);
+              //   },
+              // ),
             ),
             body: SingleChildScrollView(
               child: Column(
