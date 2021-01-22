@@ -8,6 +8,7 @@ import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/add_review.dart';
 import 'package:test_proj/screens/home/add_vendor.dart';
+import 'package:test_proj/screens/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
@@ -90,17 +91,6 @@ class _VendorDetailsState extends State<VendorDetails> {
       this.vendor = v;
       loading = false;
     });
-  }
-
-  optionsHandleTap(String value) {
-    switch (value) {
-      case 'Edit':
-        print(value);
-        break;
-      case 'Report':
-        print(value);
-        break;
-    }
   }
 
   ScrollController scrollController = new ScrollController();
@@ -209,18 +199,7 @@ class _VendorDetailsState extends State<VendorDetails> {
             appBar: AppBar(
               title: Text(vendor.name),
               actions: <Widget>[
-                //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
-                PopupMenuButton<String>(
-                  onSelected: optionsHandleTap,
-                  itemBuilder: (BuildContext context) {
-                    return {'Edit', 'Report'}.map((String choice) {
-                      return PopupMenuItem<String>(
-                        value: choice,
-                        child: Text(choice),
-                      );
-                    }).toList();
-                  },
-                )
+                Options(),
               ],
               // leading: IconButton(
               //   icon: Icon(Icons.arrow_back),
