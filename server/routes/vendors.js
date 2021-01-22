@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 //get one vendor by id
 router.get('/:vendorId', async (req, res) => {
     try {
-        const vendor = await Vendor.findById(req.params.vendorId);
+        const vendor = await Vendor.findById(req.params.vendorId, {totalStars: 0, totalReviews:0, reports:0, totalReports:0});
         res.json(vendor);
     } catch (err) {
         res.json({ message: err });
@@ -65,16 +65,22 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
     var neLng = req.params.neLng;
     var swLat = req.params.swLat;
     var swLng = req.params.swLng;
-    Vendor.find({}, { location: true }).where('location').within({
-        type: 'Polygon',
-        coordinates: [[
-            [neLng, neLat],
-            [neLng, swLat],
-            [swLng, swLat],
-            [swLng, neLat],
-            [neLng, neLat]
-        ]]
-    }).exec(function (err, docs) {
+    Vendor.find({
+        location:{
+            $geoWithin:{
+                $geometry:{
+                    type: 'Polygon',
+                    coordinates: [[
+                        [neLng, neLat],
+                        [neLng, swLat],
+                        [swLng, swLat],
+                        [swLng, neLat],
+                        [neLng, neLat]
+                    ]]
+                }
+            }
+        }
+    }, { location: true }).exec(function (err, docs) {
         if (err) {
             res.json({ message: err });
         }
@@ -114,7 +120,7 @@ router.get('/search/:query', async (req, res) => {
     var regexSearchOptions = {
         $or: searchTextList
     };
-    Vendor.find(regexSearchOptions, function (err, docs) {
+    Vendor.find(regexSearchOptions,{name:1, tags:1}, function (err, docs) {
 
         if (err) {
             res.json({ message: err });
@@ -159,7 +165,8 @@ router.post('/', async (req, res) => {
         description: req.body.description,
         totalReviews: 0,
         totalStars: 0,
-        rating: 0
+        rating: 0,
+        totalReports: 0
     });
 
     try {
@@ -183,7 +190,7 @@ router.delete('/:vendorId', async (req, res) => {
 });
 
 //add review
-router.patch('/:vendorId', async (req, res) => {
+router.patch('/review/:vendorId', async (req, res) => {
 
     try {
         var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
@@ -204,6 +211,29 @@ router.patch('/:vendorId', async (req, res) => {
         });
 
         res.json(updateResult);
+    }
+    catch (err) {
+        console.log(err);
+        res.json({ message: err });
+    }
+});
+
+//add report
+router.patch('/report/:vendorId', async (req, res) => {
+
+    try {
+        var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
+            $push: {
+                reports: req.body.reportId
+            },
+            $inc: { totalReports: 1},
+        });
+
+        // if((await Vendor.findById(req.params.vendorId,{totalReports:1, _id:0})).totalReports>=10){
+        //     //delete maybe
+        // }
+
+        res.json(response);
     }
     catch (err) {
         console.log(err);

@@ -20,10 +20,31 @@ class UserDatabaseService {
   final CollectionReference userCollection =
       FirebaseFirestore.instance.collection('users');
 
-  Future updateUserData(String name) async {
+  Future updateUserName(String name) async {
     return await userCollection.doc(uid).set({
       'name': name,
     });
+  }
+
+  Future addReportToProfile(String reportId) async {
+    List report = [reportId];
+    return await userCollection
+        .doc(uid)
+        .update({'reports': FieldValue.arrayUnion(report)});
+  }
+
+  Future addVendorToProfile(String vendorId) async {
+    List vendor = [vendorId];
+    return await userCollection
+        .doc(uid)
+        .update({'vendors': FieldValue.arrayUnion(vendor)});
+  }
+
+  Future addReviewToProfile(String reveiwId) async {
+    List reveiw = [reveiwId];
+    return await userCollection
+        .doc(uid)
+        .update({'reveiws': FieldValue.arrayUnion(reveiw)});
   }
 
   //user list from snapshot
@@ -95,7 +116,7 @@ class UserDatabaseService {
 class VendorDBService {
   static String url = "http://10.0.2.2:3000/";
   static String vendorsUrl = url + "vendors/";
-  //static String vendorDataUrl = url + "vendordata/";
+  static String reportsUrl = url + "reports/";
   static String imagesUrl = url + "images/";
   static String reviewsUrl = url + "reviews/";
   static Dio dio = Dio();
@@ -143,10 +164,34 @@ class VendorDBService {
     String reviewId = jsonDecode(reviewResponse.body)['_id'];
 
     final response = await http.patch(
-      vendorsUrl + vendor.id,
+      vendorsUrl + "review/" + vendor.id,
       headers: {'content-type': 'application/json'},
       body: jsonEncode({'reviewId': reviewId, 'stars': review.stars}),
     );
+    return response;
+  }
+
+  Future<http.Response> reportVendor(
+      String report, Vendor vendor, String userId) async {
+    var body =
+        jsonEncode({'report': report, 'by': userId, 'vendor': vendor.id});
+
+    final reportResponse = await http.post(
+      reportsUrl,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    String reportId = jsonDecode(reportResponse.body)['_id'];
+
+    final response = await http.patch(
+      vendorsUrl + "report/" + vendor.id,
+      headers: {'content-type': 'application/json'},
+      body: jsonEncode({'reportId': reportId}),
+    );
+
+    //adds report to user's database too,
+    //cant add to anon users cuz they cant report
+    //await UserDatabaseService(uid: userId).addReportToProfile(reportId);
     return response;
   }
 
@@ -261,7 +306,7 @@ class VendorDBService {
     final response =
         await http.get(vendorsUrl + '/search/' + query.toLowerCase());
     var list = (jsonDecode(response.body))
-        .map((json) => Vendor.fromJson(json))
+        .map((json) => Vendor.fromJsonSearch(json))
         .toList();
     //print(list);
     return list;

@@ -270,22 +270,9 @@ class _AddVendorState extends State<AddVendor> {
                               print(imgResponse.statusCode);
                             }
                           }
-                          for (var pointer in imageIds) {
-                            print(pointer);
-                          }
-                          //String id = createId(user.uid);
                           Response result;
                           result = await vdbs.addVendor(
                               name, vendorLatLng, tags, imageIds, description);
-                          // try {
-                          //   // result = await VendorDatabaseService(id: id)
-                          //   //     .updateVendorData(name, vendorLatLng, tags);
-                          //   result = await VendorDBService()
-                          //       .addVendor(name, vendorLatLng, tags);
-                          //   print("result: " + result.toString());
-                          // } catch (e) {
-                          //   print(e.toString());
-                          // }
                           setState(() => loading = false);
                           // if (result == null) {
                           //   setState(() {

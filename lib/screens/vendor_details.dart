@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
@@ -199,7 +200,10 @@ class _VendorDetailsState extends State<VendorDetails> {
             appBar: AppBar(
               title: Text(vendor.name),
               actions: <Widget>[
-                Options(),
+                Provider(
+                  create: (context) => vendor,
+                  child: Options(vendor: vendor),
+                ),
               ],
               // leading: IconButton(
               //   icon: Icon(Icons.arrow_back),

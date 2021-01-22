@@ -28,12 +28,20 @@ class Vendor {
       this.reviewIds,
       this.stars});
 
-  Vendor.fromCoords({this.id, this.coordinates});
-
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
     this.id = json['_id'];
     this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
         json['location']['coordinates'][0].toDouble());
+  }
+
+  Vendor.fromJsonSearch(Map<String, dynamic> json) {
+    List<String> temp = new List<String>();
+    for (var item in json['tags']) {
+      temp.add(item.toString());
+    }
+    this.id = json['_id'];
+    this.name = json['name'];
+    this.tags = temp;
   }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {

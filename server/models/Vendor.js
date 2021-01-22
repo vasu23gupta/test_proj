@@ -57,8 +57,16 @@ const VendorSchema = mongoose.Schema({
   rating:{
     type: Number,
     required: true,
-  }
-});
+  },
+  reports:{
+    type: [String],
+    required: false,
+  },
+  totalReports:{
+    type: Number,
+    required: true,
+  },
+},{timestamps : true});
 VendorSchema.index({ name: 'text', tags: 'text' });
 
 // const VendorSchema = mongoose.Schema({

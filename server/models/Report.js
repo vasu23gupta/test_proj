@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 
-const ReviewSchema = mongoose.Schema({
-    stars: {
-        type: Number,
+const ReportSchema = mongoose.Schema({
+    vendor: {
+        type: String,
         required: true
     },
     by:{
         type: String,
         required: true
     },
-    review: {
+    report: {
         type: String,
         required: true,
     },
 },{timestamps : true});
 
-module.exports = mongoose.model('Review', ReviewSchema);
+module.exports = mongoose.model('Report', ReportSchema);

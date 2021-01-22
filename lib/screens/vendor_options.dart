@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/models/vendor.dart';
+import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
 
 class Options extends StatelessWidget {
+  final Vendor vendor;
+  Options({this.vendor});
   @override
   Widget build(BuildContext context) {
     //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
@@ -16,7 +22,7 @@ class Options extends StatelessWidget {
             showDialog<void>(
                 context: context,
                 builder: (BuildContext context) {
-                  return Report();
+                  return Report(vendor: vendor);
                 });
             break;
         }
@@ -34,6 +40,8 @@ class Options extends StatelessWidget {
 }
 
 class Report extends StatefulWidget {
+  final Vendor vendor;
+  Report({this.vendor});
   @override
   _ReportState createState() => _ReportState();
 }
@@ -42,6 +50,8 @@ class _ReportState extends State<Report> {
   String selectedReport = '';
   List<String> reasons = ['Reason 1', 'Reason 2', 'Reason 3', 'Other'];
   String otherReportString = '';
+  VendorDBService _dbService = new VendorDBService();
+  String alertText = '';
 
   void updateReport(String report) {
     setState(() {
@@ -51,6 +61,7 @@ class _ReportState extends State<Report> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<CustomUser>(context);
     return AlertDialog(
       content: Stack(
         overflow: Overflow.visible,
@@ -137,13 +148,26 @@ class _ReportState extends State<Report> {
                           'Submit',
                           style: TextStyle(color: Colors.white),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           if (selectedReport == reasons[3])
                             selectedReport += " " + otherReportString;
 
-                          print(selectedReport);
+                          if (selectedReport.isNotEmpty) {
+                            final response = await _dbService.reportVendor(
+                                selectedReport, widget.vendor, user.uid);
+                            if (response.statusCode == 200) {
+                              setState(() {
+                                alertText = "Reported successfully";
+                              });
+                            } else {
+                              setState(() {
+                                alertText = "Could not report vendor";
+                              });
+                            }
+                          }
                         },
                       ),
+                      Text(alertText),
                     ],
                   ),
                 ),
