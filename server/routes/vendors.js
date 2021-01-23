@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 //get one vendor by id
 router.get('/:vendorId', async (req, res) => {
     try {
-        const vendor = await Vendor.findById(req.params.vendorId, {totalStars: 0, totalReviews:0, reports:0, totalReports:0});
+        const vendor = await Vendor.findById(req.params.vendorId, { totalStars: 0, totalReviews: 0, reports: 0, totalReports: 0 });
         res.json(vendor);
     } catch (err) {
         res.json({ message: err });
@@ -29,26 +29,26 @@ router.get('/:vendorId', async (req, res) => {
 
 //get one vendor by id with optional parameters
 router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rating', async (req, res) => {
-//    if (req.params.vendorId=="null") {
-        try {
-            //console.log(req.params.name=='true'?1:0);
-            const vendor = await Vendor.findById({_id: req.params.vendorId}, { 
-                _id: 0,
-                __v:0,
-                name: req.params.name=='true'?1:0,
-                location: req.params.location=='true'?1:0,
-                tags: req.params.tags=='true'?1:0,
-                images: req.params.images=='true'?1:0,
-                description: req.params.description=='true'?1:0,
-                reviews: req.params.reviews=='true'?1:0,
-                rating: req.params.rating=='true'?1:0
-             });
-             //console.log(vendor);
-            res.json(vendor);
-        } catch (err) {
-            res.json({ message: err });
-        }
-//    }
+    //    if (req.params.vendorId=="null") {
+    try {
+        //console.log(req.params.name=='true'?1:0);
+        const vendor = await Vendor.findById({ _id: req.params.vendorId }, {
+            _id: 0,
+            __v: 0,
+            name: req.params.name == 'true' ? 1 : 0,
+            location: req.params.location == 'true' ? 1 : 0,
+            tags: req.params.tags == 'true' ? 1 : 0,
+            images: req.params.images == 'true' ? 1 : 0,
+            description: req.params.description == 'true' ? 1 : 0,
+            reviews: req.params.reviews == 'true' ? 1 : 0,
+            rating: req.params.rating == 'true' ? 1 : 0
+        });
+        //console.log(vendor);
+        res.json(vendor);
+    } catch (err) {
+        res.json({ message: err });
+    }
+    //    }
     // else{
     //     try {
     //         const vendor = await Vendor.findById(req.params.vendorId);
@@ -66,9 +66,9 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
     var swLat = req.params.swLat;
     var swLng = req.params.swLng;
     Vendor.find({
-        location:{
-            $geoWithin:{
-                $geometry:{
+        location: {
+            $geoWithin: {
+                $geometry: {
                     type: 'Polygon',
                     coordinates: [[
                         [neLng, neLat],
@@ -120,7 +120,7 @@ router.get('/search/:query', async (req, res) => {
     var regexSearchOptions = {
         $or: searchTextList
     };
-    Vendor.find(regexSearchOptions,{name:1, tags:1}, function (err, docs) {
+    Vendor.find(regexSearchOptions, { name: 1, tags: 1 }, function (err, docs) {
 
         if (err) {
             res.json({ message: err });
@@ -200,20 +200,19 @@ router.patch('/review/:vendorId', async (req, res) => {
             $inc: { totalReviews: 1, totalStars: req.body.stars },
         });
 
-        var vendor = await Vendor.findById(req.params.vendorId, {totalReviews: 1, totalStars:1, _id:0});
-        const totalReviews=vendor.totalReviews;
-        const totalStars=vendor.totalStars;
-        var rating = totalStars/totalReviews;
+        var vendor = await Vendor.findById(req.params.vendorId, { totalReviews: 1, totalStars: 1, _id: 0 });
+        const totalReviews = vendor.totalReviews;
+        const totalStars = vendor.totalStars;
+        var rating = totalStars / totalReviews;
         rating = Math.round((rating + Number.EPSILON) * 100) / 100
 
         var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
-            $set: {rating: rating}
+            $set: { rating: rating }
         });
 
         res.json(updateResult);
     }
     catch (err) {
-        console.log(err);
         res.json({ message: err });
     }
 });
@@ -226,7 +225,7 @@ router.patch('/report/:vendorId', async (req, res) => {
             $push: {
                 reports: req.body.reportId
             },
-            $inc: { totalReports: 1},
+            $inc: { totalReports: 1 },
         });
 
         // if((await Vendor.findById(req.params.vendorId,{totalReports:1, _id:0})).totalReports>=10){
@@ -236,7 +235,29 @@ router.patch('/report/:vendorId', async (req, res) => {
         res.json(response);
     }
     catch (err) {
-        console.log(err);
+        res.json({ message: err });
+    }
+});
+
+//edit
+router.patch('/edit/:vendorId', async (req, res) => {
+
+    try {
+        await Vendor.updateOne({ _id: req.params.vendorId }, {
+            $set: {
+                name: req.body.name,
+                location: { coordinates: [req.body.lng, req.body.lat] },
+                tags: req.body.tags,
+                images: req.body.images,
+                description: req.body.description,
+            }
+        });
+
+        const updatedVendor = await Vendor.findById(req.params.vendorId,{ totalStars: 0, totalReviews: 0, reports: 0, totalReports: 0 });
+
+        res.json(updatedVendor);
+    }
+    catch (err) {
         res.json({ message: err });
     }
 });

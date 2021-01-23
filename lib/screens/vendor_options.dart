@@ -4,7 +4,7 @@ import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
-import 'home/add_vendor.dart';
+import 'add_vendor.dart';
 
 class Options extends StatelessWidget {
   final Vendor vendor;

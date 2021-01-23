@@ -141,6 +141,24 @@ class VendorDBService {
     return response;
   }
 
+  Future<http.Response> updateVendor(String id, String name, LatLng coordinates,
+      List<String> tags, List<String> imgs, String description) async {
+    var body = jsonEncode({
+      'name': name,
+      'lat': coordinates.latitude.toString(),
+      'lng': coordinates.longitude.toString(),
+      'tags': tags,
+      'images': imgs,
+      'description': description
+    });
+    final response = await http.patch(
+      vendorsUrl + "edit/" + id,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    return response;
+  }
+
   // Future<http.Response> addVendorData(
   //     List<String> imgs, String description) async {
   //   var body = jsonEncode({'images': imgs, 'description': description});
@@ -214,6 +232,7 @@ class VendorDBService {
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
+  //dont delete
   // Future<Vendor> getVendor(
   //     {String id = "null",
   //     Vendor vendor,

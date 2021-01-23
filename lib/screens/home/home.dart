@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/models/customUser.dart';
-import 'package:test_proj/screens/home/add_vendor.dart';
+import 'package:test_proj/screens/add_vendor.dart';
 //import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';

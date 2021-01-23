@@ -47,6 +47,7 @@ class _AddVendorState extends State<AddVendor> {
       userLoc = vendor.coordinates;
       tags = vendor.tags;
       description = vendor.description;
+      imageIds = vendor.imageIds;
       _putMarkerOnMap(userLoc);
     } else
       userLoc = widget.userLoc;
@@ -296,37 +297,46 @@ class _AddVendorState extends State<AddVendor> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () async {
+                        print('pressed');
                         //validation
                         if (_formKey.currentState.validate() &&
                             vendorLatLng != null &&
-                            images.length != 0) {
+                            imageIds.length != 0) {
                           setState(() => loading = true);
+                          print('pressed2');
                           VendorDBService vdbs = new VendorDBService();
-
-                          //uploading images individually
-                          //adding their ids to list
-                          for (var imgAsset in images) {
-                            String path =
-                                await FlutterAbsolutePath.getAbsolutePath(
-                                    imgAsset.identifier);
-
-                            dio.Response imgResponse =
-                                await vdbs.addImage(path);
-                            if (imgResponse.statusCode == 200) {
-                              String imgId = imgResponse.data['_id'];
-                              imageIds.add(imgId);
-                            } else {
-                              print(imgResponse.statusCode);
-                            }
-                          }
                           Response result;
-                          result = await vdbs.addVendor(
-                              name, vendorLatLng, tags, imageIds, description);
+                          if (editing) {
+                            result = await vdbs.updateVendor(
+                                widget.vendor.id,
+                                name,
+                                vendorLatLng,
+                                tags,
+                                imageIds,
+                                description);
+                          } else {
+                            //uploading images individually
+                            //adding their ids to list
+                            for (var imgAsset in images) {
+                              String path =
+                                  await FlutterAbsolutePath.getAbsolutePath(
+                                      imgAsset.identifier);
+
+                              dio.Response imgResponse =
+                                  await vdbs.addImage(path);
+                              if (imgResponse.statusCode == 200) {
+                                String imgId = imgResponse.data['_id'];
+                                imageIds.add(imgId);
+                              } else {
+                                print(imgResponse.statusCode);
+                              }
+                            }
+
+                            result = await vdbs.addVendor(name, vendorLatLng,
+                                tags, imageIds, description);
+                          }
                           setState(() => loading = false);
-                          // if (result == null) {
-                          //   setState(() {
-                          //     error = 'could not add vendor';
-                          //   });
+
                           if (result.statusCode != 200) {
                             setState(() {
                               print(result.statusCode);

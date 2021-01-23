@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
-import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';

@@ -8,7 +8,7 @@ import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/add_review.dart';
-import 'package:test_proj/screens/home/add_vendor.dart';
+import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/screens/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
