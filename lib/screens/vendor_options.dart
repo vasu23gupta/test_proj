@@ -4,6 +4,7 @@ import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
+import 'home/add_vendor.dart';
 
 class Options extends StatelessWidget {
   final Vendor vendor;
@@ -15,7 +16,14 @@ class Options extends StatelessWidget {
       onSelected: (value) {
         switch (value) {
           case 'Edit':
-            print(value);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddVendor(
+                  vendor: vendor,
+                ),
+              ),
+            );
             break;
           case 'Report':
             //https://stackoverflow.com/questions/54480641/flutter-how-to-create-forms-in-popup
