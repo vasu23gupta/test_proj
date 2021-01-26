@@ -79,13 +79,14 @@ class _AddVendorState extends State<AddVendor> {
   }
 
   Widget previewImages() {
-    if (images.length == 0)
+    if ((editing && netImages.length == 0) || (!editing && images.length == 0))
       return Container();
     else {
+      print(netImages.length);
       return SizedBox(
         height: 150,
         child: ListView.builder(
-          itemCount: images.length,
+          itemCount: editing ? netImages.length : images.length,
           itemBuilder: (context, index) {
             return Stack(
               overflow: Overflow.visible,
@@ -94,7 +95,7 @@ class _AddVendorState extends State<AddVendor> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Image(
-                      image: netImages[index],
+                      image: widget.vendor.getImage(index),
                     ),
                   )
                 else
@@ -334,7 +335,7 @@ class _AddVendorState extends State<AddVendor> {
                         //validation
                         if (_formKey.currentState.validate() &&
                             vendorLatLng != null &&
-                            imageIds.length != 0) {
+                            (images.length != 0 || imageIds.length != 0)) {
                           setState(() => loading = true);
                           print('pressed2');
                           Response result;

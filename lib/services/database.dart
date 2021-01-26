@@ -370,7 +370,7 @@ class VendorDBService {
     // Iterable jsonList = json.decode(response.body);
     // List<Vendor> vendors =
     //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
-    print(vendorsUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
+    //print(vendorsUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
     //print(response.statusCode);
     //print(json.decode(response.body));
     //print(response.body);
