@@ -58,7 +58,6 @@ class _ReportState extends State<Report> {
   String selectedReport = '';
   List<String> reasons = ['Reason 1', 'Reason 2', 'Reason 3', 'Other'];
   String otherReportString = '';
-  VendorDBService _dbService = new VendorDBService();
   String alertText = '';
 
   void updateReport(String report) {
@@ -161,7 +160,7 @@ class _ReportState extends State<Report> {
                             selectedReport += " " + otherReportString;
 
                           if (selectedReport.isNotEmpty) {
-                            final response = await _dbService.reportVendor(
+                            final response = await VendorDBService.reportVendor(
                                 selectedReport, widget.vendor, user.uid);
                             if (response.statusCode == 200) {
                               setState(() {

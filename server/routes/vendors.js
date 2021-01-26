@@ -87,7 +87,7 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
         else {
             res.json(docs);
         }
-    })
+    });
 
 });
 
@@ -246,7 +246,7 @@ router.patch('/edit/:vendorId', async (req, res) => {
         await Vendor.updateOne({ _id: req.params.vendorId }, {
             $set: {
                 name: req.body.name,
-                location: { coordinates: [req.body.lng, req.body.lat] },
+                location: { type:"Point", coordinates: [req.body.lng, req.body.lat] },
                 tags: req.body.tags,
                 images: req.body.images,
                 description: req.body.description,

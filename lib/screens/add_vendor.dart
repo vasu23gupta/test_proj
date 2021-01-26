@@ -23,7 +23,8 @@ class AddVendor extends StatefulWidget {
 class _AddVendorState extends State<AddVendor> {
   String description = '';
   String name = '';
-  List<Asset> images = List<Asset>();
+  List<Asset> images = List<Asset>(); // when creating new vendor
+  List<NetworkImage> netImages = List();
   MapController controller = new MapController();
   List<String> imageIds = new List<String>();
   final _formKey = GlobalKey<FormState>();
@@ -48,6 +49,7 @@ class _AddVendorState extends State<AddVendor> {
       tags = vendor.tags;
       description = vendor.description;
       imageIds = vendor.imageIds;
+      netImages = vendor.images;
       _putMarkerOnMap(userLoc);
     } else
       userLoc = widget.userLoc;
@@ -85,17 +87,47 @@ class _AddVendorState extends State<AddVendor> {
         child: ListView.builder(
           itemCount: images.length,
           itemBuilder: (context, index) {
+            return Stack(
+              overflow: Overflow.visible,
+              children: <Widget>[
+                if (editing)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image(
+                      image: netImages[index],
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: AssetThumb(
+                      asset: images[index],
+                      width: 150,
+                      height: 150,
+                    ),
+                  ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  height: 30,
+                  width: 30,
+                  child: InkResponse(
+                    onTap: () {
+                      setState(() {
+                        images.removeAt(index);
+                      });
+                    },
+                    child: CircleAvatar(
+                      child: Icon(Icons.close),
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
+            );
             // String path;
             // FlutterAbsolutePath.getAbsolutePath(images[index].identifier)
             //     .then((value) => path = value);
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: AssetThumb(
-                asset: images[index],
-                width: 150,
-                height: 150,
-              ),
-            );
           },
           scrollDirection: Axis.horizontal,
         ),
@@ -298,16 +330,16 @@ class _AddVendorState extends State<AddVendor> {
                       ),
                       onPressed: () async {
                         print('pressed');
+                        print(images.length);
                         //validation
                         if (_formKey.currentState.validate() &&
                             vendorLatLng != null &&
                             imageIds.length != 0) {
                           setState(() => loading = true);
                           print('pressed2');
-                          VendorDBService vdbs = new VendorDBService();
                           Response result;
                           if (editing) {
-                            result = await vdbs.updateVendor(
+                            result = await VendorDBService.updateVendor(
                                 widget.vendor.id,
                                 name,
                                 vendorLatLng,
@@ -323,7 +355,7 @@ class _AddVendorState extends State<AddVendor> {
                                       imgAsset.identifier);
 
                               dio.Response imgResponse =
-                                  await vdbs.addImage(path);
+                                  await VendorDBService.addImage(path);
                               if (imgResponse.statusCode == 200) {
                                 String imgId = imgResponse.data['_id'];
                                 imageIds.add(imgId);
@@ -332,8 +364,8 @@ class _AddVendorState extends State<AddVendor> {
                               }
                             }
 
-                            result = await vdbs.addVendor(name, vendorLatLng,
-                                tags, imageIds, description);
+                            result = await VendorDBService.addVendor(name,
+                                vendorLatLng, tags, imageIds, description);
                           }
                           setState(() => loading = false);
 

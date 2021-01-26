@@ -32,7 +32,6 @@ class _VendorDetailsState extends State<VendorDetails> {
     this.vendor = v;
   }
 
-  VendorDBService _dbService = VendorDBService();
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
@@ -47,7 +46,7 @@ class _VendorDetailsState extends State<VendorDetails> {
       reviewsLoading = true;
       getNewReviews = false;
     });
-    Review review = await _dbService.getReview(id);
+    Review review = await VendorDBService.getReview(id);
     setState(() {
       vendorReviews.add(review);
       vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
@@ -76,7 +75,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getVendor() async {
-    Vendor v = await _dbService.getVendor(vendor.id);
+    Vendor v = await VendorDBService.getVendor(vendor.id);
     // Vendor v = await _dbService.getVendor(
     //   id: vendor.id,
     //   vendor: vendor,
@@ -267,8 +266,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                         return PhotoViewGalleryPageOptions(
                           maxScale: PhotoViewComputedScale.contained * 2.0,
                           minScale: PhotoViewComputedScale.contained * 0.8,
-                          imageProvider:
-                              _dbService.getVendorImage(vendor.imageIds[index]),
+                          imageProvider: vendor.getImage(index),
                           heroAttributes: PhotoViewHeroAttributes(
                               tag: vendor.imageIds[index]),
                         );

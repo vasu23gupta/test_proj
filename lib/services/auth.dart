@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/services/database.dart';
 
@@ -52,8 +53,12 @@ class AuthService {
       User user = result.user;
 
       //create a new document for the user with the uid
-      await UserDatabaseService(uid: user.uid).updateUserName(user.displayName);
-      return _userFromFirebaseUser(user);
+      //await UserDatabaseService(uid: user.uid).updateUserName(user.displayName);
+      Response response = await UserDBService(uid: user.uid).addUser();
+      if (response.statusCode == 200) {
+        return _userFromFirebaseUser(user);
+      } else
+        return null;
     } catch (e) {
       print(e.toString());
       return null;

@@ -21,7 +21,6 @@ class AddReview extends StatefulWidget {
 
 class _AddReviewState extends State<AddReview> {
   String alertText = "";
-  VendorDBService _dbService = VendorDBService();
   Review review = Review();
   TextEditingController mycontroller = new TextEditingController();
   @override
@@ -35,8 +34,8 @@ class _AddReviewState extends State<AddReview> {
             icon: Icon(Icons.check),
             onPressed: () async {
               if (review.stars != 0) {
-                final response =
-                    await _dbService.addVendorReview(review, widget.vendor);
+                final response = await VendorDBService.addVendorReview(
+                    review, widget.vendor);
                 if (response.statusCode == 200) {
                   mycontroller.clear();
                   //print(response.body);
