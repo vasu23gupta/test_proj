@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:latlong/latlong.dart';
-import 'package:test_proj/models/vendorData.dart';
+import 'package:test_proj/services/database.dart';
 import 'Review.dart';
 
 class Vendor {
@@ -10,7 +10,7 @@ class Vendor {
   LatLng coordinates;
   List<String> tags;
   //String dataId;
-  //List<NetworkImage> images;
+  List<NetworkImage> images;
   List<String> imageIds;
   String description;
   List<String> reviewIds = [];
@@ -26,14 +26,24 @@ class Vendor {
       this.description,
       this.imageIds,
       this.reviewIds,
-      this.stars});
-
-  Vendor.fromCoords({this.id, this.coordinates});
+      this.stars}) {
+    this.images = new List(imageIds.length);
+  }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
     this.id = json['_id'];
     this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
         json['location']['coordinates'][0].toDouble());
+  }
+
+  Vendor.fromJsonSearch(Map<String, dynamic> json) {
+    List<String> temp = new List<String>();
+    for (var item in json['tags']) {
+      temp.add(item.toString());
+    }
+    this.id = json['_id'];
+    this.name = json['name'];
+    this.tags = temp;
   }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
@@ -63,6 +73,13 @@ class Vendor {
       reviewIds: temp3,
       stars: json['rating'].toDouble(),
     );
+  }
+
+  NetworkImage getImage(int index) {
+    if (images[index] == null) {
+      images[index] = VendorDBService.getVendorImage(imageIds[index]);
+    }
+    return images[index];
   }
 
   bool operator ==(other) {

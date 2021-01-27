@@ -3,11 +3,13 @@ import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/add_review.dart';
-import 'package:test_proj/screens/home/add_vendor.dart';
+import 'package:test_proj/screens/add_vendor.dart';
+import 'package:test_proj/screens/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
@@ -30,7 +32,6 @@ class _VendorDetailsState extends State<VendorDetails> {
     this.vendor = v;
   }
 
-  VendorDBService _dbService = VendorDBService();
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
@@ -45,7 +46,7 @@ class _VendorDetailsState extends State<VendorDetails> {
       reviewsLoading = true;
       getNewReviews = false;
     });
-    Review review = await _dbService.getReview(id);
+    Review review = await VendorDBService.getReview(id);
     setState(() {
       vendorReviews.add(review);
       vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
@@ -74,7 +75,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getVendor() async {
-    Vendor v = await _dbService.getVendor(vendor.id);
+    Vendor v = await VendorDBService.getVendor(vendor.id);
     // Vendor v = await _dbService.getVendor(
     //   id: vendor.id,
     //   vendor: vendor,
@@ -197,12 +198,18 @@ class _VendorDetailsState extends State<VendorDetails> {
         : Scaffold(
             appBar: AppBar(
               title: Text(vendor.name),
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
+              actions: <Widget>[
+                Provider(
+                  create: (context) => vendor,
+                  child: Options(vendor: vendor),
+                ),
+              ],
+              // leading: IconButton(
+              //   icon: Icon(Icons.arrow_back),
+              //   onPressed: () {
+              //     Navigator.pop(context);
+              //   },
+              // ),
             ),
             body: SingleChildScrollView(
               child: Column(
@@ -259,8 +266,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                         return PhotoViewGalleryPageOptions(
                           maxScale: PhotoViewComputedScale.contained * 2.0,
                           minScale: PhotoViewComputedScale.contained * 0.8,
-                          imageProvider:
-                              _dbService.getVendorImage(vendor.imageIds[index]),
+                          imageProvider: vendor.getImage(index),
                           heroAttributes: PhotoViewHeroAttributes(
                               tag: vendor.imageIds[index]),
                         );

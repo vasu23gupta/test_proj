@@ -1,4 +1,6 @@
 single threaded awaits.
 images download everytime they are scrolled to in vendor details screen.
 case sensitive search.
-inefficient vendor download in vendorDetails and search.
+inefficient vendor download in vendorDetails.
+empty string reviews show successful from flutter but are not uploaded in database.
+cant edit images.

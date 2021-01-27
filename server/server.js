@@ -33,6 +33,12 @@ app.use('/vendordata', vendorDataRoute);
 const reviewRoute = require('./routes/reviews');
 app.use('/reviews', reviewRoute);
 
+const reportRoute = require('./routes/reports');
+app.use('/reports', reportRoute);
+
+const usersRoute = require('./routes/users');
+app.use('/users', usersRoute);
+
 //db
 async function connectDB(){
     await mongoose.connect("mongodb+srv://testUser:testPass@cluster0.neji0.mongodb.net/test?retryWrites=true&w=majority", { useNewUrlParser: true, useUnifiedTopology: true });

@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
 //delete review
 router.delete('/:reviewId', async (req, res) => {
     try {
-        const removedReview = await Vendor.deleteOne({ _id: req.params.reviewId });
+        const removedReview = await Review.deleteOne({ _id: req.params.reviewId });
         res.json(removedReview);
     } catch (err) {
         res.json({ message: err });

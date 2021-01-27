@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/models/customUser.dart';
-import 'package:test_proj/screens/home/add_vendor.dart';
+import 'package:test_proj/screens/add_vendor.dart';
 //import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
@@ -43,7 +43,8 @@ class _HomeState extends State<Home> {
     delayUpdate();
     //vendorMarkers.clear();
     //vendors.clear();
-    for (Vendor vendor in await _dbService.vendorsInScreen(controller.bounds)) {
+    for (Vendor vendor
+        in await VendorDBService.vendorsInScreen(controller.bounds)) {
       if (!vendors.contains(vendor)) vendors.add(vendor);
     }
     for (Vendor vendor in vendors) {
@@ -83,7 +84,6 @@ class _HomeState extends State<Home> {
   final AuthService _auth = AuthService();
   MapController controller = new MapController();
   LatLng userLoc = new LatLng(28.612757, 77.230445);
-  VendorDBService _dbService = VendorDBService();
   List<String> selectedFilters = new List();
   List<String> filters = [
     "Food",

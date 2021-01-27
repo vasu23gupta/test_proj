@@ -1,45 +1,85 @@
-import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:dio/dio.dart';
-import 'package:test_proj/models/vendorData.dart';
 
-class UserDatabaseService {
+class UserDBService {
   final String uid;
-  UserDatabaseService({this.uid});
+  UserDBService({this.uid});
 
-  //collection reference
-  final CollectionReference userCollection =
-      FirebaseFirestore.instance.collection('users');
+  static String url = "http://10.0.2.2:3000/";
+  static String usersUrl = url + "users/";
 
-  Future updateUserData(String name) async {
-    return await userCollection.doc(uid).set({
-      'name': name,
+  Future<http.Response> addUser() async {
+    var body = jsonEncode({
+      'userId': uid,
     });
-  }
 
-  //user list from snapshot
-  List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
-    return snapshot.docs.map((doc) {
-      return AppUser(
-        name: doc.data()['name'] ?? '',
-      );
-    }).toList();
-  }
-
-  //get users stream
-  Stream<List<AppUser>> get users {
-    return userCollection.snapshots().map(_userListFromSnapshot);
+    final response = await http.post(
+      usersUrl,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    print(response.body);
+    return response;
   }
 }
+
+// class UserDatabaseService {
+//   final String uid;
+//   UserDatabaseService({this.uid});
+
+//   //collection reference
+//   final CollectionReference userCollection =
+//       FirebaseFirestore.instance.collection('users');
+
+//   // Future updateUserName(String name) async {
+//   //   return await userCollection.doc(uid).set({
+//   //     'name': name,
+//   //   });
+//   // }
+
+//   Future addReportToProfile(String reportId) async {
+//     List report = [reportId];
+//     return await userCollection
+//         .doc(uid)
+//         .update({'reports': FieldValue.arrayUnion(report)});
+//   }
+
+//   Future addVendorToProfile(String vendorId) async {
+//     List vendor = [vendorId];
+//     return await userCollection
+//         .doc(uid)
+//         .update({'vendors': FieldValue.arrayUnion(vendor)});
+//   }
+
+//   Future addReviewToProfile(String reveiwId) async {
+//     List reveiw = [reveiwId];
+//     return await userCollection
+//         .doc(uid)
+//         .update({'reveiws': FieldValue.arrayUnion(reveiw)});
+//   }
+
+//   //user list from snapshot
+//   List<AppUser> _userListFromSnapshot(QuerySnapshot snapshot) {
+//     return snapshot.docs.map((doc) {
+//       return AppUser(
+//         name: doc.data()['name'] ?? '',
+//       );
+//     }).toList();
+//   }
+
+//   //get users stream
+//   Stream<List<AppUser>> get users {
+//     return userCollection.snapshots().map(_userListFromSnapshot);
+//   }
+// }
 
 // class VendorDatabaseService {
 //   final String id;
@@ -95,12 +135,12 @@ class UserDatabaseService {
 class VendorDBService {
   static String url = "http://10.0.2.2:3000/";
   static String vendorsUrl = url + "vendors/";
-  //static String vendorDataUrl = url + "vendordata/";
+  static String reportsUrl = url + "reports/";
   static String imagesUrl = url + "images/";
   static String reviewsUrl = url + "reviews/";
   static Dio dio = Dio();
 
-  Future<http.Response> addVendor(String name, LatLng coordinates,
+  static Future<http.Response> addVendor(String name, LatLng coordinates,
       List<String> tags, List<String> imgs, String description) async {
     //http.Response vendorDataResponse = await addVendorData(imgs, description);
     //String vendorDataId = jsonDecode(vendorDataResponse.body)['_id'];
@@ -120,7 +160,30 @@ class VendorDBService {
     return response;
   }
 
-  // Future<http.Response> addVendorData(
+  static Future<http.Response> updateVendor(
+      String id,
+      String name,
+      LatLng coordinates,
+      List<String> tags,
+      List<String> imgs,
+      String description) async {
+    var body = jsonEncode({
+      'name': name,
+      'lat': coordinates.latitude.toString(),
+      'lng': coordinates.longitude.toString(),
+      'tags': tags,
+      'images': imgs,
+      'description': description
+    });
+    final response = await http.patch(
+      vendorsUrl + "edit/" + id,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    return response;
+  }
+
+  // static Future<http.Response> addVendorData(
   //     List<String> imgs, String description) async {
   //   var body = jsonEncode({'images': imgs, 'description': description});
   //   final response = await http.post(
@@ -131,7 +194,8 @@ class VendorDBService {
   //   return response;
   // }
 
-  Future<http.Response> addVendorReview(Review review, Vendor vendor) async {
+  static Future<http.Response> addVendorReview(
+      Review review, Vendor vendor) async {
     var body = jsonEncode(
         {'review': review.review, 'by': review.byUser, 'stars': review.stars});
 
@@ -143,14 +207,38 @@ class VendorDBService {
     String reviewId = jsonDecode(reviewResponse.body)['_id'];
 
     final response = await http.patch(
-      vendorsUrl + vendor.id,
+      vendorsUrl + "review/" + vendor.id,
       headers: {'content-type': 'application/json'},
       body: jsonEncode({'reviewId': reviewId, 'stars': review.stars}),
     );
     return response;
   }
 
-  Future<Response> addImage(String path) async {
+  static Future<http.Response> reportVendor(
+      String report, Vendor vendor, String userId) async {
+    var body =
+        jsonEncode({'report': report, 'by': userId, 'vendor': vendor.id});
+
+    final reportResponse = await http.post(
+      reportsUrl,
+      headers: {'content-type': 'application/json'},
+      body: body,
+    );
+    String reportId = jsonDecode(reportResponse.body)['_id'];
+
+    final response = await http.patch(
+      vendorsUrl + "report/" + vendor.id,
+      headers: {'content-type': 'application/json'},
+      body: jsonEncode({'reportId': reportId}),
+    );
+
+    //adds report to user's database too,
+    //cant add to anon users cuz they cant report
+    //await UserDatabaseService(uid: userId).addReportToProfile(reportId);
+    return response;
+  }
+
+  static Future<Response> addImage(String path) async {
     FormData formData = FormData.fromMap({
       "vendorImg": await MultipartFile.fromFile(path),
     });
@@ -162,13 +250,14 @@ class VendorDBService {
     return response;
   }
 
-  Future<Vendor> getVendor(String id) async {
+  static Future<Vendor> getVendor(String id) async {
     final response = await http.get(vendorsUrl + id);
     //print('response: ' + response.statusCode.toString());
     //print(Review.fromJson(jsonDecode(response.body)));
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
+  //dont delete
   // Future<Vendor> getVendor(
   //     {String id = "null",
   //     Vendor vendor,
@@ -230,7 +319,7 @@ class VendorDBService {
 
   // }
 
-  Future<Review> getReview(String id) async {
+  static Future<Review> getReview(String id) async {
     final response = await http.get(reviewsUrl + id);
     //print('response: ' + response.statusCode.toString());
     //print(Review.fromJson(jsonDecode(response.body)));
@@ -242,13 +331,13 @@ class VendorDBService {
   //   return VendorData.fromJson(jsonDecode(response.body));
   // }
 
-  NetworkImage getVendorImage(String imageId) {
+  static NetworkImage getVendorImage(String imageId) {
     //final response = await http.get(imagesUrl + imageId);
     return NetworkImage(imagesUrl + imageId);
     //jsonDecode(response.body)['data']);
   }
 
-  Future getVendors() async {
+  static Future getVendors() async {
     final response = await http.get(vendorsUrl);
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJson(json))
@@ -257,17 +346,17 @@ class VendorDBService {
     return list;
   }
 
-  Future getVendorsSearch(String query) async {
+  static Future getVendorsSearch(String query) async {
     final response =
         await http.get(vendorsUrl + '/search/' + query.toLowerCase());
     var list = (jsonDecode(response.body))
-        .map((json) => Vendor.fromJson(json))
+        .map((json) => Vendor.fromJsonSearch(json))
         .toList();
     //print(list);
     return list;
   }
 
-  Future<List<Vendor>> vendorsInScreen(LatLngBounds bounds) async {
+  static Future<List<Vendor>> vendorsInScreen(LatLngBounds bounds) async {
     String neLat = bounds.northEast.latitude.toString();
     String neLng = bounds.northEast.longitude.toString();
     String swLat = bounds.southWest.latitude.toString();
