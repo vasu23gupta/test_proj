@@ -46,13 +46,13 @@ router.delete('/:userId', async (req, res) => {
     }
 });
 
-//update user
+//add vendor to user
 router.patch('/:userId', async (req, res) => {
     try {
         const updatedUser = await User.updateOne({ _id: req.params.userId }, {
-            $set: {
-                //set params
-            }
+            $push: {
+                vendors: req.body.vendorId
+            },
         });
         res.json(updatedUser);
     } catch (err) {

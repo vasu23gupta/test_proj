@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
 

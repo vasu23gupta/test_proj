@@ -3,6 +3,8 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
+import 'package:provider/provider.dart';
+import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:test_proj/shared/constants.dart';
@@ -82,7 +84,7 @@ class _AddVendorState extends State<AddVendor> {
     if ((editing && netImages.length == 0) || (!editing && images.length == 0))
       return Container();
     else {
-      print(netImages.length);
+      //print(netImages.length);
       return SizedBox(
         height: 150,
         child: ListView.builder(
@@ -158,7 +160,7 @@ class _AddVendorState extends State<AddVendor> {
 
   @override
   Widget build(BuildContext context) {
-    //final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<CustomUser>(context);
 
     String _error = 'No Error Dectected';
 
@@ -191,7 +193,7 @@ class _AddVendorState extends State<AddVendor> {
 
       setState(() {
         images = resultList;
-        print(images.length);
+        //print(images.length);
       });
     }
 
@@ -330,14 +332,12 @@ class _AddVendorState extends State<AddVendor> {
                         style: TextStyle(color: Colors.white),
                       ),
                       onPressed: () async {
-                        print('pressed');
-                        print(images.length);
                         //validation
                         if (_formKey.currentState.validate() &&
                             vendorLatLng != null &&
                             (images.length != 0 || imageIds.length != 0)) {
                           setState(() => loading = true);
-                          print('pressed2');
+
                           Response result;
                           if (editing) {
                             result = await VendorDBService.updateVendor(
@@ -348,25 +348,13 @@ class _AddVendorState extends State<AddVendor> {
                                 imageIds,
                                 description);
                           } else {
-                            //uploading images individually
-                            //adding their ids to list
-                            for (var imgAsset in images) {
-                              String path =
-                                  await FlutterAbsolutePath.getAbsolutePath(
-                                      imgAsset.identifier);
-
-                              dio.Response imgResponse =
-                                  await VendorDBService.addImage(path);
-                              if (imgResponse.statusCode == 200) {
-                                String imgId = imgResponse.data['_id'];
-                                imageIds.add(imgId);
-                              } else {
-                                print(imgResponse.statusCode);
-                              }
-                            }
-
-                            result = await VendorDBService.addVendor(name,
-                                vendorLatLng, tags, imageIds, description);
+                            result = await VendorDBService.addVendor(
+                                name,
+                                vendorLatLng,
+                                tags,
+                                images,
+                                description,
+                                user.uid);
                           }
                           setState(() => loading = false);
 
@@ -376,9 +364,6 @@ class _AddVendorState extends State<AddVendor> {
                               error = 'could not add vendor';
                             });
                           } else {
-                            //String id = jsonDecode(result.body)['_id'];
-                            //print(jsonDecode(result.body));
-                            //print(id);
                             Vendor vendor =
                                 Vendor.fromJson(jsonDecode(result.body));
                             Navigator.push(

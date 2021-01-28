@@ -27,9 +27,6 @@ app.use('/vendors', vendorsRoute);
 const imagesRoute = require('./routes/images');
 app.use('/images', imagesRoute);
 
-const vendorDataRoute = require('./routes/vendorData');
-app.use('/vendordata', vendorDataRoute);
-
 const reviewRoute = require('./routes/reviews');
 app.use('/reviews', reviewRoute);
 

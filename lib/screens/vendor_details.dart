@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
-import 'package:test_proj/models/vendorData.dart';
 import 'package:test_proj/screens/add_review.dart';
-import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/screens/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
-import 'package:test_proj/services/location_service.dart';
 import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
