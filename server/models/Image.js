@@ -6,6 +6,10 @@ const ImageSchema = mongoose.Schema({
         data: Buffer,
         contentType: String
     },
+    vendorId:{
+        type: String,
+        required: true,
+    },
 },{timestamps : true});
 
 module.exports = mongoose.model('Image', ImageSchema);

@@ -2,6 +2,7 @@ const express = require('express');
 //var fs = require('fs');
 const router = express.Router();
 const Vendor = require('../models/Vendor');
+const User = require('../models/User');
 //const Image = require('../models/Image');
 //const multer  = require('multer')
 //const upload = multer({dest: './uploads/'});
@@ -156,23 +157,25 @@ router.get('/search/:query', async (req, res) => {
 
 //add a vendor
 router.post('/', async (req, res) => {
-    //const point = new Point({ type: req.body.type, coordinates: [req.body.lng, req.body.lat] });
     const vendor = new Vendor({
         name: req.body.name,
         location: { coordinates: [req.body.lng, req.body.lat] },
         tags: req.body.tags,
-        images: req.body.images,
         description: req.body.description,
         totalReviews: 0,
         totalStars: 0,
         rating: 0,
-        totalReports: 0
+        totalReports: 0,
+        postedBy: req.body.userId,
     });
 
     try {
-        //const savedPoint = await point.save();
         const savedVendor = await vendor.save();
-        //res.json(savedPoint);
+        const updatedUser = await User.updateOne({ _id: req.body.userId }, {
+            $push: {
+                vendors: savedVendor._id
+            },
+        });
         res.json(savedVendor);
     } catch (err) {
         res.json({ message: err });
@@ -190,32 +193,32 @@ router.delete('/:vendorId', async (req, res) => {
 });
 
 //add review
-router.patch('/review/:vendorId', async (req, res) => {
+// router.patch('/review/:vendorId', async (req, res) => {
 
-    try {
-        var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
-            $push: {
-                reviews: req.body.reviewId
-            },
-            $inc: { totalReviews: 1, totalStars: req.body.stars },
-        });
+//     try {
+//         var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
+//             $push: {
+//                 reviews: req.body.reviewId
+//             },
+//             $inc: { totalReviews: 1, totalStars: req.body.stars },
+//         });
 
-        var vendor = await Vendor.findById(req.params.vendorId, { totalReviews: 1, totalStars: 1, _id: 0 });
-        const totalReviews = vendor.totalReviews;
-        const totalStars = vendor.totalStars;
-        var rating = totalStars / totalReviews;
-        rating = Math.round((rating + Number.EPSILON) * 100) / 100
+//         var vendor = await Vendor.findById(req.params.vendorId, { totalReviews: 1, totalStars: 1, _id: 0 });
+//         const totalReviews = vendor.totalReviews;
+//         const totalStars = vendor.totalStars;
+//         var rating = totalStars / totalReviews;
+//         rating = Math.round((rating + Number.EPSILON) * 100) / 100
 
-        var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
-            $set: { rating: rating }
-        });
+//         var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
+//             $set: { rating: rating }
+//         });
 
-        res.json(updateResult);
-    }
-    catch (err) {
-        res.json({ message: err });
-    }
-});
+//         res.json(updateResult);
+//     }
+//     catch (err) {
+//         res.json({ message: err });
+//     }
+// });
 
 //add report
 router.patch('/report/:vendorId', async (req, res) => {
@@ -246,14 +249,14 @@ router.patch('/edit/:vendorId', async (req, res) => {
         await Vendor.updateOne({ _id: req.params.vendorId }, {
             $set: {
                 name: req.body.name,
-                location: { type:"Point", coordinates: [req.body.lng, req.body.lat] },
+                location: { type: "Point", coordinates: [req.body.lng, req.body.lat] },
                 tags: req.body.tags,
                 images: req.body.images,
                 description: req.body.description,
             }
         });
 
-        const updatedVendor = await Vendor.findById(req.params.vendorId,{ totalStars: 0, totalReviews: 0, reports: 0, totalReports: 0 });
+        const updatedVendor = await Vendor.findById(req.params.vendorId, { totalStars: 0, totalReviews: 0, reports: 0, totalReports: 0 });
 
         res.json(updatedVendor);
     }

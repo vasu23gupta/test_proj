@@ -36,7 +36,7 @@ const VendorSchema = mongoose.Schema({
   },
   images: {
     type: [String],
-    required: true
+    required: false
   },
   description: {
     type: String,
@@ -46,27 +46,31 @@ const VendorSchema = mongoose.Schema({
     type: [String],
     required: false,
   },
-  totalStars:{
+  totalStars: {
     type: Number,
     required: true,
   },
-  totalReviews:{
+  totalReviews: {
     type: Number,
     required: true,
   },
-  rating:{
+  rating: {
     type: Number,
     required: true,
   },
-  reports:{
+  reports: {
     type: [String],
     required: false,
   },
-  totalReports:{
+  totalReports: {
     type: Number,
     required: true,
   },
-},{timestamps : true});
+  postedBy: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
 VendorSchema.index({ name: 'text', tags: 'text' });
 
 // const VendorSchema = mongoose.Schema({
