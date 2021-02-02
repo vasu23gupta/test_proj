@@ -28,7 +28,7 @@ router.get('/:vendorId', async (req, res) => {
     }
 });
 
-//get one vendor by id with optional parameters
+//get one vendor by id with optional parameters, not in use rn
 router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rating', async (req, res) => {
     //    if (req.params.vendorId=="null") {
     try {
@@ -154,6 +154,41 @@ router.get('/search/:query', async (req, res) => {
     //     }
     // });
 })
+
+//filter on map
+router.get('/filterOnMap/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
+    //https://stackoverflow.com/questions/18148166/find-document-with-array-that-contains-a-specific-value
+    var tagsList = req.query.query;
+    var neLat = req.params.neLat;
+    var neLng = req.params.neLng;
+    var swLat = req.params.swLat;
+    var swLng = req.params.swLng;
+    Vendor.find({
+        tags: { $in: tagsList }, 
+        location: {
+            $geoWithin: {
+                $geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [neLng, neLat],
+                        [neLng, swLat],
+                        [swLng, swLat],
+                        [swLng, neLat],
+                        [neLng, neLat]
+                    ]]
+                }
+            }
+        }
+    }, { location: 1 }, function (err, docs) {
+
+        if (err) {
+            res.json({ message: err });
+        } else if (docs) {
+            res.json(docs);
+        }
+
+    });
+});
 
 //add a vendor
 router.post('/', async (req, res) => {

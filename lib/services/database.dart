@@ -183,7 +183,7 @@ class VendorDBService {
     return list;
   }
 
-  static Future getVendorsSearch(String query) async {
+  static Future getVendorsFromSearch(String query) async {
     final response =
         await http.get(vendorsUrl + '/search/' + query.toLowerCase());
     var list = (jsonDecode(response.body))
@@ -193,7 +193,7 @@ class VendorDBService {
     return list;
   }
 
-  static Future<List<Vendor>> vendorsInScreen(LatLngBounds bounds) async {
+  static Future<List<Vendor>> getAllVendorsInScreen(LatLngBounds bounds) async {
     String neLat = bounds.northEast.latitude.toString();
     String neLng = bounds.northEast.longitude.toString();
     String swLat = bounds.southWest.latitude.toString();
@@ -214,6 +214,46 @@ class VendorDBService {
     List<Vendor> vendors = (json.decode(response.body) as List)
         .map((i) => Vendor.fromJsonCoords(i))
         .toList();
+    return vendors;
+  }
+
+  static Future<List<Vendor>> filterVendorsInScreen(
+      LatLngBounds bounds, List<String> filters) async {
+    String neLat = bounds.northEast.latitude.toString();
+    String neLng = bounds.northEast.longitude.toString();
+    String swLat = bounds.southWest.latitude.toString();
+    String swLng = bounds.southWest.longitude.toString();
+    final response = await dio.get(
+        vendorsUrl +
+            "filterOnMap/" +
+            neLat +
+            '/' +
+            neLng +
+            '/' +
+            swLat +
+            '/' +
+            swLng,
+        queryParameters: {'query': filters});
+
+    // Iterable jsonList = json.decode(response.body);
+    // List<Vendor> vendors =
+    //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
+    print(
+      vendorsUrl +
+          "filterOnMap/" +
+          neLat +
+          '/' +
+          neLng +
+          '/' +
+          swLat +
+          '/' +
+          swLng,
+    );
+    //print(response.statusCode);
+    //print(response.data);
+    //print(response.body);
+    List<Vendor> vendors =
+        ((response.data) as List).map((i) => Vendor.fromJsonCoords(i)).toList();
     return vendors;
   }
 
