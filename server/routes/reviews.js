@@ -61,7 +61,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-//delete review
+//delete review, not in use rn
 router.delete('/:reviewId', async (req, res) => {
     try {
         const removedReview = await Review.deleteOne({ _id: req.params.reviewId });
@@ -77,8 +77,6 @@ router.patch('/:reviewId', async (req, res) => {
         const updatedReview = await Review.updateOne({ _id: req.params.reviewId }, {
             $set: {
                 //set params
-                reviews: reviews.add(req.body.Review),
-
             }
         });
         res.json(updatedDataVendor);

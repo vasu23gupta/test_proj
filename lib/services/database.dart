@@ -42,12 +42,14 @@ class VendorDBService {
   static Dio dio = Dio();
 
   static Future<http.Response> addVendor(
-      String name,
-      LatLng coordinates,
-      List<String> tags,
-      List<Asset> images,
-      String description,
-      String userId) async {
+    String name,
+    LatLng coordinates,
+    List<String> tags,
+    List<Asset> images,
+    String description,
+    String userId,
+    String address,
+  ) async {
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
@@ -55,6 +57,7 @@ class VendorDBService {
       'tags': tags,
       'description': description,
       'userId': userId,
+      'address': address,
     });
     final response = await http.post(
       vendorsUrl,
@@ -75,19 +78,22 @@ class VendorDBService {
   }
 
   static Future<http.Response> updateVendor(
-      String id,
-      String name,
-      LatLng coordinates,
-      List<String> tags,
-      List<String> imgs,
-      String description) async {
+    String id,
+    String name,
+    LatLng coordinates,
+    List<String> tags,
+    List<String> imgs,
+    String description,
+    String address,
+  ) async {
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
       'lng': coordinates.longitude.toString(),
       'tags': tags,
       'images': imgs,
-      'description': description
+      'description': description,
+      'address': address,
     });
     final response = await http.patch(
       vendorsUrl + "edit/" + id,
@@ -172,15 +178,6 @@ class VendorDBService {
 
   static NetworkImage getVendorImage(String imageId) {
     return NetworkImage(imagesUrl + imageId);
-  }
-
-  static Future getVendors() async {
-    final response = await http.get(vendorsUrl);
-    var list = (jsonDecode(response.body))
-        .map((json) => Vendor.fromJson(json))
-        .toList();
-    //print(list);
-    return list;
   }
 
   static Future getVendorsFromSearch(String query) async {
@@ -313,6 +310,15 @@ class VendorDBService {
   //   //temp.cast()
   //   return vendor;
   //   //   }
+  // }
+
+  // static Future getVendors() async {
+  //   final response = await http.get(vendorsUrl);
+  //   var list = (jsonDecode(response.body))
+  //       .map((json) => Vendor.fromJson(json))
+  //       .toList();
+  //   //print(list);
+  //   return list;
   // }
 }
 

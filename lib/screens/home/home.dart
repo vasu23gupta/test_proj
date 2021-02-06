@@ -78,9 +78,7 @@ class _HomeState extends State<Home> {
         vendorMarkers.add(marker);
       }
     }
-    setState(() {
-      print('set');
-    });
+    setState(() {});
     // for (var item in vendorMarkers) {
     //   print(item.anchor.hashCode);
     // }

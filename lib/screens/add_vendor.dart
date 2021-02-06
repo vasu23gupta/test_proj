@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -12,7 +12,7 @@ import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
-import 'package:dio/dio.dart' as dio;
+//import 'package:dio/dio.dart';
 
 class AddVendor extends StatefulWidget {
   final LatLng userLoc;
@@ -25,6 +25,7 @@ class AddVendor extends StatefulWidget {
 class _AddVendorState extends State<AddVendor> {
   String description = '';
   String name = '';
+  String address = '';
   List<Asset> images = List<Asset>(); // when creating new vendor
   List<NetworkImage> netImages = List();
   MapController controller = new MapController();
@@ -37,12 +38,14 @@ class _AddVendorState extends State<AddVendor> {
   String currentTag;
   List<String> tags = new List<String>();
   TextEditingController addTagController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
   LatLng userLoc;
   bool editing = false;
 
   @override
   void initState() {
     super.initState();
+    addressController.text = address;
     if (widget.vendor != null) {
       editing = true;
       Vendor vendor = widget.vendor;
@@ -62,6 +65,18 @@ class _AddVendorState extends State<AddVendor> {
       () {
         markers = [];
         vendorLatLng = point;
+        http
+            .get(
+          "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
+        )
+            .then((value) {
+          var json = jsonDecode(value.body);
+          if ((json['responseCode']) == 200) {
+            address = json['results'][0]['formatted_address'];
+            addressController.text = address;
+          } else
+            print(json['responseCode']);
+        });
         markers.add(
           Marker(
             width: 45.0,
@@ -246,6 +261,20 @@ class _AddVendorState extends State<AddVendor> {
                         ],
                       ),
                     ),
+                    //address
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    TextFormField(
+                        controller: addressController,
+                        //initialValue: address,
+                        decoration:
+                            textInputDecoration.copyWith(hintText: 'Address'),
+                        validator: (val) =>
+                            val.isEmpty ? 'Enter address' : null,
+                        onChanged: (val) {
+                          setState(() => address = val);
+                        }),
                     //add images
                     SizedBox(
                       height: 20.0,
@@ -338,23 +367,27 @@ class _AddVendorState extends State<AddVendor> {
                             (images.length != 0 || imageIds.length != 0)) {
                           setState(() => loading = true);
 
-                          Response result;
+                          http.Response result;
                           if (editing) {
                             result = await VendorDBService.updateVendor(
-                                widget.vendor.id,
-                                name,
-                                vendorLatLng,
-                                tags,
-                                imageIds,
-                                description);
+                              widget.vendor.id,
+                              name,
+                              vendorLatLng,
+                              tags,
+                              imageIds,
+                              description,
+                              address,
+                            );
                           } else {
                             result = await VendorDBService.addVendor(
-                                name,
-                                vendorLatLng,
-                                tags,
-                                images,
-                                description,
-                                user.uid);
+                              name,
+                              vendorLatLng,
+                              tags,
+                              images,
+                              description,
+                              user.uid,
+                              address,
+                            );
                           }
                           setState(() => loading = false);
 

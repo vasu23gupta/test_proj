@@ -70,6 +70,10 @@ const VendorSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  address: {
+    type: String,
+    required: true,
+  },
 }, { timestamps: true });
 VendorSchema.index({ name: 'text', tags: 'text' });
 
