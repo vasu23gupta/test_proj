@@ -6,9 +6,8 @@ const User = require('../models/User');
 //const Image = require('../models/Image');
 //const multer  = require('multer')
 //const upload = multer({dest: './uploads/'});
-//const Point = require('../models/Vendor');
 
-// get all vendors
+// get all vendors for debugging
 router.get('/', async (req, res) => {
     try {
         const vendors = await Vendor.find();
@@ -28,7 +27,7 @@ router.get('/:vendorId', async (req, res) => {
     }
 });
 
-//get one vendor by id with optional parameters
+//get one vendor by id with optional parameters, not in use rn
 router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rating', async (req, res) => {
     //    if (req.params.vendorId=="null") {
     try {
@@ -155,6 +154,41 @@ router.get('/search/:query', async (req, res) => {
     // });
 })
 
+//filter on map
+router.get('/filterOnMap/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
+    //https://stackoverflow.com/questions/18148166/find-document-with-array-that-contains-a-specific-value
+    var tagsList = req.query.query;
+    var neLat = req.params.neLat;
+    var neLng = req.params.neLng;
+    var swLat = req.params.swLat;
+    var swLng = req.params.swLng;
+    Vendor.find({
+        tags: { $in: tagsList }, 
+        location: {
+            $geoWithin: {
+                $geometry: {
+                    type: 'Polygon',
+                    coordinates: [[
+                        [neLng, neLat],
+                        [neLng, swLat],
+                        [swLng, swLat],
+                        [swLng, neLat],
+                        [neLng, neLat]
+                    ]]
+                }
+            }
+        }
+    }, { location: 1 }, function (err, docs) {
+
+        if (err) {
+            res.json({ message: err });
+        } else if (docs) {
+            res.json(docs);
+        }
+
+    });
+});
+
 //add a vendor
 router.post('/', async (req, res) => {
     const vendor = new Vendor({
@@ -167,6 +201,7 @@ router.post('/', async (req, res) => {
         rating: 0,
         totalReports: 0,
         postedBy: req.body.userId,
+        address: req.body.address,
     });
 
     try {
@@ -182,7 +217,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-//delete vendor
+//delete vendor, not in use rn
 router.delete('/:vendorId', async (req, res) => {
     try {
         const removedVendor = await Vendor.deleteOne({ _id: req.params.vendorId });
@@ -191,34 +226,6 @@ router.delete('/:vendorId', async (req, res) => {
         res.json({ message: err });
     }
 });
-
-//add review
-// router.patch('/review/:vendorId', async (req, res) => {
-
-//     try {
-//         var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
-//             $push: {
-//                 reviews: req.body.reviewId
-//             },
-//             $inc: { totalReviews: 1, totalStars: req.body.stars },
-//         });
-
-//         var vendor = await Vendor.findById(req.params.vendorId, { totalReviews: 1, totalStars: 1, _id: 0 });
-//         const totalReviews = vendor.totalReviews;
-//         const totalStars = vendor.totalStars;
-//         var rating = totalStars / totalReviews;
-//         rating = Math.round((rating + Number.EPSILON) * 100) / 100
-
-//         var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
-//             $set: { rating: rating }
-//         });
-
-//         res.json(updateResult);
-//     }
-//     catch (err) {
-//         res.json({ message: err });
-//     }
-// });
 
 //add report
 router.patch('/report/:vendorId', async (req, res) => {
@@ -253,6 +260,7 @@ router.patch('/edit/:vendorId', async (req, res) => {
                 tags: req.body.tags,
                 images: req.body.images,
                 description: req.body.description,
+                address: req.body.address,
             }
         });
 
@@ -264,6 +272,9 @@ router.patch('/edit/:vendorId', async (req, res) => {
         res.json({ message: err });
     }
 });
+
+module.exports = router;
+
 
 // router.post('/photo', upload.single('vendorImg'), async function(req,res){
 //     var f = req.file;
@@ -280,4 +291,30 @@ router.patch('/edit/:vendorId', async (req, res) => {
 //     }
 //    });
 
-module.exports = router;
+//add review
+// router.patch('/review/:vendorId', async (req, res) => {
+
+//     try {
+//         var response = await Vendor.updateOne({ _id: req.params.vendorId }, {
+//             $push: {
+//                 reviews: req.body.reviewId
+//             },
+//             $inc: { totalReviews: 1, totalStars: req.body.stars },
+//         });
+
+//         var vendor = await Vendor.findById(req.params.vendorId, { totalReviews: 1, totalStars: 1, _id: 0 });
+//         const totalReviews = vendor.totalReviews;
+//         const totalStars = vendor.totalStars;
+//         var rating = totalStars / totalReviews;
+//         rating = Math.round((rating + Number.EPSILON) * 100) / 100
+
+//         var updateResult = await Vendor.updateOne({ _id: req.params.vendorId }, {
+//             $set: { rating: rating }
+//         });
+
+//         res.json(updateResult);
+//     }
+//     catch (err) {
+//         res.json({ message: err });
+//     }
+// });

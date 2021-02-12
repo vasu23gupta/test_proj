@@ -1,20 +1,15 @@
 import 'dart:async';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/add_vendor.dart';
-//import 'package:test_proj/screens/home/home_search_bar.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/screens/vendor_details.dart';
 import 'package:latlong/latlong.dart';
-import 'package:location/location.dart';
 import 'package:test_proj/services/location_service.dart';
-import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
 import 'package:test_proj/settings/settings.dart';
@@ -25,6 +20,228 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool loadingMarkers = false;
+  final AuthService _auth = AuthService();
+  MapController controller = new MapController();
+  LatLng userLoc = new LatLng(28.612757, 77.230445);
+  List<String> selectedFilters = new List();
+  String mainSelectedFilter = '';
+  bool filtersHaveChanged = false;
+  HashMap<String, List<String>> filters = HashMap.from({
+    "Food": ["North Indian", "Chinese", "South Indian"],
+    "Repair": ["Car", "Bike", "Cycle"],
+    "yvyvu": ["yrvr", "45y95"],
+    "251125v": ["wyye4y"],
+    "vb845yb": [null],
+  });
+  HashMap<String, List<bool>> areSelected = HashMap.from({
+    "Food": [false, false, false],
+    "Repair": [false, false, false],
+    "yvyvu": [false, false],
+    "251125v": [false],
+    "vb845yb": [false],
+  });
+  HashMap<String, bool> isSelected = HashMap.from({
+    "Food": false,
+    "Repair": false,
+    "yvyvu": false,
+    "251125v": false,
+    "vb845yb": false,
+  });
+  // List<String> filters = [
+  //   "Food",
+  //   "Repair",
+  //   "Crafts",
+  //   "Daily essentials",
+  //   "rehrhrh",
+  //   "ju65u65w"
+  // ];
+
+  List<Vendor> vendors = [];
+  List<Marker> vendorMarkers = [];
+
+  ListView filterBar() {
+    if (mainSelectedFilter.isEmpty) {
+      List<String> filtersKeys = filters.keys.toList();
+      return ListView.builder(
+        itemCount: filters.length,
+        itemBuilder: (context, index) {
+          String fil = filtersKeys[index];
+          return Container(
+            margin: EdgeInsets.all(5),
+            child: FilterChip(
+              labelPadding: EdgeInsets.all(5),
+              label: Text(fil),
+              backgroundColor: Colors.white,
+              padding: EdgeInsets.all(5),
+              selected: isSelected[fil],
+              selectedColor: Colors.blue,
+              onSelected: (val) {
+                filtersHaveChanged = true;
+                selectedFilters.add(fil);
+                mainSelectedFilter = fil;
+                isSelected[mainSelectedFilter] = val;
+                updateMarkers();
+                setState(() {});
+                // String filters = '';
+                // for (var item in widget.selectedFilters) {
+                //   filters += item;
+                // }
+                // print(filters);
+              },
+            ),
+          );
+        },
+        scrollDirection: Axis.horizontal,
+      );
+      // return Row(
+      //   children: <Widget>[
+      //     Container(
+      //       margin: EdgeInsets.all(5),
+      //       child: ChoiceChip(
+      //         labelPadding: EdgeInsets.all(5),
+      //         label: Text(fil),
+      //         backgroundColor: Colors.white,
+      //         padding: EdgeInsets.all(5),
+      //         selected: isSelected[index],
+      //         selectedColor: Colors.blue,
+      //         onSelected: (val) {
+      //           isSelected[index] = val;
+      //           filtersHaveChanged = true;
+      //           if (val) {
+      //             selectedFilters.add(fil);
+      //             mainSelectedFilter = fil;
+      //           } else {
+      //             mainSelectedFilter = '';
+      //             selectedFilters.removeWhere((String name) {
+      //               return name == fil;
+      //             });
+      //           }
+      //           updateMarkers();
+      //           setState(() {});
+      //           // String filters = '';
+      //           // for (var item in widget.selectedFilters) {
+      //           //   filters += item;
+      //           // }
+      //           // print(filters);
+      //         },
+      //       ),
+      //     ),
+      //   ],
+      // );
+    } else {
+      return ListView.builder(
+        itemCount: filters[mainSelectedFilter].length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Container(
+              margin: EdgeInsets.all(5),
+              child: FilterChip(
+                labelPadding: EdgeInsets.all(5),
+                label: Text(mainSelectedFilter),
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.all(5),
+                selected: isSelected[mainSelectedFilter],
+                selectedColor: Colors.red,
+                onSelected: (val) {
+                  isSelected[mainSelectedFilter] = val;
+                  for (int i = 0; i < filters[mainSelectedFilter].length; i++) {
+                    String subFilter = filters[mainSelectedFilter][i];
+                    areSelected[mainSelectedFilter][i] = false;
+                    selectedFilters.removeWhere((String name) {
+                      return name == subFilter;
+                    });
+                  }
+                  filtersHaveChanged = true;
+                  selectedFilters.removeWhere((String name) {
+                    return name == mainSelectedFilter;
+                  });
+                  mainSelectedFilter = '';
+                  updateMarkers();
+                  setState(() {});
+                  // String filters = '';
+                  // for (var item in widget.selectedFilters) {
+                  //   filters += item;
+                  // }
+                  // print(filters);
+                },
+              ),
+            );
+          } else {
+            int ind = index - 1;
+            String fil = filters[mainSelectedFilter][ind];
+            if (fil != null)
+              return Container(
+                margin: EdgeInsets.all(5),
+                child: FilterChip(
+                  labelPadding: EdgeInsets.all(5),
+                  label: Text(fil),
+                  backgroundColor: Colors.white,
+                  padding: EdgeInsets.all(5),
+                  selected: areSelected[mainSelectedFilter][ind],
+                  selectedColor: Colors.blue,
+                  onSelected: (val) {
+                    areSelected[mainSelectedFilter][ind] = val;
+                    filtersHaveChanged = true;
+                    if (val) {
+                      selectedFilters.add(fil);
+                    } else {
+                      selectedFilters.removeWhere((String name) {
+                        return name == fil;
+                      });
+                    }
+                    updateMarkers();
+                    setState(() {});
+                    // String filters = '';
+                    // for (var item in widget.selectedFilters) {
+                    //   filters += item;
+                    // }
+                    // print(filters);
+                  },
+                ),
+              );
+          }
+        },
+        scrollDirection: Axis.horizontal,
+      );
+      // return Row(
+      //   children: <Widget>[
+      //     Container(
+      //       margin: EdgeInsets.all(5),
+      //       child: FilterChip(
+      //         labelPadding: EdgeInsets.all(5),
+      //         label: Text(fil),
+      //         backgroundColor: Colors.white,
+      //         padding: EdgeInsets.all(5),
+      //         selected: isSelected[index],
+      //         selectedColor: Colors.blue,
+      //         onSelected: (val) {
+      //           isSelected[index] = val;
+      //           filtersHaveChanged = true;
+      //           if (val) {
+      //             selectedFilters.add(fil);
+      //             mainSelectedFilter = fil;
+      //           } else {
+      //             mainSelectedFilter = '';
+      //             selectedFilters.removeWhere((String name) {
+      //               return name == fil;
+      //             });
+      //           }
+      //           updateMarkers();
+      //           setState(() {});
+      //           // String filters = '';
+      //           // for (var item in widget.selectedFilters) {
+      //           //   filters += item;
+      //           // }
+      //           // print(filters);
+      //         },
+      //       ),
+      //     ),
+      //   ],
+      // );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -43,8 +260,19 @@ class _HomeState extends State<Home> {
     delayUpdate();
     //vendorMarkers.clear();
     //vendors.clear();
-    for (Vendor vendor
-        in await VendorDBService.vendorsInScreen(controller.bounds)) {
+    if (filtersHaveChanged) {
+      filtersHaveChanged = false;
+      vendorMarkers.clear();
+      vendors.clear();
+    }
+    List<Vendor> temp;
+    if (selectedFilters.isEmpty) {
+      temp = await VendorDBService.getAllVendorsInScreen(controller.bounds);
+    } else {
+      temp = await VendorDBService.filterVendorsInScreen(
+          controller.bounds, selectedFilters);
+    }
+    for (Vendor vendor in temp) {
       if (!vendors.contains(vendor)) vendors.add(vendor);
     }
     for (Vendor vendor in vendors) {
@@ -73,6 +301,7 @@ class _HomeState extends State<Home> {
         vendorMarkers.add(marker);
       }
     }
+    setState(() {});
     // for (var item in vendorMarkers) {
     //   print(item.anchor.hashCode);
     // }
@@ -80,24 +309,6 @@ class _HomeState extends State<Home> {
     //print(vendorMarkers.length);
   }
 
-  bool loadingMarkers = false;
-  final AuthService _auth = AuthService();
-  MapController controller = new MapController();
-  LatLng userLoc = new LatLng(28.612757, 77.230445);
-  List<String> selectedFilters = new List();
-  List<String> filters = [
-    "Food",
-    "Repair",
-    "Crafts",
-    "Daily essentials",
-    "rehrhrh",
-    "ju65u65w"
-  ];
-  List<Vendor> vendors = [];
-  List<Marker> vendorMarkers = [];
-  // Icon appBarIcon = Icon(Icons.search);
-  // dynamic appBarTitle = Text('Map');
-  // String stringToSearch;
   @override
   Widget build(BuildContext context) {
     //updateMarkers().whenComplete(() => setState(() {}));
@@ -165,7 +376,7 @@ class _HomeState extends State<Home> {
             options: new MapOptions(
               onPositionChanged: (position, hasGesture) async {
                 if (!loadingMarkers && controller.zoom > 16.5) {
-                  updateMarkers().whenComplete(() => setState);
+                  updateMarkers();
                 }
                 //print(controller.bounds.northEast.longitude);
               },
@@ -198,24 +409,48 @@ class _HomeState extends State<Home> {
             ],
           ),
           Positioned(
-            top: 10.0,
-            child: ListView.builder(
-              itemCount: filters.length,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.all(5),
-                      child: VendorFilter(
-                        text: filters[index],
-                        selectedFilters: selectedFilters,
-                      ),
-                    ),
-                  ],
-                );
-              },
-              scrollDirection: Axis.horizontal,
-            ),
+            top: 0.0,
+            child: Row(children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: filterBar(),
+                // ListView.builder(
+                //   itemCount: filters.length,
+                //   itemBuilder: (context, index) {
+                //     return Container(
+                //         margin: EdgeInsets.all(5),
+                //         child: FilterChip(
+                //           labelPadding: EdgeInsets.all(5),
+                //           label: Text(filters[index]),
+                //           backgroundColor: Colors.white,
+                //           padding: EdgeInsets.all(5),
+                //           selected: isSelected[index],
+                //           selectedColor: Colors.blue,
+                //           onSelected: (val) {
+                //             isSelected[index] = val;
+                //             filtersHaveChanged = true;
+                //             if (val) {
+                //               selectedFilters.add(filters[index]);
+                //             } else {
+                //               selectedFilters.removeWhere((String name) {
+                //                 return name == filters[index];
+                //               });
+                //             }
+                //             updateMarkers();
+                //             setState(() {});
+                //             // String filters = '';
+                //             // for (var item in widget.selectedFilters) {
+                //             //   filters += item;
+                //             // }
+                //             // print(filters);
+                //           },
+                //         ),
+                //         );
+                //   },
+                //   scrollDirection: Axis.horizontal,
+                // ),
+              ),
+            ]),
             height: 60.0,
             width: MediaQuery.of(context).size.width,
           ),

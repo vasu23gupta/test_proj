@@ -17,32 +17,28 @@ class VendorDetails extends StatefulWidget {
   final Vendor vendor;
   VendorDetails({this.vendor});
   @override
-  _VendorDetailsState createState() => _VendorDetailsState(vendor);
+  _VendorDetailsState createState() => _VendorDetailsState();
 }
 
 class _VendorDetailsState extends State<VendorDetails> {
-  _VendorDetailsState(Vendor v) {
-    this.vendor = v;
-  }
-
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
-  //VendorData vData;
+  String description = "";
+  String address = '';
   bool loading = true;
   bool reviewsLoading = false;
   bool getNewReviews = true;
-  getReviews(
-    String id,
-  ) async {
+
+  Future<void> getReviews(String id) async {
     setState(() {
       reviewsLoading = true;
       getNewReviews = false;
     });
     Review review = await VendorDBService.getReview(id);
     setState(() {
-      vendorReviews.add(review);
-      vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
+      if (review.review != null) vendorReviews.add(review);
+      vendorReviewIndexToBeFetched += 1;
       //print(vendorReviewIndexToBeFetched);
     });
   }
@@ -51,7 +47,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     return vendorReviewIndexToBeFetched;
   }
 
-  getFiveReviews() async {
+  Future<void> getFiveReviews() async {
     //print(this.vendor.name);
     for (int i = 0;
         getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
@@ -90,6 +86,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   @override
   void initState() {
     super.initState();
+    this.vendor = widget.vendor;
     getVendor();
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -139,10 +136,10 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   @override
   Widget build(BuildContext context) {
-    String description = "";
     //bool changed = false;
     if (!loading) {
       description = vendor.description;
+      address = vendor.address;
       //getFiveReviews();
       /* if (vendor.reviewIds.isNotEmpty) {
         List<Review> reviews = new List<Review>();
@@ -235,6 +232,10 @@ class _VendorDetailsState extends State<VendorDetails> {
                   ),
                   Text(
                     description,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  Text(
+                    address,
                     style: TextStyle(fontSize: 20),
                   ),
                   Row(
