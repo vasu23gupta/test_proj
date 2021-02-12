@@ -209,6 +209,7 @@ class _HomeState extends State<Home> {
                       child: VendorFilter(
                         text: filters[index],
                         selectedFilters: selectedFilters,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -234,6 +235,7 @@ class _HomeState extends State<Home> {
                   (value) => setState(
                     () {
                       userLoc = new LatLng(value.latitude, value.longitude);
+                      print("ye rha mai " + userLoc.toSexagesimal());
                       controller.move(
                         userLoc,
                         18.45,
