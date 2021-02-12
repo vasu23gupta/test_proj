@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
+import 'dart:math';
 
 const textInputDecoration = InputDecoration(
   fillColor: Colors.white,
@@ -66,7 +67,8 @@ AppBar homeAppBar(
 class VendorFilter extends StatefulWidget {
   final List<String> selectedFilters;
   final String text;
-  VendorFilter({this.text, this.selectedFilters});
+  final Color color;
+  VendorFilter({this.text, this.selectedFilters, this.color});
   @override
   _VendorFilterState createState() => _VendorFilterState();
 }
@@ -78,7 +80,7 @@ class _VendorFilterState extends State<VendorFilter> {
     return FilterChip(
       labelPadding: EdgeInsets.all(5),
       label: Text(widget.text),
-      backgroundColor: Colors.white,
+      backgroundColor: widget.color,
       padding: EdgeInsets.all(5),
       selected: _isSelected,
       selectedColor: Colors.blue,
