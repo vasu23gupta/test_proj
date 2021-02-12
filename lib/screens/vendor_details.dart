@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
-import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/add_review.dart';
-import 'package:test_proj/screens/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
@@ -12,42 +10,51 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:test_proj/models/menu.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
   VendorDetails({this.vendor});
   @override
-  _VendorDetailsState createState() => _VendorDetailsState();
+  _VendorDetailsState createState() => _VendorDetailsState(vendor);
 }
 
 class _VendorDetailsState extends State<VendorDetails> {
+  _VendorDetailsState(Vendor v) {
+    this.vendor = v;
+  }
+
+  VendorDBService _dbService = VendorDBService();
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
+  //VendorData vData;
   String description = "";
   String address = '';
   bool loading = true;
   bool reviewsLoading = false;
   bool getNewReviews = true;
-
-  Future<void> getReviews(String id) async {
+  getReviews(
+    String id,
+  ) async {
     setState(() {
       reviewsLoading = true;
       getNewReviews = false;
     });
     Review review = await VendorDBService.getReview(id);
     setState(() {
-      if (review.review != null) vendorReviews.add(review);
-      vendorReviewIndexToBeFetched += 1;
+      vendorReviews.add(review);
+      vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
       //print(vendorReviewIndexToBeFetched);
     });
   }
 
+   int index;
   int getCurrentIndexToBeFetched() {
     return vendorReviewIndexToBeFetched;
   }
 
-  Future<void> getFiveReviews() async {
+  getFiveReviews() async {
     //print(this.vendor.name);
     for (int i = 0;
         getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
@@ -86,7 +93,6 @@ class _VendorDetailsState extends State<VendorDetails> {
   @override
   void initState() {
     super.initState();
-    this.vendor = widget.vendor;
     getVendor();
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
@@ -136,6 +142,7 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   @override
   Widget build(BuildContext context) {
+    String description = "";
     //bool changed = false;
     if (!loading) {
       description = vendor.description;
@@ -186,162 +193,275 @@ class _VendorDetailsState extends State<VendorDetails> {
     return loading
         ? Loading()
         : Scaffold(
-            appBar: AppBar(
-              title: Text(vendor.name),
-              actions: <Widget>[
-                Provider(
-                  create: (context) => vendor,
-                  child: Options(vendor: vendor),
-                ),
-              ],
-              // leading: IconButton(
-              //   icon: Icon(Icons.arrow_back),
-              //   onPressed: () {
-              //     Navigator.pop(context);
-              //   },
-              // ),
-            ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  //map
-                  SizedBox(
-                    height: 300.0,
-                    //width: 350.0,
-                    child: new FlutterMap(
-                      mapController: controller,
-                      options: new MapOptions(
-                        zoom: 18.45,
-                        center: vendorLoc,
+            body: ListView(
+              shrinkWrap: true,
+              children: <Widget>[
+                /* Container(
+                  height: 35.0,
+                  color: Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios),
+                        color: Colors.black,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                      layers: [
-                        new TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        new MarkerLayerOptions(
-                          markers: [vendorMarker],
-                        ),
-                      ],
-                    ),
+                      IconButton(
+                        icon: Icon(Icons.favorite),
+                        color: Colors.pink,
+                        onPressed: () {},
+                      )
+                    ],
                   ),
-                  Text(
-                    "Description",
-                    style: TextStyle(fontSize: 30, color: Colors.grey),
+                ),*/
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      height: 300.0,                      
+                          //print(index);
+                         /* return PhotoViewGalleryPageOptions(
+                            maxScale: PhotoViewComputedScale.contained * 2.0,
+                            minScale: PhotoViewComputedScale.contained * 0.8,
+                            imageProvider: VendorDBService.getVendorImage(
+                                vendor.imageIds[index]),
+                            heroAttributes: PhotoViewHeroAttributes(
+                                tag: vendor.imageIds[index]),
+                          );*/ decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: AssetImage(vendor.imageIds[index]),
+                            fit: BoxFit.cover)),
                   ),
-                  Text(
-                    description,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text(
-                    address,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Row(
-                    children: vendor.tags
-                        .map((tag) => Text(
-                              tag + " ",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.blue),
-                            ))
-                        .toList(),
-                    textDirection: TextDirection.ltr,
-                  ),
-                  //Divider(),
-                  //photos
-                  //https://pub.dev/packages/photo_view
-                  Container(
-                    height: 500.0,
-                    child: PhotoViewGallery.builder(
-                      scrollPhysics: const BouncingScrollPhysics(),
-                      builder: (BuildContext context, int index) {
-                        //print(index);
-                        return PhotoViewGalleryPageOptions(
-                          maxScale: PhotoViewComputedScale.contained * 2.0,
-                          minScale: PhotoViewComputedScale.contained * 0.8,
-                          imageProvider: vendor.getImage(index),
-                          heroAttributes: PhotoViewHeroAttributes(
-                              tag: vendor.imageIds[index]),
-                        );
-                      },
-                      itemCount: vendor.imageIds.length,
-                      loadingBuilder: (context, event) => Center(
-                        child: Container(
-                          width: 20.0,
-                          height: 20.0,
-                          child: CircularProgressIndicator(
-                            value: event == null
-                                ? 0
-                                : event.cumulativeBytesLoaded /
-                                    event.expectedTotalBytes,
+                        /*},
+                        itemCount: vendor.imageIds.length,
+                        loadingBuilder: (context, event) => Center(
+                          child: Container(
+                            width: 20.0,
+                            height: 20.0,
+                            child: CircularProgressIndicator(
+                              value: event == null
+                                  ? 0
+                                  : event.cumulativeBytesLoaded /
+                                      event.expectedTotalBytes,
+                            ),
                           ),
                         ),
+                        backgroundDecoration: BoxDecoration(
+                          color: Theme.of(context).canvasColor,
+                        ),
+
+                        //pageController: widget.pageController,
+                        //onPageChanged: onPageChanged,
                       ),
-                      backgroundDecoration: BoxDecoration(
-                        color: Theme.of(context).canvasColor,
-                      ),
-                      //pageController: widget.pageController,
-                      //onPageChanged: onPageChanged,
+                    ),*/
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          color: Colors.black,
+                          onPressed: () {},
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: choiceAction,
+                          itemBuilder: (BuildContext context) {
+                            return Menu.choices.map((String choice) {
+                              return PopupMenuItem<String>(
+                                value: choice,
+                                child: Text(choice),
+                              );
+                            }).toList();
+                          },
+                        )
+                      ],
                     ),
-                  ),
-                  Text(
-                    "Reviews",
-                    style: TextStyle(fontSize: 30, color: Colors.grey),
-                  ),
-                  Text(
-                    vendor.stars.toString() + " Stars",
-                    style: TextStyle(fontSize: 30, color: Colors.grey),
-                  ),
-                  //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
-                  //reviews
-                  //reviewsLoading
-                  //    ? Loading()
-                  /* : */ Container(
-                    height: 280,
-                    child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: vendorReviews.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Column(
-                              children: [
-                                Text(
-                                  vendorReviews[index].stars.toString(),
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.black),
-                                ),
-                                Text(
-                                  vendorReviews[index].review,
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.black),
-                                ),
-                                Text(
-                                  "by: ",
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
-                                Text(
-                                  vendorReviews[index].byUser,
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
-                              ],
+                  ],
+                ),
+
+                //pageController: widget.pageController,
+                //onPageChanged: onPageChanged,
+
+                //Divider(),
+                //photos
+                //https://pub.dev/packages/photo_view
+                Container(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        (vendor.name),
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'Montserrat',
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            description,
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontFamily: 'Montserrat',
+                                fontSize: 38),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Flexible(
+                            child: Text(
+                              address,
+                              style: TextStyle(
+                                  color: Colors.green[200],
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
                             ),
-                          );
-                        }),
+                          ),
+                          Icon(Icons.location_on),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            vendor.stars.toString(),
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                          ),
+                          StarRating(rating: vendor.stars),
+                        ],
+                      ),
+                      /*  Row(
+                          children: vendor.tags
+                              .map((tag) => Text(
+                                    tag + " ",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.blue),
+                                  ))
+                              .toList(),
+                          textDirection: TextDirection.ltr,
+                        ),*/
+                    ],
                   ),
-                  /*  */
-                  //Padding(
-                  //       padding: const EdgeInsets.all(2.0),
-                  //       child: vData.reviews[index].widget,
-                  //     );
-                  //   },
-                  // ),
-                  SizedBox(
-                    height: 20,
+                ),
+
+                SizedBox(
+                  height: 300.0,
+                  //width: 350.0,
+                  child: new FlutterMap(
+                    mapController: controller,
+                    options: new MapOptions(
+                      zoom: 18.45,
+                      center: vendorLoc,
+                    ),
+                    layers: [
+                      new TileLayerOptions(
+                        urlTemplate:
+                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c'],
+                      ),
+                      new MarkerLayerOptions(
+                        markers: [vendorMarker],
+                      ),
+                    ],
                   ),
-                  //add review button
+                ),
+
+                Text(
+                  "Reviews",
+                  style: TextStyle(
+                      fontSize: 25.0,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey),
+                ),
+                //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
+                //reviews
+                //reviewsLoading
+                //    ? Loading()
+                /* : */ Container(
+                  padding: EdgeInsets.only(left: 20),
+                  height: 280,
+                  child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: vendorReviews.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Column(
+                            children: [
+                              Card(
+                                  color: Colors.amberAccent[70],
+                                  child: Column(
+                                    children: <Widget>[
+                                      StarRating(
+                                          rating: vendorReviews[index].stars),
+                                      Text(
+                                        vendorReviews[index].review,
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black),
+                                      ),
+                                      Text(
+                                        vendorReviews[index].byUser,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.grey),
+                                      ),
+                                    ],
+                                  )),
+
+                              /* StarRating(
+                                        rating: vendorReviews[index].stars),*/
+                              /* ListTileTheme(
+                                      dense: true,
+                                      style: ListTileStyle.drawer,
+                                      tileColor: Colors.amberAccent[50],
+                                      child: ListTile(
+                                        selected: false,
+                                        title: Text(
+                                          vendorReviews[index].review,
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontFamily: 'Montserrat',
+                                              color: Colors.black),
+                                        ),
+                                        subtitle: Text(
+                                          vendorReviews[index].byUser,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: 'Montserrat',
+                                              color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),*/
+                            ],
+                          ),
+                        );
+                      }),
+                ),
+                /*  */
+                //Padding(
+                //       padding: const EdgeInsets.all(2.0),
+                //       child: vData.reviews[index].widget,
+                //     );
+                //   },
+                // ),
+                SizedBox(
+                  height: 20,
+                ),
+                //add review button
+                Row(children: <Widget>[
                   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(
@@ -360,8 +480,26 @@ class _VendorDetailsState extends State<VendorDetails> {
                       );
                     },
                   ),
-                ],
-              ),
+                  RaisedButton(
+                    color: Colors.pink[400],
+                    child: Text(
+                      'All Reviews',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddReview(
+                            vendor: vendor,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ]),
+              ],
             ),
             floatingActionButton: Column(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -386,4 +524,34 @@ class _VendorDetailsState extends State<VendorDetails> {
             ),
           );
   }
+
+  void choiceAction(String choice) {
+    if (choice == Menu.Report) {
+      print('Settings');
+    } else if (choice == Menu.SignOut) {
+      print('SignOut');
+    }
+  }
 }
+
+/* SizedBox(
+                    height: 300.0,
+                    //width: 350.0,
+                    child: new FlutterMap(
+                      mapController: controller,
+                      options: new MapOptions(
+                        zoom: 18.45,
+                        center: vendorLoc,
+                      ),
+                      layers: [
+                        new TileLayerOptions(
+                          urlTemplate:
+                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c'],
+                        ),
+                        new MarkerLayerOptions(
+                          markers: [vendorMarker],
+                        ),
+                      ],
+                    ),
+                  ),*/
