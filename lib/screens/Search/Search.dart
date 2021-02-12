@@ -124,7 +124,7 @@ class _SearchState extends State<Search> {
             onChanged: (value) async {
               List<dynamic> sR = [];
               if (value.length != 0) {
-                sR = await VendorDBService.getVendorsSearch(value);
+                sR = await VendorDBService.getVendorsFromSearch(value);
               }
               setState(() {
                 this.searchResults = sR;

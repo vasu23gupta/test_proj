@@ -60,8 +60,7 @@ class _AddReviewState extends State<AddReview> {
                 //print(response.body.toString());
               } else {
                 setState(() {
-                  alertText =
-                      "Please make sure that review is not empty and rating is selected";
+                  alertText = "Please make sure that rating is selected";
                 });
               }
             },
