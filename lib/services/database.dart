@@ -235,17 +235,17 @@ class VendorDBService {
     // Iterable jsonList = json.decode(response.body);
     // List<Vendor> vendors =
     //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
-    print(
-      vendorsUrl +
-          "filterOnMap/" +
-          neLat +
-          '/' +
-          neLng +
-          '/' +
-          swLat +
-          '/' +
-          swLng,
-    );
+    // print(
+    //   vendorsUrl +
+    //       "filterOnMap/" +
+    //       neLat +
+    //       '/' +
+    //       neLng +
+    //       '/' +
+    //       swLat +
+    //       '/' +
+    //       swLng,
+    // );
     //print(response.statusCode);
     //print(response.data);
     //print(response.body);
