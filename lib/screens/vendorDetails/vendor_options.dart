@@ -18,14 +18,24 @@ class Options extends StatelessWidget {
       onSelected: (value) {
         switch (value) {
           case 'Edit':
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddVendor(
-                  vendor: vendor,
+            if (user.isAnon) {
+              showDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return LoginPopup(
+                      to: "edit a vendor",
+                    );
+                  });
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddVendor(
+                    vendor: vendor,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
             break;
           case 'Report':
             if (user.isAnon) {
