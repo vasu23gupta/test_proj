@@ -9,7 +9,8 @@ class AuthService {
   //custom user based on firebase user
   CustomUser _userFromFirebaseUser(User user) {
     if (user != null) {
-      return CustomUser(uid: user.uid);
+      return CustomUser(
+          uid: user.uid, name: user.displayName, isAnon: user.isAnonymous);
     } else {
       return null;
     }

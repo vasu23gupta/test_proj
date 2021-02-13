@@ -8,7 +8,7 @@ import 'package:test_proj/settings/darkthemebutton.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'add_theme.dart';
 
-class settingspage extends StatelessWidget {
+class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

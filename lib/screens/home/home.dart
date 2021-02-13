@@ -7,12 +7,13 @@ import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/screens/vendor_details.dart';
+import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
 import 'package:test_proj/settings/settings.dart';
+import 'package:test_proj/shared/loginPopup.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -254,7 +255,7 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(user.uid),
+              child: Text(user.isAnon ? "Guest" : user.uid),
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -262,16 +263,13 @@ class _HomeState extends State<Home> {
             ListTile(
                 title: Text('Settings'),
                 onTap: () {
-                  {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => settingspage()),
-                    );
-                  }
-                  ;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsPage()),
+                  );
                 }),
             ListTile(
-              title: Text('Logout'),
+              title: Text(user.isAnon ? 'Sign In' : 'Logout'),
               onTap: () async {
                 await _auth.signOut();
               },
@@ -384,6 +382,7 @@ class _HomeState extends State<Home> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          //move to location
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
@@ -405,20 +404,31 @@ class _HomeState extends State<Home> {
               },
             ),
           ),
+          //add vendor
           Padding(
             padding: EdgeInsets.all(8.0),
             child: FloatingActionButton(
               heroTag: null,
               child: Icon(Icons.add),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddVendor(
-                      userLoc: controller.center,
+                if (user.isAnon) {
+                  showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return LoginPopup(
+                          to: "add a vendor",
+                        );
+                      });
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddVendor(
+                        userLoc: controller.center,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               },
             ),
           ),
