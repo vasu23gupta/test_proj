@@ -7,7 +7,7 @@ import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:latlong/latlong.dart';
 
-import '../vendor_details.dart';
+import '../vendorDetails/vendor_details.dart';
 
 enum SingingCharacter {
   RatingHighToLow,
