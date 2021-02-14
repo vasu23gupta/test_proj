@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/appUser.dart';
@@ -15,7 +14,7 @@ class UserDBService {
   final String uid;
   UserDBService({this.uid});
 
-  static String url = "http://10.0.2.2:3000/";
+  static String url = "https://test-proj-server.azurewebsites.net/";
   static String usersUrl = url + "users/";
 
   Future<http.Response> addUser() async {

@@ -7,12 +7,11 @@ import 'package:provider/provider.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
+import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter_absolute_path/flutter_absolute_path.dart';
-//import 'package:dio/dio.dart';
 
 class AddVendor extends StatefulWidget {
   final LatLng userLoc;
@@ -245,6 +244,11 @@ class _AddVendorState extends State<AddVendor> {
                       child: new FlutterMap(
                         mapController: controller,
                         options: new MapOptions(
+                          nePanBoundary:
+                              HardcoreMath.toBounds(userLoc).northEast,
+                          swPanBoundary:
+                              HardcoreMath.toBounds(userLoc).southWest,
+                          //bounds: HardcoreMath.toBounds(userLoc),
                           zoom: 18.45, center: userLoc,
                           onTap: _putMarkerOnMap,
                           //center: new LatLng(userLoc.latitude, userLoc.longitude),

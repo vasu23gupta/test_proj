@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_proj/screens/authenticate/authenticate.dart';
 
 class LoginPopup extends StatelessWidget {
   final String to;
@@ -41,21 +42,17 @@ class LoginPopup extends StatelessWidget {
                   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(
-                      'Register',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {},
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  RaisedButton(
-                    color: Colors.pink[400],
-                    child: Text(
                       'Login',
                       style: TextStyle(color: Colors.white),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Authenticate(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:location/location.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/services/auth.dart';
@@ -13,6 +13,7 @@ import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
 import 'package:test_proj/settings/settings.dart';
+import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loginPopup.dart';
 
 class Home extends StatefulWidget {
@@ -24,49 +25,21 @@ class _HomeState extends State<Home> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   bool loadingMarkers = false;
   final AuthService _auth = AuthService();
-  MapController controller = new MapController();
-  LatLng userLoc = new LatLng(28.612757, 77.230445);
-  List<String> selectedFilters = new List();
+  MapController controller = MapController();
+  LatLng mapCenter = LatLng(28.612757, 77.230445);
+  LocationData userLoc;
+  List<String> selectedFilters = List();
   String mainSelectedFilter = '';
   bool filtersHaveChanged = false;
-  HashMap<String, List<String>> filters = HashMap.from({
-    "Food": ["North Indian", "Chinese", "South Indian"],
-    "Repair": ["Car", "Bike", "Cycle"],
-    "yvyvu": ["yrvr", "45y95"],
-    "251125v": ["wyye4y"],
-    "vb845yb": [null],
-  });
-  HashMap<String, List<bool>> areSelected = HashMap.from({
-    "Food": [false, false, false],
-    "Repair": [false, false, false],
-    "yvyvu": [false, false],
-    "251125v": [false],
-    "vb845yb": [false],
-  });
-  HashMap<String, bool> isSelected = HashMap.from({
-    "Food": false,
-    "Repair": false,
-    "yvyvu": false,
-    "251125v": false,
-    "vb845yb": false,
-  });
-  // List<String> filters = [
-  //   "Food",
-  //   "Repair",
-  //   "Crafts",
-  //   "Daily essentials",
-  //   "rehrhrh",
-  //   "ju65u65w"
-  // ];
-
   List<Vendor> vendors = [];
   List<Marker> vendorMarkers = [];
+  LocationService locSer = LocationService();
 
   ListView filterBar() {
     if (mainSelectedFilter.isEmpty) {
-      List<String> filtersKeys = filters.keys.toList();
+      List<String> filtersKeys = FILTERS.keys.toList();
       return ListView.builder(
-        itemCount: filters.length,
+        itemCount: FILTERS.length,
         itemBuilder: (context, index) {
           String fil = filtersKeys[index];
           return Container(
@@ -93,7 +66,7 @@ class _HomeState extends State<Home> {
       );
     } else {
       return ListView.builder(
-        itemCount: filters[mainSelectedFilter].length + 1,
+        itemCount: FILTERS[mainSelectedFilter].length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             return Container(
@@ -107,8 +80,8 @@ class _HomeState extends State<Home> {
                 selectedColor: Colors.red,
                 onSelected: (val) {
                   isSelected[mainSelectedFilter] = val;
-                  for (int i = 0; i < filters[mainSelectedFilter].length; i++) {
-                    String subFilter = filters[mainSelectedFilter][i];
+                  for (int i = 0; i < FILTERS[mainSelectedFilter].length; i++) {
+                    String subFilter = FILTERS[mainSelectedFilter][i];
                     areSelected[mainSelectedFilter][i] = false;
                     selectedFilters.removeWhere((String name) {
                       return name == subFilter;
@@ -131,7 +104,7 @@ class _HomeState extends State<Home> {
             );
           } else {
             int ind = index - 1;
-            String fil = filters[mainSelectedFilter][ind];
+            String fil = FILTERS[mainSelectedFilter][ind];
             if (fil != null)
               return Container(
                 margin: EdgeInsets.all(5),
@@ -174,6 +147,12 @@ class _HomeState extends State<Home> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => updateMarkers().whenComplete(() => setState(() {})));
+    locSer.getLocation().then((value) {
+      if (value != null) {
+        userLoc = value;
+        mapCenter = LatLng(value.latitude, value.longitude);
+      }
+    });
   }
 
   void delayUpdate() async {
@@ -244,8 +223,6 @@ class _HomeState extends State<Home> {
     //   print(element.coordinates.toString());
     //   print(element.tags.toString());
     // });
-    LocationService locSer = new LocationService();
-    Future<LatLng> userLocFut = locSer.getLocation();
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.brown[50],
@@ -295,7 +272,7 @@ class _HomeState extends State<Home> {
           //map
           FlutterMap(
             mapController: controller,
-            options: new MapOptions(
+            options: MapOptions(
               onPositionChanged: (position, hasGesture) async {
                 if (!loadingMarkers && controller.zoom > 16.5) {
                   updateMarkers();
@@ -303,7 +280,7 @@ class _HomeState extends State<Home> {
                 //print(controller.bounds.northEast.longitude);
               },
               zoom: 18.45,
-              center: userLoc,
+              center: mapCenter,
               //center: new LatLng(userLoc.latitude, userLoc.longitude),
             ),
             layers: [
@@ -388,18 +365,13 @@ class _HomeState extends State<Home> {
             child: FloatingActionButton(
               heroTag: null,
               child: Icon(Icons.location_searching),
-              onPressed: () {
-                userLocFut.then(
-                  (value) => setState(
-                    () {
-                      userLoc = new LatLng(value.latitude, value.longitude);
-                      print("ye rha mai " + userLoc.toSexagesimal());
-                      controller.move(
-                        userLoc,
-                        18.45,
-                      );
-                    },
-                  ),
+              onPressed: () async {
+                userLoc = await locSer.getLocation();
+                if (userLoc != null)
+                  mapCenter = LatLng(userLoc.latitude, userLoc.longitude);
+                controller.move(
+                  mapCenter,
+                  18.45,
                 );
               },
             ),
@@ -410,7 +382,7 @@ class _HomeState extends State<Home> {
             child: FloatingActionButton(
               heroTag: null,
               child: Icon(Icons.add),
-              onPressed: () {
+              onPressed: () async {
                 if (user.isAnon) {
                   showDialog<void>(
                       context: context,
@@ -420,11 +392,15 @@ class _HomeState extends State<Home> {
                         );
                       });
                 } else {
+                  if (userLoc == null) {
+                    userLoc = await locSer.getLocation();
+                    if (userLoc == null) return;
+                  }
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => AddVendor(
-                        userLoc: controller.center,
+                        userLoc: LatLng(userLoc.latitude, userLoc.longitude),
                       ),
                     ),
                   );

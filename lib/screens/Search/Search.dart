@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:geolocation/geolocation.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/location_service.dart';
-import 'package:test_proj/shared/constants.dart';
 import 'package:latlong/latlong.dart';
-
 import '../vendorDetails/vendor_details.dart';
 
 enum SingingCharacter {
@@ -32,7 +28,7 @@ class _SearchState extends State<Search> {
 
     locSer.getLocation().then((value) {
       setState(() {
-        userLocFut = value;
+        userLocFut = LatLng(value.latitude, value.longitude);
         print("ye rha mai " + userLocFut.toSexagesimal());
       });
     });
