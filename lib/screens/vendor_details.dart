@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:test_proj/shared/starrating.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
