@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
-import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/add_review.dart';
@@ -12,6 +11,7 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:test_proj/models/menu.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -24,32 +24,33 @@ class _VendorDetailsState extends State<VendorDetails> {
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
+  //VendorData vData;
   String description = "";
   String address = '';
   bool loading = true;
   bool reviewsLoading = false;
   bool getNewReviews = true;
-
-  Future<void> getReviews(String id) async {
+  getReviews(
+    String id,
+  ) async {
     setState(() {
       reviewsLoading = true;
       getNewReviews = false;
     });
     Review review = await VendorDBService.getReview(id);
     setState(() {
-      if (review.review != null) vendorReviews.add(review);
-      vendorReviewIndexToBeFetched += 1;
+      vendorReviews.add(review);
+      vendorReviewIndexToBeFetched = vendorReviewIndexToBeFetched + 1;
       //print(vendorReviewIndexToBeFetched);
     });
   }
 
   int index;
-
   int getCurrentIndexToBeFetched() {
     return vendorReviewIndexToBeFetched;
   }
 
-  Future<void> getFiveReviews() async {
+  getFiveReviews() async {
     //print(this.vendor.name);
     for (int i = 0;
         getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
@@ -138,6 +139,7 @@ class _VendorDetailsState extends State<VendorDetails> {
 
   @override
   Widget build(BuildContext context) {
+    String description = "";
     //bool changed = false;
     if (!loading) {
       description = vendor.description;
@@ -174,6 +176,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     MapController controller = new MapController();
 
     Marker vendorMarker = new Marker(
+      //anchorPos: AnchorPos.align(AnchorAlign.center),
       width: 45.0,
       height: 45.0,
       point: vendorLoc,
@@ -184,34 +187,52 @@ class _VendorDetailsState extends State<VendorDetails> {
         onPressed: () {},
       ),
     );
-
     return loading
         ? Loading()
         : Scaffold(
             body: ListView(
               shrinkWrap: true,
               children: <Widget>[
+                /* Container(
+                  height: 35.0,
+                  color: Colors.transparent,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios),
+                        color: Colors.black,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.favorite),
+                        color: Colors.pink,
+                        onPressed: () {},
+                      )
+                    ],
+                  ),
+                ),*/
                 Stack(
                   children: <Widget>[
                     Container(
                       height: 300.0,
                       //print(index);
-                      child: PhotoViewGallery.builder(
-                        scrollPhysics: const BouncingScrollPhysics(),
-                        builder: (BuildContext context, int index) {
-                          return PhotoViewGalleryPageOptions(
+                      /* return PhotoViewGalleryPageOptions(
                             maxScale: PhotoViewComputedScale.contained * 2.0,
                             minScale: PhotoViewComputedScale.contained * 0.8,
                             imageProvider: VendorDBService.getVendorImage(
                                 vendor.imageIds[index]),
                             heroAttributes: PhotoViewHeroAttributes(
                                 tag: vendor.imageIds[index]),
-                          );
-                          /* decoration: BoxDecoration(
+                          );*/
+                      decoration: BoxDecoration(
                           image: DecorationImage(
                               image: AssetImage(vendor.imageIds[index]),
-                              fit: BoxFit.cover)),*/
-                        },
+                              fit: BoxFit.cover)),
+                    ),
+                    /*},
                         itemCount: vendor.imageIds.length,
                         loadingBuilder: (context, event) => Center(
                           child: Container(
@@ -232,7 +253,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                         //pageController: widget.pageController,
                         //onPageChanged: onPageChanged,
                       ),
-                    ),
+                    ),*/
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -247,6 +268,12 @@ class _VendorDetailsState extends State<VendorDetails> {
                   ],
                 ),
 
+                //pageController: widget.pageController,
+                //onPageChanged: onPageChanged,
+
+                //Divider(),
+                //photos
+                //https://pub.dev/packages/photo_view
                 Container(
                   padding: EdgeInsets.only(left: 20.0),
                   child: Column(
@@ -318,37 +345,21 @@ class _VendorDetailsState extends State<VendorDetails> {
                 SizedBox(
                   height: 300.0,
                   //width: 350.0,
-                  child: Stack(
-                    children: <Widget>[
-                      new FlutterMap(
-                        mapController: controller,
-                        options: new MapOptions(
-                          zoom: 18.45,
-                          center: vendorLoc,
-                        ),
-                        layers: [
-                          new TileLayerOptions(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                          ),
-                          new MarkerLayerOptions(
-                            markers: [vendorMarker],
-                          ),
-                        ],
+                  child: new FlutterMap(
+                    mapController: controller,
+                    options: new MapOptions(
+                      zoom: 18.45,
+                      center: vendorLoc,
+                    ),
+                    layers: [
+                      new TileLayerOptions(
+                        urlTemplate:
+                            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        subdomains: ['a', 'b', 'c'],
                       ),
-                      FloatingActionButton(
-                        onPressed: () async {
-                          //final availableMaps = await MapLauncher.installedMaps;
-                          //print(availableMaps);
-
-                          await MapLauncher.showDirections(
-                              mapType: MapType.google,
-                              destination: Coords(vendor.coordinates.latitude,
-                                  vendor.coordinates.longitude));
-                        },
-                        child: Icon(Icons.navigation),
-                      )
+                      new MarkerLayerOptions(
+                        markers: [vendorMarker],
+                      ),
                     ],
                   ),
                 ),
@@ -376,7 +387,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                           title: Column(
                             children: [
                               Card(
-                                  color: Colors.amberAccent[100],
+                                  color: Colors.amberAccent[70],
                                   child: Column(
                                     children: <Widget>[
                                       StarRating(
@@ -478,8 +489,38 @@ class _VendorDetailsState extends State<VendorDetails> {
                 ]),
               ],
             ),
+            floatingActionButton: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FloatingActionButton(
+                    heroTag: null,
+                    onPressed: () async {
+                      //final availableMaps = await MapLauncher.installedMaps;
+                      //print(availableMaps);
+
+                      await MapLauncher.showDirections(
+                          mapType: MapType.google,
+                          destination: Coords(vendor.coordinates.latitude,
+                              vendor.coordinates.longitude));
+                    },
+                    child: Icon(Icons.navigation),
+                  ),
+                ),
+              ],
+            ),
           );
   }
+
+  void choiceAction(String choice) {
+    if (choice == Menu.Report) {
+      print('Settings');
+    } else if (choice == Menu.SignOut) {
+      print('SignOut');
+    }
+  }
+}
 
 /* SizedBox(
                     height: 300.0,
@@ -502,4 +543,3 @@ class _VendorDetailsState extends State<VendorDetails> {
                       ],
                     ),
                   ),*/
-}

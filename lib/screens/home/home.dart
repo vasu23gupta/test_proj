@@ -33,6 +33,8 @@ class _HomeState extends State<Home> {
     loadingMarkers = false;
   }
 
+  int indexval;
+
   Future<void> updateMarkers() async {
     delayUpdate();
     //vendorMarkers.clear();
@@ -49,18 +51,27 @@ class _HomeState extends State<Home> {
       temp = await VendorDBService.filterVendorsInScreen(
           controller.bounds, selectedFilters);
     }
+
     for (Vendor vendor in temp) {
       if (!vendors.contains(vendor)) vendors.add(vendor);
     }
     for (Vendor vendor in vendors) {
-      Marker marker = new Marker(
-        //anchorPos: AnchorPos.align(AnchorAlign.center),
+      if (vendor.tags[0].toLowerCase() == 'food') {
+        indexval = 0;
+      }
+
+      if (vendor.tags[0].toLowerCase() == 'repair') {
+        indexval = 1;
+      }
+
+      Marker marker;
+      Marker foodmarker = new Marker(
         width: 45.0,
         height: 45.0,
         point: vendor.coordinates,
         builder: (context) => IconButton(
           //alignment: Alignment.bottomRight,
-          icon: Icon(Icons.circle),
+          icon: Icon(Icons.sanitizer),
           iconSize: 40.0,
           onPressed: () {
             Navigator.push(
@@ -74,6 +85,33 @@ class _HomeState extends State<Home> {
           },
         ),
       );
+
+      Marker repairmarker = new Marker(
+        width: 45.0,
+        height: 45.0,
+        point: vendor.coordinates,
+        builder: (context) => IconButton(
+          //alignment: Alignment.bottomRight,
+          icon: Icon(Icons.home_repair_service),
+          iconSize: 40.0,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VendorDetails(
+                  vendor: vendor,
+                ),
+              ),
+            );
+          },
+        ),
+      );
+      if (vendor.tags[0].toLowerCase() == 'food') {
+        marker = foodmarker;
+      } else if (vendor.tags[0].toLowerCase() == 'repair') {
+        marker = repairmarker;
+      }
+
       if (!vendorMarkers.contains(marker)) {
         vendorMarkers.add(marker);
       }
