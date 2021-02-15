@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
+import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
-import 'package:test_proj/screens/add_review.dart';
-import 'package:test_proj/screens/vendor_options.dart';
+import 'package:test_proj/screens/vendorDetails/add_review.dart';
+import 'package:test_proj/screens/vendorDetails/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
@@ -12,7 +13,11 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+<<<<<<< HEAD:lib/screens/vendor_details.dart
 import 'package:test_proj/shared/starrating.dart';
+=======
+import 'package:test_proj/shared/loginPopup.dart';
+>>>>>>> main:lib/screens/vendorDetails/vendor_details.dart
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -140,6 +145,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   @override
   Widget build(BuildContext context) {
     //bool changed = false;
+    final user = Provider.of<CustomUser>(context);
     if (!loading) {
       description = vendor.description;
       address = vendor.address;
@@ -447,15 +453,24 @@ class _VendorDetailsState extends State<VendorDetails> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddReview(
-                            vendor: vendor,
+                      if (user.isAnon) {
+                        showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return LoginPopup(
+                                to: "add a review",
+                              );
+                            });
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddReview(
+                              vendor: vendor,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
                   RaisedButton(

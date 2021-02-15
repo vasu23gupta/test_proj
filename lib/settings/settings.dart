@@ -5,10 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/settings/darkthemebutton.dart';
-import 'package:theme_provider/theme_provider.dart';
 import 'add_theme.dart';
 
-class settingspage extends StatelessWidget {
+class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

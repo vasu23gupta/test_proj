@@ -1,17 +1,20 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:location/location.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/screens/vendor_details.dart';
+import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
 import 'package:test_proj/settings/settings.dart';
+import 'package:test_proj/shared/constants.dart';
+import 'package:test_proj/shared/loginPopup.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -19,12 +22,137 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  bool loadingMarkers = false;
+  final AuthService _auth = AuthService();
+  MapController controller = MapController();
+  LatLng mapCenter = LatLng(28.612757, 77.230445);
+  LocationData userLoc;
+  List<String> selectedFilters = List();
+  String mainSelectedFilter = '';
+  bool filtersHaveChanged = false;
+  List<Vendor> vendors = [];
+  List<Marker> vendorMarkers = [];
+  LocationService locSer = LocationService();
+
+  ListView filterBar() {
+    if (mainSelectedFilter.isEmpty) {
+      List<String> filtersKeys = FILTERS.keys.toList();
+      return ListView.builder(
+        itemCount: FILTERS.length,
+        itemBuilder: (context, index) {
+          String fil = filtersKeys[index];
+          return Container(
+            margin: EdgeInsets.all(5),
+            child: FilterChip(
+              labelPadding: EdgeInsets.all(5),
+              label: Text(fil),
+              backgroundColor: Colors.white,
+              padding: EdgeInsets.all(5),
+              selected: isSelected[fil],
+              selectedColor: Colors.blue,
+              onSelected: (val) {
+                filtersHaveChanged = true;
+                selectedFilters.add(fil);
+                mainSelectedFilter = fil;
+                isSelected[mainSelectedFilter] = val;
+                updateMarkers();
+                setState(() {});
+              },
+            ),
+          );
+        },
+        scrollDirection: Axis.horizontal,
+      );
+    } else {
+      return ListView.builder(
+        itemCount: FILTERS[mainSelectedFilter].length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Container(
+              margin: EdgeInsets.all(5),
+              child: FilterChip(
+                labelPadding: EdgeInsets.all(5),
+                label: Text(mainSelectedFilter),
+                backgroundColor: Colors.white,
+                padding: EdgeInsets.all(5),
+                selected: isSelected[mainSelectedFilter],
+                selectedColor: Colors.red,
+                onSelected: (val) {
+                  isSelected[mainSelectedFilter] = val;
+                  for (int i = 0; i < FILTERS[mainSelectedFilter].length; i++) {
+                    String subFilter = FILTERS[mainSelectedFilter][i];
+                    areSelected[mainSelectedFilter][i] = false;
+                    selectedFilters.removeWhere((String name) {
+                      return name == subFilter;
+                    });
+                  }
+                  filtersHaveChanged = true;
+                  selectedFilters.removeWhere((String name) {
+                    return name == mainSelectedFilter;
+                  });
+                  mainSelectedFilter = '';
+                  updateMarkers();
+                  setState(() {});
+                  // String filters = '';
+                  // for (var item in widget.selectedFilters) {
+                  //   filters += item;
+                  // }
+                  // print(filters);
+                },
+              ),
+            );
+          } else {
+            int ind = index - 1;
+            String fil = FILTERS[mainSelectedFilter][ind];
+            if (fil != null)
+              return Container(
+                margin: EdgeInsets.all(5),
+                child: FilterChip(
+                  labelPadding: EdgeInsets.all(5),
+                  label: Text(fil),
+                  backgroundColor: Colors.white,
+                  padding: EdgeInsets.all(5),
+                  selected: areSelected[mainSelectedFilter][ind],
+                  selectedColor: Colors.blue,
+                  onSelected: (val) {
+                    areSelected[mainSelectedFilter][ind] = val;
+                    filtersHaveChanged = true;
+                    if (val) {
+                      selectedFilters.add(fil);
+                    } else {
+                      selectedFilters.removeWhere((String name) {
+                        return name == fil;
+                      });
+                    }
+                    updateMarkers();
+                    setState(() {});
+                    // String filters = '';
+                    // for (var item in widget.selectedFilters) {
+                    //   filters += item;
+                    // }
+                    // print(filters);
+                  },
+                ),
+              );
+          }
+        },
+        scrollDirection: Axis.horizontal,
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => updateMarkers().whenComplete(() => setState(() {})));
-    //updateMarkers().whenComplete(() => setState(() {}));
+    locSer.getLocation().then((value) {
+      if (value != null) {
+        userLoc = value;
+        mapCenter = LatLng(value.latitude, value.longitude);
+      }
+    });
   }
 
   void delayUpdate() async {
@@ -86,31 +214,8 @@ class _HomeState extends State<Home> {
     //print(vendorMarkers.length);
   }
 
-  bool loadingMarkers = false;
-  final AuthService _auth = AuthService();
-  MapController controller = new MapController();
-  LatLng userLoc = new LatLng(28.612757, 77.230445);
-  List<String> selectedFilters = new List();
-  bool filtersHaveChanged = false;
-  List<String> filters = [
-    "Food",
-    "Repair",
-    "Crafts",
-    "Daily essentials",
-    "rehrhrh",
-    "ju65u65w"
-  ];
-  List<bool> isSelected = [];
-  List<Vendor> vendors = [];
-  List<Marker> vendorMarkers = [];
   @override
   Widget build(BuildContext context) {
-    for (int i = 0; i < filters.length; i++) {
-      isSelected.add(false);
-    }
-    //updateMarkers().whenComplete(() => setState(() {}));
-    //LatLng middlePoint = controller.center;
-    //controller.
     final user = Provider.of<CustomUser>(context);
     // vendors.forEach((element) {
     //   print(element.id);
@@ -118,9 +223,8 @@ class _HomeState extends State<Home> {
     //   print(element.coordinates.toString());
     //   print(element.tags.toString());
     // });
-    LocationService locSer = new LocationService();
-    Future<LatLng> userLocFut = locSer.getLocation();
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.brown[50],
       drawer: Drawer(
         child: ListView(
@@ -128,7 +232,7 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(user.uid),
+              child: Text(user.isAnon ? "Guest" : user.uid),
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -136,16 +240,13 @@ class _HomeState extends State<Home> {
             ListTile(
                 title: Text('Settings'),
                 onTap: () {
-                  {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => settingspage()),
-                    );
-                  }
-                  ;
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SettingsPage()),
+                  );
                 }),
             ListTile(
-              title: Text('Logout'),
+              title: Text(user.isAnon ? 'Sign In' : 'Logout'),
               onTap: () async {
                 await _auth.signOut();
               },
@@ -153,24 +254,25 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      appBar: AppBar(
-        title: Text('Map'),
-        elevation: 0.0,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Search()));
-            },
-          )
-        ],
-      ),
+      // appBar: AppBar(
+      //   title: Text('Map'),
+      //   elevation: 0.0,
+      //   actions: <Widget>[
+      //     IconButton(
+      //       icon: Icon(Icons.search),
+      //       onPressed: () {
+      //         Navigator.push(
+      //             context, MaterialPageRoute(builder: (context) => Search()));
+      //       },
+      //     )
+      //   ],
+      // ),
       body: Stack(
         children: <Widget>[
+          //map
           FlutterMap(
             mapController: controller,
-            options: new MapOptions(
+            options: MapOptions(
               onPositionChanged: (position, hasGesture) async {
                 if (!loadingMarkers && controller.zoom > 16.5) {
                   updateMarkers();
@@ -178,7 +280,7 @@ class _HomeState extends State<Home> {
                 //print(controller.bounds.northEast.longitude);
               },
               zoom: 18.45,
-              center: userLoc,
+              center: mapCenter,
               //center: new LatLng(userLoc.latitude, userLoc.longitude),
             ),
             layers: [
@@ -205,47 +307,50 @@ class _HomeState extends State<Home> {
               // ),
             ],
           ),
+          //search bar
           Positioned(
-            top: 10.0,
-            child: ListView.builder(
-              itemCount: filters.length,
-              itemBuilder: (context, index) {
-                return Row(
-                  children: <Widget>[
-                    Container(
-                      margin: EdgeInsets.all(5),
-                      child: FilterChip(
-                        labelPadding: EdgeInsets.all(5),
-                        label: Text(filters[index]),
-                        backgroundColor: Colors.white,
-                        padding: EdgeInsets.all(5),
-                        selected: isSelected[index],
-                        selectedColor: Colors.blue,
-                        onSelected: (val) {
-                          isSelected[index] = val;
-                          filtersHaveChanged = true;
-                          if (val) {
-                            selectedFilters.add(filters[index]);
-                          } else {
-                            selectedFilters.removeWhere((String name) {
-                              return name == filters[index];
-                            });
-                          }
-                          updateMarkers();
-                          setState(() {});
-                          // String filters = '';
-                          // for (var item in widget.selectedFilters) {
-                          //   filters += item;
-                          // }
-                          // print(filters);
-                        },
-                      ),
+            top: 60,
+            right: 15,
+            left: 15,
+            child: Container(
+              color: Colors.white,
+              child: Row(
+                children: <Widget>[
+                  //drawer
+                  IconButton(
+                    splashColor: Theme.of(context).splashColor,
+                    icon: Icon(Icons.menu),
+                    onPressed: () {
+                      _scaffoldKey.currentState.openDrawer();
+                    },
+                  ),
+                  //search
+                  Expanded(
+                    child: TextField(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => Search()));
+                      },
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                          hintText: "Search"),
                     ),
-                  ],
-                );
-              },
-              scrollDirection: Axis.horizontal,
+                  ),
+                ],
+              ),
             ),
+          ),
+          //filter bar
+          Positioned(
+            top: 110.0,
+            left: 10,
+            child: Row(children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: filterBar(),
+              ),
+            ]),
             height: 60.0,
             width: MediaQuery.of(context).size.width,
           ),
@@ -254,40 +359,52 @@ class _HomeState extends State<Home> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          //move to location
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton(
               heroTag: null,
               child: Icon(Icons.location_searching),
-              onPressed: () {
-                userLocFut.then(
-                  (value) => setState(
-                    () {
-                      userLoc = new LatLng(value.latitude, value.longitude);
-                      controller.move(
-                        userLoc,
-                        18.45,
-                      );
-                    },
-                  ),
+              onPressed: () async {
+                userLoc = await locSer.getLocation();
+                if (userLoc != null)
+                  mapCenter = LatLng(userLoc.latitude, userLoc.longitude);
+                controller.move(
+                  mapCenter,
+                  18.45,
                 );
               },
             ),
           ),
+          //add vendor
           Padding(
             padding: EdgeInsets.all(8.0),
             child: FloatingActionButton(
               heroTag: null,
               child: Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddVendor(
-                      userLoc: controller.center,
+              onPressed: () async {
+                if (user.isAnon) {
+                  showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return LoginPopup(
+                          to: "add a vendor",
+                        );
+                      });
+                } else {
+                  if (userLoc == null) {
+                    userLoc = await locSer.getLocation();
+                    if (userLoc == null) return;
+                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AddVendor(
+                        userLoc: LatLng(userLoc.latitude, userLoc.longitude),
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               },
             ),
           ),

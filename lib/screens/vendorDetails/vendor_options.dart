@@ -4,34 +4,56 @@ import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
-import 'add_vendor.dart';
+import 'package:test_proj/shared/loginPopup.dart';
+import '../add_vendor.dart';
 
 class Options extends StatelessWidget {
   final Vendor vendor;
   Options({this.vendor});
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<CustomUser>(context);
     //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
     return PopupMenuButton<String>(
       onSelected: (value) {
         switch (value) {
           case 'Edit':
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => AddVendor(
-                  vendor: vendor,
+            if (user.isAnon) {
+              showDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return LoginPopup(
+                      to: "edit a vendor",
+                    );
+                  });
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AddVendor(
+                    vendor: vendor,
+                  ),
                 ),
-              ),
-            );
+              );
+            }
             break;
           case 'Report':
+            if (user.isAnon) {
+              showDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return LoginPopup(
+                      to: "report a vendor",
+                    );
+                  });
+            } else {
+              showDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Report(vendor: vendor);
+                  });
+            }
             //https://stackoverflow.com/questions/54480641/flutter-how-to-create-forms-in-popup
-            showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return Report(vendor: vendor);
-                });
             break;
         }
       },

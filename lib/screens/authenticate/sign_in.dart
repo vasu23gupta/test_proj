@@ -101,14 +101,14 @@ class _SignInState extends State<SignIn> {
                         style: TextStyle(color: Colors.red, fontSize: 14.0),
                       ),
                       RaisedButton(
-                        child: Text('Sign in anonimously'),
+                        child: Text(
+                            '(Continue without signing in) Sign in anonimously'),
                         onPressed: () async {
                           dynamic result = await _auth.signInAnon();
                           if (result == null) {
                             print('error signing in');
                           } else {
                             print('signed in');
-                            print(result.uid);
                           }
                         },
                       ),

@@ -1,7 +1,9 @@
 class CustomUser {
   final String uid;
+  final String name;
+  final bool isAnon;
 
-  CustomUser({this.uid});
+  CustomUser({this.uid, this.name, this.isAnon});
 }
 
 class UserData {

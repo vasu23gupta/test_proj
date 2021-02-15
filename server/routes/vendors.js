@@ -100,14 +100,15 @@ router.get('/search/:query', async (req, res) => {
     var searchTexts = searchText.split(" ");
     var searchTextList = [];
     for (i = 0; i < searchTexts.length; i++) {
+        var reg=new RegExp(searchTexts[i],"i")
         searchTextList.push({
             name: {
-                $regex: searchTexts[i]
+                $regex: reg
             }
         })
         searchTextList.push({
             tags: {
-                $regex: searchTexts[i]
+                $regex: reg
             }
         })
     }
@@ -120,7 +121,7 @@ router.get('/search/:query', async (req, res) => {
     var regexSearchOptions = {
         $or: searchTextList
     };
-    Vendor.find(regexSearchOptions, { name: 1, tags: 1 }, function (err, docs) {
+    Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location:1, createdAt:1}, function (err, docs) {
 
         if (err) {
             res.json({ message: err });

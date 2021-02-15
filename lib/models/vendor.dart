@@ -13,21 +13,23 @@ class Vendor {
   String description;
   List<String> reviewIds = [];
   List<Review> reviews;
-  double stars;
+  double stars = 0;
   String address;
+  DateTime createdOn;
+  //VendorData data;
 
-  Vendor({
-    this.id,
-    this.coordinates,
-    this.name,
-    this.tags,
-    this.description,
-    this.imageIds,
-    this.reviewIds,
-    this.stars,
-    this.address,
-  }) {
-    this.images = new List(imageIds.length);
+  Vendor(
+      {this.id,
+      this.coordinates,
+      this.name,
+      this.tags,
+      this.description,
+      this.imageIds,
+      this.reviewIds,
+      this.stars,
+      this.createdOn,
+      this.address}) {
+    this.images = this.imageIds == null ? null : List(imageIds.length);
   }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
@@ -36,14 +38,20 @@ class Vendor {
         json['location']['coordinates'][0].toDouble());
   }
 
-  Vendor.fromJsonSearch(Map<String, dynamic> json) {
+  factory Vendor.fromJsonSearch(Map<String, dynamic> json) {
     List<String> temp = new List<String>();
     for (var item in json['tags']) {
       temp.add(item.toString());
     }
-    this.id = json['_id'];
-    this.name = json['name'];
-    this.tags = temp;
+    return Vendor(
+      id: json['_id'],
+      name: json['name'],
+      tags: temp,
+      stars: json['rating'] * 1.0,
+      coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
+          json['location']['coordinates'][0].toDouble()),
+      createdOn: DateTime.parse(json['createdAt']),
+    );
   }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
