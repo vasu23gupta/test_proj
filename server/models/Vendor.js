@@ -46,6 +46,10 @@ const VendorSchema = mongoose.Schema({
     type: [String],
     required: false,
   },
+  reviewers: {
+    type: [String],
+    required: false,
+  },
   totalStars: {
     type: Number,
     required: true,
@@ -59,6 +63,10 @@ const VendorSchema = mongoose.Schema({
     required: true,
   },
   reports: {
+    type: [String],
+    required: false,
+  },
+  reporters: {
     type: [String],
     required: false,
   },

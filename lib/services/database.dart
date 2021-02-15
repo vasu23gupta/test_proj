@@ -14,7 +14,7 @@ class UserDBService {
   final String uid;
   UserDBService({this.uid});
 
-  static String url = "https://test-proj-server.azurewebsites.net/";
+  static String url = "http://10.0.2.2:3000/";
   static String usersUrl = url + "users/";
 
   Future<http.Response> addUser() async {
@@ -28,6 +28,7 @@ class UserDBService {
       body: body,
     );
     print(response.body);
+    print(response.statusCode);
     return response;
   }
 }
@@ -138,16 +139,16 @@ class VendorDBService {
     );
     String reportId = jsonDecode(reportResponse.body)['_id'];
 
-    final response = await http.patch(
-      vendorsUrl + "report/" + vendor.id,
-      headers: {'content-type': 'application/json'},
-      body: jsonEncode({'reportId': reportId}),
-    );
+    // final response = await http.patch(
+    //   vendorsUrl + "report/" + vendor.id,
+    //   headers: {'content-type': 'application/json'},
+    //   body: jsonEncode({'reportId': reportId}),
+    // );
 
     //adds report to user's database too,
     //cant add to anon users cuz they cant report
     //await UserDatabaseService(uid: userId).addReportToProfile(reportId);
-    return response;
+    return reportResponse;
   }
 
   static Future<Response> addImage(String path, String vendorId) async {

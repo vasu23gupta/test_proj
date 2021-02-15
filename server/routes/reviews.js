@@ -37,12 +37,14 @@ router.post('/', async (req, res) => {
         const savedReview = await review.save();
         const updatedUser = await User.updateOne({ _id: req.body.by }, {
             $push: {
-                reviews: savedReview._id
+                reviews: savedReview._id,
+                vendorsReviewedByMe: req.body.vendorId
             },
         });
         var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
             $push: {
-                reviews: savedReview._id
+                reviews: savedReview._id,
+                reviewers: req.body.by
             },
             $inc: { totalReviews: 1, totalStars: savedReview.stars },
         });

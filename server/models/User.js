@@ -10,6 +10,15 @@ const UserSchema = mongoose.Schema({
     reviews: {
         type: [String],
     },
+    vendorsReviewedByMe: {
+        type: [String],
+    },
+    reportsByMe: {
+        type: [String],
+    },
+    vendorsReportedByMe: {
+        type: [String],
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Users', UserSchema);
