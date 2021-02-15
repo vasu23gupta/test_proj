@@ -13,11 +13,8 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-<<<<<<< HEAD:lib/screens/vendor_details.dart
 import 'package:test_proj/shared/starrating.dart';
-=======
 import 'package:test_proj/shared/loginPopup.dart';
->>>>>>> main:lib/screens/vendorDetails/vendor_details.dart
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
