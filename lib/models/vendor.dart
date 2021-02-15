@@ -99,10 +99,3 @@ class Vendor {
   // int get hashCode => hashValues(
   //     name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
 }
-
-class StarRating extends StatelessWidget {
-  final int starCount;
-  final double rating;
-  final Color color;
-
-  
