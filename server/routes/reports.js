@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Report = require('../models/Report');
+const User = require('../models/User');
+const Vendor = require('../models/Vendor');
 
 // get all reports (for testing)
 router.get('/', async (req, res) => {
@@ -32,6 +34,19 @@ router.post('/', async (req, res) => {
 
     try {
         const savedReport = await report.save();
+        const updatedUser = await User.updateOne({ _id: req.body.by }, {
+            $push: {
+                reportsByMe: savedReport._id,
+                vendorsReportedByMe: req.body.vendorId
+            },
+        });
+        var updatedVendor = await Vendor.updateOne({ _id: req.body.vendor }, {
+            $push: {
+                reports: savedReport._id,
+                reporters: req.body.by
+            },
+            $inc: { totalReports: 1,},
+        });
         res.json(savedReport);
     } catch (err) {
         res.json({ message: err });
