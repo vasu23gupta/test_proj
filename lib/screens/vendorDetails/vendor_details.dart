@@ -13,7 +13,11 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+<<<<<<< HEAD:lib/screens/vendor_details.dart
+import 'package:test_proj/shared/starrating.dart';
+=======
 import 'package:test_proj/shared/loginPopup.dart';
+>>>>>>> main:lib/screens/vendorDetails/vendor_details.dart
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -44,6 +48,8 @@ class _VendorDetailsState extends State<VendorDetails> {
       //print(vendorReviewIndexToBeFetched);
     });
   }
+
+  int index;
 
   int getCurrentIndexToBeFetched() {
     return vendorReviewIndexToBeFetched;
@@ -175,7 +181,6 @@ class _VendorDetailsState extends State<VendorDetails> {
     MapController controller = new MapController();
 
     Marker vendorMarker = new Marker(
-      //anchorPos: AnchorPos.align(AnchorAlign.center),
       width: 45.0,
       height: 45.0,
       point: vendorLoc,
@@ -186,165 +191,261 @@ class _VendorDetailsState extends State<VendorDetails> {
         onPressed: () {},
       ),
     );
+
     return loading
         ? Loading()
         : Scaffold(
-            appBar: AppBar(
-              title: Text(vendor.name),
-              actions: <Widget>[
-                Provider(
-                  create: (context) => vendor,
-                  child: Options(vendor: vendor),
-                ),
-              ],
-              // leading: IconButton(
-              //   icon: Icon(Icons.arrow_back),
-              //   onPressed: () {
-              //     Navigator.pop(context);
-              //   },
-              // ),
-            ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  //map
-                  SizedBox(
-                    height: 300.0,
-                    //width: 350.0,
-                    child: new FlutterMap(
-                      mapController: controller,
-                      options: new MapOptions(
-                        zoom: 18.45,
-                        center: vendorLoc,
-                      ),
-                      layers: [
-                        new TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        new MarkerLayerOptions(
-                          markers: [vendorMarker],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    "Description",
-                    style: TextStyle(fontSize: 30, color: Colors.grey),
-                  ),
-                  Text(
-                    description,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text(
-                    address,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Row(
-                    children: vendor.tags
-                        .map((tag) => Text(
-                              tag + " ",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.blue),
-                            ))
-                        .toList(),
-                    textDirection: TextDirection.ltr,
-                  ),
-                  //Divider(),
-                  //photos
-                  //https://pub.dev/packages/photo_view
-                  Container(
-                    height: 500.0,
-                    child: PhotoViewGallery.builder(
-                      scrollPhysics: const BouncingScrollPhysics(),
-                      builder: (BuildContext context, int index) {
-                        //print(index);
-                        return PhotoViewGalleryPageOptions(
-                          maxScale: PhotoViewComputedScale.contained * 2.0,
-                          minScale: PhotoViewComputedScale.contained * 0.8,
-                          imageProvider: vendor.getImage(index),
-                          heroAttributes: PhotoViewHeroAttributes(
-                              tag: vendor.imageIds[index]),
-                        );
-                      },
-                      itemCount: vendor.imageIds.length,
-                      loadingBuilder: (context, event) => Center(
-                        child: Container(
-                          width: 20.0,
-                          height: 20.0,
-                          child: CircularProgressIndicator(
-                            value: event == null
-                                ? 0
-                                : event.cumulativeBytesLoaded /
-                                    event.expectedTotalBytes,
+            body: ListView(
+              shrinkWrap: true,
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      height: 300.0,
+                      //print(index);
+                      child: PhotoViewGallery.builder(
+                        scrollPhysics: const BouncingScrollPhysics(),
+                        builder: (BuildContext context, int index) {
+                          return PhotoViewGalleryPageOptions(
+                            maxScale: PhotoViewComputedScale.contained * 2.0,
+                            minScale: PhotoViewComputedScale.contained * 0.8,
+                            imageProvider: VendorDBService.getVendorImage(
+                                vendor.imageIds[index]),
+                            heroAttributes: PhotoViewHeroAttributes(
+                                tag: vendor.imageIds[index]),
+                          );
+                          /* decoration: BoxDecoration(
+                          image: DecorationImage(
+                              image: AssetImage(vendor.imageIds[index]),
+                              fit: BoxFit.cover)),*/
+                        },
+                        itemCount: vendor.imageIds.length,
+                        loadingBuilder: (context, event) => Center(
+                          child: Container(
+                            width: 20.0,
+                            height: 20.0,
+                            child: CircularProgressIndicator(
+                              value: event == null
+                                  ? 0
+                                  : event.cumulativeBytesLoaded /
+                                      event.expectedTotalBytes,
+                            ),
                           ),
                         ),
+                        backgroundDecoration: BoxDecoration(
+                          color: Theme.of(context).canvasColor,
+                        ),
+
+                        //pageController: widget.pageController,
+                        //onPageChanged: onPageChanged,
                       ),
-                      backgroundDecoration: BoxDecoration(
-                        color: Theme.of(context).canvasColor,
-                      ),
-                      //pageController: widget.pageController,
-                      //onPageChanged: onPageChanged,
                     ),
-                  ),
-                  Text(
-                    "Reviews",
-                    style: TextStyle(fontSize: 30, color: Colors.grey),
-                  ),
-                  Text(
-                    vendor.stars.toString() + " Stars",
-                    style: TextStyle(fontSize: 30, color: Colors.grey),
-                  ),
-                  //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
-                  //reviews
-                  //reviewsLoading
-                  //    ? Loading()
-                  /* : */ Container(
-                    height: 280,
-                    child: ListView.builder(
-                        controller: scrollController,
-                        itemCount: vendorReviews.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Column(
-                              children: [
-                                Text(
-                                  vendorReviews[index].stars.toString(),
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.black),
-                                ),
-                                Text(
-                                  vendorReviews[index].review,
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.black),
-                                ),
-                                Text(
-                                  "by: ",
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
-                                Text(
-                                  vendorReviews[index].byUser,
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.grey),
-                                ),
-                              ],
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.arrow_back_ios),
+                          color: Colors.black,
+                          onPressed: () {},
+                        ),
+                        Options(vendor: vendor),
+                      ],
+                    ),
+                  ],
+                ),
+
+                Container(
+                  padding: EdgeInsets.only(left: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        (vendor.name),
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontFamily: 'Montserrat',
+                            fontSize: 50,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            description,
+                            style: TextStyle(
+                                color: Colors.grey,
+                                fontFamily: 'Montserrat',
+                                fontSize: 38),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10.0),
+                      Row(
+                        children: <Widget>[
+                          Flexible(
+                            child: Text(
+                              address,
+                              style: TextStyle(
+                                  color: Colors.green[200],
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold),
                             ),
-                          );
-                        }),
+                          ),
+                          Icon(Icons.location_on),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text(
+                            vendor.stars.toString(),
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                          ),
+                          StarRating(rating: vendor.stars),
+                        ],
+                      ),
+                      /*  Row(
+                          children: vendor.tags
+                              .map((tag) => Text(
+                                    tag + " ",
+                                    style: TextStyle(
+                                        fontSize: 20, color: Colors.blue),
+                                  ))
+                              .toList(),
+                          textDirection: TextDirection.ltr,
+                        ),*/
+                    ],
                   ),
-                  /*  */
-                  //Padding(
-                  //       padding: const EdgeInsets.all(2.0),
-                  //       child: vData.reviews[index].widget,
-                  //     );
-                  //   },
-                  // ),
-                  SizedBox(
-                    height: 20,
+                ),
+
+                SizedBox(
+                  height: 300.0,
+                  //width: 350.0,
+                  child: Stack(
+                    children: <Widget>[
+                      new FlutterMap(
+                        mapController: controller,
+                        options: new MapOptions(
+                          zoom: 18.45,
+                          center: vendorLoc,
+                        ),
+                        layers: [
+                          new TileLayerOptions(
+                            urlTemplate:
+                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                            subdomains: ['a', 'b', 'c'],
+                          ),
+                          new MarkerLayerOptions(
+                            markers: [vendorMarker],
+                          ),
+                        ],
+                      ),
+                      FloatingActionButton(
+                        onPressed: () async {
+                          //final availableMaps = await MapLauncher.installedMaps;
+                          //print(availableMaps);
+
+                          await MapLauncher.showDirections(
+                              mapType: MapType.google,
+                              destination: Coords(vendor.coordinates.latitude,
+                                  vendor.coordinates.longitude));
+                        },
+                        child: Icon(Icons.navigation),
+                      )
+                    ],
                   ),
-                  //add review button
+                ),
+
+                Text(
+                  "Reviews",
+                  style: TextStyle(
+                      fontSize: 25.0,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey),
+                ),
+                //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
+                //reviews
+                //reviewsLoading
+                //    ? Loading()
+                /* : */ Container(
+                  padding: EdgeInsets.only(left: 20),
+                  height: 280,
+                  child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: vendorReviews.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title: Column(
+                            children: [
+                              Card(
+                                  color: Colors.amberAccent[100],
+                                  child: Column(
+                                    children: <Widget>[
+                                      StarRating(
+                                          rating: vendorReviews[index].stars),
+                                      Text(
+                                        vendorReviews[index].review,
+                                        style: TextStyle(
+                                            fontSize: 24,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.black),
+                                      ),
+                                      Text(
+                                        vendorReviews[index].byUser,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontFamily: 'Montserrat',
+                                            color: Colors.grey),
+                                      ),
+                                    ],
+                                  )),
+
+                              /* StarRating(
+                                        rating: vendorReviews[index].stars),*/
+                              /* ListTileTheme(
+                                      dense: true,
+                                      style: ListTileStyle.drawer,
+                                      tileColor: Colors.amberAccent[50],
+                                      child: ListTile(
+                                        selected: false,
+                                        title: Text(
+                                          vendorReviews[index].review,
+                                          style: TextStyle(
+                                              fontSize: 24,
+                                              fontFamily: 'Montserrat',
+                                              color: Colors.black),
+                                        ),
+                                        subtitle: Text(
+                                          vendorReviews[index].byUser,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: 'Montserrat',
+                                              color: Colors.grey),
+                                        ),
+                                      ),
+                                    ),*/
+                            ],
+                          ),
+                        );
+                      }),
+                ),
+                /*  */
+                //Padding(
+                //       padding: const EdgeInsets.all(2.0),
+                //       child: vData.reviews[index].widget,
+                //     );
+                //   },
+                // ),
+                SizedBox(
+                  height: 20,
+                ),
+                //add review button
+                Row(children: <Widget>[
                   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(
@@ -372,30 +473,49 @@ class _VendorDetailsState extends State<VendorDetails> {
                       }
                     },
                   ),
-                ],
-              ),
-            ),
-            floatingActionButton: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    onPressed: () async {
-                      //final availableMaps = await MapLauncher.installedMaps;
-                      //print(availableMaps);
-
-                      await MapLauncher.showDirections(
-                          mapType: MapType.google,
-                          destination: Coords(vendor.coordinates.latitude,
-                              vendor.coordinates.longitude));
+                  RaisedButton(
+                    color: Colors.pink[400],
+                    child: Text(
+                      'All Reviews',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddReview(
+                            vendor: vendor,
+                          ),
+                        ),
+                      );
                     },
-                    child: Icon(Icons.navigation),
                   ),
-                ),
+                ]),
               ],
             ),
           );
   }
+
+/* SizedBox(
+                    height: 300.0,
+                    //width: 350.0,
+                    child: new FlutterMap(
+                      mapController: controller,
+                      options: new MapOptions(
+                        zoom: 18.45,
+                        center: vendorLoc,
+                      ),
+                      layers: [
+                        new TileLayerOptions(
+                          urlTemplate:
+                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                          subdomains: ['a', 'b', 'c'],
+                        ),
+                        new MarkerLayerOptions(
+                          markers: [vendorMarker],
+                        ),
+                      ],
+                    ),
+                  ),*/
 }
