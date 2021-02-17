@@ -38,10 +38,9 @@ class _AddReviewState extends State<AddReview> {
                     review, widget.vendor);
                 if (response.statusCode == 200) {
                   mycontroller.clear();
-                  //print(response.body);
                   setState(() {
-                    //review = Review.fromJson(jsonDecode(response.body));
                     alertText = "Successfully added";
+                    widget.vendor.reviewed = true;
                   });
                   Navigator.pushReplacement(
                     context,

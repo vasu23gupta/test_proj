@@ -164,8 +164,8 @@ class VendorDBService {
     return response;
   }
 
-  static Future<Vendor> getVendor(String id) async {
-    final response = await http.get(vendorsUrl + id);
+  static Future<Vendor> getVendor(String id, String userId) async {
+    final response = await http.get(vendorsUrl + id + '/' + userId);
     return Vendor.fromJson(jsonDecode(response.body));
   }
 

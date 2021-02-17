@@ -26,14 +26,28 @@ router.get('/:reviewId', async (req, res) => {
 
 //add review
 router.post('/', async (req, res) => {
-    const review = new Review({
-        by: req.body.by,
-        review: req.body.review,
-        stars: req.body.stars,
-        vendorId: req.body.vendorId,
-    });
 
     try {
+        var vendor = await Vendor.findById(
+            req.body.vendorId,
+            {
+                reviewers: 1,
+            }
+        ).lean();
+
+        if (vendor.reviewers.includes(req.body.by)) {
+            res.json({ message: 'You have already reviewed this vendor.' });
+            return;
+        }
+
+        const review = new Review({
+            by: req.body.by,
+            review: req.body.review,
+            stars: req.body.stars,
+            vendorId: req.body.vendorId,
+        });
+
+
         const savedReview = await review.save();
         const updatedUser = await User.updateOne({ _id: req.body.by }, {
             $push: {
@@ -59,6 +73,7 @@ router.post('/', async (req, res) => {
         });
         res.json(savedReview);
     } catch (err) {
+        console.log(err);
         res.json({ message: err });
     }
 });

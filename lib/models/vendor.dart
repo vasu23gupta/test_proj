@@ -16,19 +16,23 @@ class Vendor {
   double stars = 0;
   String address;
   DateTime createdOn;
-  //VendorData data;
+  bool reported;
+  bool reviewed;
 
-  Vendor(
-      {this.id,
-      this.coordinates,
-      this.name,
-      this.tags,
-      this.description,
-      this.imageIds,
-      this.reviewIds,
-      this.stars,
-      this.createdOn,
-      this.address}) {
+  Vendor({
+    this.id,
+    this.coordinates,
+    this.name,
+    this.tags,
+    this.description,
+    this.imageIds,
+    this.reviewIds,
+    this.stars,
+    this.createdOn,
+    this.address,
+    this.reported,
+    this.reviewed,
+  }) {
     this.images = this.imageIds == null ? null : List(imageIds.length);
   }
 
@@ -78,6 +82,8 @@ class Vendor {
       reviewIds: temp3,
       stars: json['rating'].toDouble(),
       address: json['address'],
+      reported: json['reported'],
+      reviewed: json['reviewed'],
     );
   }
 

@@ -13,7 +13,7 @@ import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:test_proj/shared/starrating.dart';
+import 'package:test_proj/shared/starRating.dart';
 import 'package:test_proj/shared/loginPopup.dart';
 
 class VendorDetails extends StatefulWidget {
@@ -24,6 +24,7 @@ class VendorDetails extends StatefulWidget {
 }
 
 class _VendorDetailsState extends State<VendorDetails> {
+  CustomUser user;
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
@@ -69,7 +70,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getVendor() async {
-    Vendor v = await VendorDBService.getVendor(vendor.id);
+    Vendor v = await VendorDBService.getVendor(vendor.id, user.uid);
     // Vendor v = await _dbService.getVendor(
     //   id: vendor.id,
     //   vendor: vendor,
@@ -87,12 +88,11 @@ class _VendorDetailsState extends State<VendorDetails> {
     });
   }
 
-  ScrollController scrollController = new ScrollController();
+  ScrollController scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
     this.vendor = widget.vendor;
-    getVendor();
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {
@@ -131,6 +131,11 @@ class _VendorDetailsState extends State<VendorDetails> {
               }));
     }); */
     //if (!loading) print(this.vendor.name);
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      user = Provider.of<CustomUser>(context, listen: false);
+      getVendor();
+    });
   }
 
   @override
@@ -142,7 +147,6 @@ class _VendorDetailsState extends State<VendorDetails> {
   @override
   Widget build(BuildContext context) {
     //bool changed = false;
-    final user = Provider.of<CustomUser>(context);
     if (!loading) {
       description = vendor.description;
       address = vendor.address;
@@ -443,50 +447,42 @@ class _VendorDetailsState extends State<VendorDetails> {
                 ),
                 //add review button
                 Row(children: <Widget>[
-                  RaisedButton(
-                    color: Colors.pink[400],
-                    child: Text(
-                      'Add review',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {
-                      if (user.isAnon) {
-                        showDialog<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return LoginPopup(
-                                to: "add a review",
-                              );
-                            });
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => AddReview(
-                              vendor: vendor,
-                            ),
+                  vendor.reviewed
+                      ? Container()
+                      : RaisedButton(
+                          color: Colors.pink[400],
+                          child: Text(
+                            'Add review',
+                            style: TextStyle(color: Colors.white),
                           ),
-                        );
-                      }
-                    },
-                  ),
+                          onPressed: () {
+                            if (user.isAnon) {
+                              showDialog<void>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return LoginPopup(
+                                      to: "add a review",
+                                    );
+                                  });
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddReview(
+                                    vendor: vendor,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(
                       'All Reviews',
                       style: TextStyle(color: Colors.white),
                     ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AddReview(
-                            vendor: vendor,
-                          ),
-                        ),
-                      );
-                    },
+                    onPressed: () {},
                   ),
                 ]),
               ],

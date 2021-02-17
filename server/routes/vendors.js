@@ -18,9 +18,28 @@ router.get('/', async (req, res) => {
 });
 
 //get one vendor by id
-router.get('/:vendorId', async (req, res) => {
+router.get('/:vendorId/:userId', async (req, res) => {
     try {
-        const vendor = await Vendor.findById(req.params.vendorId, { totalStars: 0, totalReviews: 0, reports: 0, totalReports: 0 });
+        const userId = req.params.userId;
+        var vendor = await Vendor.findById(
+            req.params.vendorId,
+            {
+                totalStars: 0,
+                totalReviews: 0,
+                reports: 0,
+                totalReports: 0,
+            }
+        ).lean(); //lean converts docs to json
+
+        if (vendor.reviewers.includes(userId)) vendor['reviewed'] = true;
+        else vendor['reviewed'] = false;
+
+        if (vendor.reporters.includes(userId)) vendor['reported'] = true;
+        else vendor['reported'] = false;
+
+        delete vendor['reviewers'];
+        delete vendor['reporters'];
+
         res.json(vendor);
     } catch (err) {
         res.json({ message: err });
@@ -100,7 +119,7 @@ router.get('/search/:query', async (req, res) => {
     var searchTexts = searchText.split(" ");
     var searchTextList = [];
     for (i = 0; i < searchTexts.length; i++) {
-        var reg=new RegExp(searchTexts[i],"i")
+        var reg = new RegExp(searchTexts[i], "i")
         searchTextList.push({
             name: {
                 $regex: reg
@@ -121,7 +140,7 @@ router.get('/search/:query', async (req, res) => {
     var regexSearchOptions = {
         $or: searchTextList
     };
-    Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location:1, createdAt:1}, function (err, docs) {
+    Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location: 1, createdAt: 1 }, function (err, docs) {
 
         if (err) {
             res.json({ message: err });
@@ -164,7 +183,7 @@ router.get('/filterOnMap/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
     var swLat = req.params.swLat;
     var swLng = req.params.swLng;
     Vendor.find({
-        tags: { $in: tagsList }, 
+        tags: { $in: tagsList },
         location: {
             $geoWithin: {
                 $geometry: {

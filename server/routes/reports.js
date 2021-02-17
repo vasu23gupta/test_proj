@@ -26,13 +26,27 @@ router.get('/:reportId', async (req, res) => {
 
 //add report
 router.post('/', async (req, res) => {
-    const report = new Report({
-        by: req.body.by,
-        report: req.body.report,
-        vendor: req.body.vendor
-    });
 
     try {
+
+        var vendor = await Vendor.findById(
+            req.body.vendorId,
+            {
+                reporters: 1,
+            }
+        ).lean();
+
+        if (vendor.reporters.includes(req.body.by)) {
+            res.json({ message: 'You have already reviewed this vendor.' });
+            return;
+        }
+
+        const report = new Report({
+            by: req.body.by,
+            report: req.body.report,
+            vendor: req.body.vendor
+        });
+
         const savedReport = await report.save();
         const updatedUser = await User.updateOne({ _id: req.body.by }, {
             $push: {

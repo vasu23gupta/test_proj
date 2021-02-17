@@ -47,18 +47,20 @@ class Options extends StatelessWidget {
                     );
                   });
             } else {
-              showDialog<void>(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Report(vendor: vendor);
-                  });
+              vendor.reported
+                  ? print('reported')
+                  : showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Report(vendor: vendor);
+                      });
             }
             //https://stackoverflow.com/questions/54480641/flutter-how-to-create-forms-in-popup
             break;
         }
       },
       itemBuilder: (BuildContext context) {
-        return {'Edit', 'Report'}.map((String choice) {
+        return {'Edit', if (!vendor.reported) 'Report'}.map((String choice) {
           return PopupMenuItem<String>(
             value: choice,
             child: Text(choice),
@@ -187,6 +189,7 @@ class _ReportState extends State<Report> {
                             if (response.statusCode == 200) {
                               setState(() {
                                 alertText = "Reported successfully";
+                                widget.vendor.reported = true;
                               });
                             } else {
                               setState(() {
