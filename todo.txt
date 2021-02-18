@@ -1,0 +1,14 @@
+APP:
+bad word filtering.
+bad images filtering.
+better map provider.
+auth: google, phone, forgot password.
+edit, delete reviews.
+firebase ios.
+ios testing.
+
+RELEASE:
+name.
+graphics.
+privacy policy, terms of service.
+online server.

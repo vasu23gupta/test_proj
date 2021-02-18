@@ -3,9 +3,6 @@ const express = require('express');
 const router = express.Router();
 const Vendor = require('../models/Vendor');
 const User = require('../models/User');
-//const Image = require('../models/Image');
-//const multer  = require('multer')
-//const upload = multer({dest: './uploads/'});
 
 // get all vendors for debugging
 router.get('/', async (req, res) => {

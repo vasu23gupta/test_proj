@@ -24,6 +24,21 @@ router.get('/:reviewId', async (req, res) => {
     }
 });
 
+//get one review using userid and vendorid
+router.get('/:vendorId/:userId', async (req, res) => {
+    try {
+        const review = await Review.find(
+            {
+                by: req.params.userId,
+                vendorId: req.params.vendorId,
+            }
+        )
+        res.json(review[0]);
+    } catch (err) {
+        res.json({ message: err });
+    }
+});
+
 //add review
 router.post('/', async (req, res) => {
 
@@ -55,14 +70,13 @@ router.post('/', async (req, res) => {
                 vendorsReviewedByMe: req.body.vendorId
             },
         });
-        var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
+        var vendor = await Vendor.findByIdAndUpdate({ _id: req.body.vendorId }, {
             $push: {
                 reviews: savedReview._id,
                 reviewers: req.body.by
             },
             $inc: { totalReviews: 1, totalStars: savedReview.stars },
         });
-        var vendor = await Vendor.findById(req.body.vendorId, { totalReviews: 1, totalStars: 1, _id: 0 });
         const totalReviews = vendor.totalReviews;
         const totalStars = vendor.totalStars;
         var rating = totalStars / totalReviews;
@@ -81,6 +95,31 @@ router.post('/', async (req, res) => {
 //delete review, not in use rn
 router.delete('/:reviewId', async (req, res) => {
     try {
+        const review = await Review.findById(req.params.reviewId);
+
+        var vendor = await Vendor.findByIdAndUpdate(review.vendorId,
+            {
+                $pull: { 
+                    reviewers: review.by, 
+                    reviews: review._id, 
+                },
+                $inc: { totalReviews: -1, totalStars: -(review.stars) }
+            },{ totalReviews: 1, totalStars: 1, _id: 0 }
+        );
+        const totalReviews = vendor.totalReviews;
+        const totalStars = vendor.totalStars;
+        var rating = totalStars / totalReviews;
+        rating = Math.round((rating + Number.EPSILON) * 100) / 100
+        var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
+            $set: { rating: rating }
+        });
+
+        var user = await User.findByIdAndUpdate(review.by,{
+            $pull : {
+                reviews: review._id,
+                vendorsReviewedByMe: review.vendorId,
+            }
+        });
         const removedReview = await Review.deleteOne({ _id: req.params.reviewId });
         res.json(removedReview);
     } catch (err) {

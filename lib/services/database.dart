@@ -169,10 +169,14 @@ class VendorDBService {
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
-  static Future<Review> getReview(String id) async {
+  static Future<Review> getReviewByReviewId(String id) async {
     final response = await http.get(reviewsUrl + id);
-    //print('response: ' + response.statusCode.toString());
-    //print(Review.fromJson(jsonDecode(response.body)));
+    return Review.fromJson(jsonDecode(response.body));
+  }
+
+  static Future<Review> getReviewByUserAndVendorId(
+      String vendorId, String userId) async {
+    final response = await http.get(reviewsUrl + vendorId + '/' + userId);
     return Review.fromJson(jsonDecode(response.body));
   }
 
@@ -252,6 +256,12 @@ class VendorDBService {
     List<Vendor> vendors =
         ((response.data) as List).map((i) => Vendor.fromJsonCoords(i)).toList();
     return vendors;
+  }
+
+  static Future<http.Response> deleteReview(String reviewId) async {
+    var res = await http.delete(reviewsUrl + reviewId);
+    print(res.body);
+    return res;
   }
 
   //dont delete

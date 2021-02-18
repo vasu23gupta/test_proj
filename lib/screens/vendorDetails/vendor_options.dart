@@ -7,9 +7,9 @@ import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loginPopup.dart';
 import '../add_vendor.dart';
 
-class Options extends StatelessWidget {
+class VendorOptions extends StatelessWidget {
   final Vendor vendor;
-  Options({this.vendor});
+  VendorOptions({this.vendor});
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<CustomUser>(context);
