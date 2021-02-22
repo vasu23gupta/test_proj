@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:test_proj/screens/SearchResults.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
 import '../vendorDetails/vendor_details.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:test_proj/screens/SearchResults.dart';
 
 enum SingingCharacter {
   RatingHighToLow,
@@ -35,6 +39,33 @@ class _SearchState extends State<Search> {
   }
 
   LatLng userLocFut;
+  List<Marker> buildMarkers(List<dynamic> searchResults) {
+    List<Marker> toShowOnMap = [];
+    for (Vendor vendor in searchResults) {
+      toShowOnMap.add(new Marker(
+        //anchorPos: AnchorPos.align(AnchorAlign.center),
+        width: 45.0,
+        height: 45.0,
+        point: vendor.coordinates,
+        builder: (context) => IconButton(
+          //alignment: Alignment.bottomRight,
+          icon: Icon(Icons.circle),
+          iconSize: 40.0,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VendorDetails(
+                  vendor: vendor,
+                ),
+              ),
+            );
+          },
+        ),
+      ));
+    }
+    return toShowOnMap;
+  }
 
   Widget buildSuggestions() {
     //print('enter');
@@ -324,7 +355,40 @@ class _SearchState extends State<Search> {
                           )),
                     ],
                   ),
-                )
+                ),
+                FlatButton(
+                  onPressed: () {
+                    if (this.searchResults.isEmpty) {
+                      Fluttertoast.showToast(
+                          msg: "Search Results are empty",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => new SearchResults(
+                            markers: buildMarkers(this.searchResults),
+                            mapCenter: this.userLocFut,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.location_pin),
+                      Text("Show On Map",
+                          style: TextStyle(
+                            fontSize: 20,
+                          )),
+                    ],
+                  ),
+                ),
               ],
             ),
             buildSuggestions(),
