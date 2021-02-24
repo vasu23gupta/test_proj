@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -174,7 +175,7 @@ class _AddVendorState extends State<AddVendor> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
 
     String _error = 'No Error Dectected';
 
@@ -389,7 +390,7 @@ class _AddVendorState extends State<AddVendor> {
                               tags,
                               images,
                               description,
-                              user.uid,
+                              await user.getIdToken(),
                               address,
                             );
                           }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
@@ -216,7 +217,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
     // vendors.forEach((element) {
     //   print(element.id);
     //   print(element.name);
@@ -232,7 +233,11 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(user.isAnon ? "Guest" : user.uid),
+              child: Text(user.isAnonymous
+                  ? "Guest"
+                  : user.displayName != null
+                      ? user.displayName
+                      : user.uid),
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -246,7 +251,7 @@ class _HomeState extends State<Home> {
                   );
                 }),
             ListTile(
-              title: Text(user.isAnon ? 'Sign In' : 'Logout'),
+              title: Text(user.isAnonymous ? 'Sign In' : 'Logout'),
               onTap: () async {
                 await _auth.signOut();
               },
@@ -383,7 +388,7 @@ class _HomeState extends State<Home> {
               heroTag: null,
               child: Icon(Icons.add),
               onPressed: () async {
-                if (user.isAnon) {
+                if (user.isAnonymous) {
                   showDialog<void>(
                       context: context,
                       builder: (BuildContext context) {

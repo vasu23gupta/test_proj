@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,8 +26,7 @@ class _AddReviewState extends State<AddReview> {
   TextEditingController mycontroller = new TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
-    review.byUser = user.uid;
+    final user = Provider.of<User>(context);
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -35,7 +35,7 @@ class _AddReviewState extends State<AddReview> {
             onPressed: () async {
               if (review.stars != 0) {
                 final response = await VendorDBService.addVendorReview(
-                    review, widget.vendor);
+                    review, widget.vendor, await user.getIdToken());
                 if (response.statusCode == 200) {
                   mycontroller.clear();
                   setState(() {

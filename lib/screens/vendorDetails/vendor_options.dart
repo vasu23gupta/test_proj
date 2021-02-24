@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/customUser.dart';
@@ -12,13 +13,13 @@ class VendorOptions extends StatelessWidget {
   VendorOptions({this.vendor});
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
     //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
     return PopupMenuButton<String>(
       onSelected: (value) {
         switch (value) {
           case 'Edit':
-            if (user.isAnon) {
+            if (user.isAnonymous) {
               showDialog<void>(
                   context: context,
                   builder: (BuildContext context) {
@@ -38,7 +39,7 @@ class VendorOptions extends StatelessWidget {
             }
             break;
           case 'Report':
-            if (user.isAnon) {
+            if (user.isAnonymous) {
               showDialog<void>(
                   context: context,
                   builder: (BuildContext context) {
@@ -92,7 +93,7 @@ class _ReportState extends State<Report> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
     return AlertDialog(
       content: Stack(
         overflow: Overflow.visible,
@@ -185,7 +186,9 @@ class _ReportState extends State<Report> {
 
                           if (selectedReport.isNotEmpty) {
                             final response = await VendorDBService.reportVendor(
-                                selectedReport, widget.vendor, user.uid);
+                                selectedReport,
+                                widget.vendor,
+                                await user.getIdToken());
                             if (response.statusCode == 200) {
                               setState(() {
                                 alertText = "Reported successfully";

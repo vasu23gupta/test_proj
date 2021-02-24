@@ -5,26 +5,25 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/models/Review.dart';
-import 'package:test_proj/models/appUser.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:dio/dio.dart';
 
 class UserDBService {
-  final String uid;
-  UserDBService({this.uid});
+  final String jwt;
+  UserDBService({this.jwt});
 
   static String url = "http://10.0.2.2:3000/";
   static String usersUrl = url + "users/";
 
   Future<http.Response> addUser() async {
     var body = jsonEncode({
-      'userId': uid,
+      'userId': jwt,
     });
 
     final response = await http.post(
       usersUrl,
-      headers: {'content-type': 'application/json'},
+      headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
     print(response.body);
@@ -47,7 +46,7 @@ class VendorDBService {
     List<String> tags,
     List<Asset> images,
     String description,
-    String userId,
+    String jwt,
     String address,
   ) async {
     var body = jsonEncode({
@@ -56,14 +55,14 @@ class VendorDBService {
       'lng': coordinates.longitude.toString(),
       'tags': tags,
       'description': description,
-      'userId': userId,
       'address': address,
     });
     final response = await http.post(
       vendorsUrl,
-      headers: {'content-type': 'application/json'},
+      headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
+    print(response.body);
     await addImages(images, jsonDecode(response.body)['_id']);
     return response;
   }
@@ -104,17 +103,16 @@ class VendorDBService {
   }
 
   static Future<http.Response> addVendorReview(
-      Review review, Vendor vendor) async {
+      Review review, Vendor vendor, String jwt) async {
     var body = jsonEncode({
       'review': review.review,
-      'by': review.byUser,
       'stars': review.stars,
       'vendorId': vendor.id,
     });
 
     final reviewResponse = await http.post(
       reviewsUrl,
-      headers: {'content-type': 'application/json'},
+      headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
     //String reviewId = jsonDecode(reviewResponse.body)['_id'];
@@ -128,16 +126,15 @@ class VendorDBService {
   }
 
   static Future<http.Response> reportVendor(
-      String report, Vendor vendor, String userId) async {
-    var body =
-        jsonEncode({'report': report, 'by': userId, 'vendor': vendor.id});
+      String report, Vendor vendor, String jwt) async {
+    var body = jsonEncode({'report': report, 'vendorId': vendor.id});
 
     final reportResponse = await http.post(
       reportsUrl,
-      headers: {'content-type': 'application/json'},
+      headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
-    String reportId = jsonDecode(reportResponse.body)['_id'];
+    //String reportId = jsonDecode(reportResponse.body)['_id'];
 
     // final response = await http.patch(
     //   vendorsUrl + "report/" + vendor.id,
@@ -164,8 +161,11 @@ class VendorDBService {
     return response;
   }
 
-  static Future<Vendor> getVendor(String id, String userId) async {
-    final response = await http.get(vendorsUrl + id + '/' + userId);
+  static Future<Vendor> getVendor(String id, String jwt) async {
+    final response = await http.get(
+      vendorsUrl + id,
+      headers: {'authorisation': jwt},
+    );
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
@@ -175,8 +175,9 @@ class VendorDBService {
   }
 
   static Future<Review> getReviewByUserAndVendorId(
-      String vendorId, String userId) async {
-    final response = await http.get(reviewsUrl + vendorId + '/' + userId);
+      String vendorId, String jwt) async {
+    final response = await http.get(reviewsUrl + 'userAndVendorId/' + vendorId,
+        headers: {'authorisation': jwt});
     return Review.fromJson(jsonDecode(response.body));
   }
 
@@ -258,8 +259,9 @@ class VendorDBService {
     return vendors;
   }
 
-  static Future<http.Response> deleteReview(String reviewId) async {
-    var res = await http.delete(reviewsUrl + reviewId);
+  static Future<http.Response> deleteReview(String reviewId, String jwt) async {
+    var res = await http
+        .delete(reviewsUrl + reviewId, headers: {'authorisation': jwt});
     print(res.body);
     return res;
   }

@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
-import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/add_review.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_options.dart';
@@ -24,7 +24,7 @@ class VendorDetails extends StatefulWidget {
 }
 
 class _VendorDetailsState extends State<VendorDetails> {
-  CustomUser user;
+  User user;
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
@@ -71,7 +71,8 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getVendor() async {
-    Vendor v = await VendorDBService.getVendor(vendor.id, user.uid);
+    Vendor v =
+        await VendorDBService.getVendor(vendor.id, await user.getIdToken());
     // Vendor v = await _dbService.getVendor(
     //   id: vendor.id,
     //   vendor: vendor,
@@ -84,8 +85,8 @@ class _VendorDetailsState extends State<VendorDetails> {
     //   stars: vendor.stars == null,
     // );
     if (v.reviewed) {
-      myReview =
-          await VendorDBService.getReviewByUserAndVendorId(vendor.id, user.uid);
+      myReview = await VendorDBService.getReviewByUserAndVendorId(
+          vendor.id, await user.getIdToken());
     }
     setState(() {
       this.vendor = v;
@@ -138,7 +139,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     //if (!loading) print(this.vendor.name);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      user = Provider.of<CustomUser>(context, listen: false);
+      user = Provider.of<User>(context, listen: false);
       getVendor();
     });
   }
@@ -421,7 +422,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {
-                            if (user.isAnon) {
+                            if (user.isAnonymous) {
                               showDialog<void>(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -520,6 +521,7 @@ class MyReview extends StatelessWidget {
   MyReview({this.myReview, this.deleteReviewFromUi});
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context, listen: false);
     return Column(
       mainAxisSize: MainAxisSize.min,
       //crossAxisAlignment: CrossAxisAlignment.start,
@@ -539,9 +541,15 @@ class MyReview extends StatelessWidget {
               onSelected: (value) async {
                 switch (value) {
                   case 'Edit':
+                    showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return EditReviewDialogue();
+                        });
                     break;
                   case 'Delete':
-                    var res = await VendorDBService.deleteReview(myReview.id);
+                    var res = await VendorDBService.deleteReview(
+                        myReview.id, await user.getIdToken());
                     if (res.statusCode == 200) {
                       deleteReviewFromUi();
                     }
@@ -561,6 +569,47 @@ class MyReview extends StatelessWidget {
         ),
         ReviewTile(review: myReview)
       ],
+    );
+  }
+}
+
+class EditReviewDialogue extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Stack(
+        overflow: Overflow.visible,
+        children: <Widget>[
+          //close button
+          Positioned(
+            right: -40.0,
+            top: -40.0,
+            child: InkResponse(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: CircleAvatar(
+                child: Icon(Icons.close),
+                backgroundColor: Colors.red,
+              ),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                child: Text(
+                  'Coming soon! Meanwhile you can delete your current review and post a new review.',
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.25,
+                ),
+                height: 70,
+                width: 500,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

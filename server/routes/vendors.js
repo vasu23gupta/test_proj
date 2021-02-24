@@ -1,8 +1,21 @@
 const express = require('express');
-//var fs = require('fs');
 const router = express.Router();
 const Vendor = require('../models/Vendor');
 const User = require('../models/User');
+const admin = require('../firebaseAdminSdk');
+
+// async function getUserFromJwt(jwt) {
+//     var obj = await admin.auth().verifyIdToken(jwt);
+//     if (obj.firebase.sign_in_provider == 'anonymous') { return 'anonymous'; }
+//     var user = await User.findById(obj.uid);
+//     return user;
+// }
+
+//test auth
+// router.post('/test', async (req, res) => {
+//     var user = await getUserFromJwt(req.get('authorisation'));
+// });
+
 
 // get all vendors for debugging
 router.get('/', async (req, res) => {
@@ -15,9 +28,12 @@ router.get('/', async (req, res) => {
 });
 
 //get one vendor by id
-router.get('/:vendorId/:userId', async (req, res) => {
+router.get('/:vendorId', async (req, res) => {
     try {
-        const userId = req.params.userId;
+        var jwt = req.get('authorisation');
+        var userObj = await admin.auth().verifyIdToken(jwt);
+        const userId = userObj.uid;
+
         var vendor = await Vendor.findById(
             req.params.vendorId,
             {
@@ -47,7 +63,6 @@ router.get('/:vendorId/:userId', async (req, res) => {
 router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rating', async (req, res) => {
     //    if (req.params.vendorId=="null") {
     try {
-        //console.log(req.params.name=='true'?1:0);
         const vendor = await Vendor.findById({ _id: req.params.vendorId }, {
             _id: 0,
             __v: 0,
@@ -59,7 +74,6 @@ router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rati
             reviews: req.params.reviews == 'true' ? 1 : 0,
             rating: req.params.rating == 'true' ? 1 : 0
         });
-        //console.log(vendor);
         res.json(vendor);
     } catch (err) {
         res.json({ message: err });
@@ -208,22 +222,28 @@ router.get('/filterOnMap/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
 
 //add a vendor
 router.post('/', async (req, res) => {
-    const vendor = new Vendor({
-        name: req.body.name,
-        location: { coordinates: [req.body.lng, req.body.lat] },
-        tags: req.body.tags,
-        description: req.body.description,
-        totalReviews: 0,
-        totalStars: 0,
-        rating: 0,
-        totalReports: 0,
-        postedBy: req.body.userId,
-        address: req.body.address,
-    });
 
     try {
+        var jwt = req.get('authorisation');
+        var userObj = await admin.auth().verifyIdToken(jwt);
+        if (userObj.firebase.sign_in_provider == 'anonymous') return;
+        var userId = userObj.uid;
+
+        const vendor = new Vendor({
+            name: req.body.name,
+            location: { coordinates: [req.body.lng, req.body.lat] },
+            tags: req.body.tags,
+            description: req.body.description,
+            totalReviews: 0,
+            totalStars: 0,
+            rating: 0,
+            totalReports: 0,
+            postedBy: userId,
+            address: req.body.address,
+        });
+
         const savedVendor = await vendor.save();
-        const updatedUser = await User.updateOne({ _id: req.body.userId }, {
+        const updatedUser = await User.updateOne({ _id: userId }, {
             $push: {
                 vendors: savedVendor._id
             },
@@ -295,7 +315,6 @@ module.exports = router;
 
 // router.post('/photo', upload.single('vendorImg'), async function(req,res){
 //     var f = req.file;
-//     //console.log(f);
 //     var image = new Image();
 //     image.img.data = fs.readFileSync(f.path)
 //     image.img.contentType = f.mimetype;
