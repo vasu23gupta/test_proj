@@ -26,7 +26,7 @@ const VendorSchema = mongoose.Schema({
     coordinates: {
       type: [Number],
       required: true,
-      index: "2dsphere"
+      index: "2d"
     },
   },
   tags: {

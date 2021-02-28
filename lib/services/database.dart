@@ -180,9 +180,28 @@ class VendorDBService {
     return NetworkImage(imagesUrl + imageId);
   }
 
-  static Future getVendorsFromSearch(String query) async {
-    final response =
-        await http.get(vendorsUrl + '/search/' + query.toLowerCase());
+  static Future getVendorsFromSearch(
+      String query, String searchRadius, LatLng userLoc) async {
+    if (searchRadius == '10km' || searchRadius == '15km') {
+      searchRadius = searchRadius.substring(0, 2);
+      print(searchRadius);
+    }
+    if (searchRadius == "5km") {
+      searchRadius = searchRadius.substring(0, 1);
+      print(searchRadius);
+    }
+    if (searchRadius == 'no limit: default') {
+      searchRadius = "0";
+    }
+    final response = await http.get(vendorsUrl +
+        '/search/' +
+        query.toLowerCase() +
+        '/' +
+        searchRadius +
+        '/' +
+        userLoc.latitude.toString() +
+        '/' +
+        userLoc.longitude.toString());
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJsonSearch(json))
         .toList();
