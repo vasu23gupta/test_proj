@@ -4,6 +4,7 @@ import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
+import 'package:profanity_filter/profanity_filter.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -11,6 +12,7 @@ import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
+import 'package:test_proj/shared/hindi_profanity.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 
@@ -41,6 +43,7 @@ class _AddVendorState extends State<AddVendor> {
   TextEditingController addressController = TextEditingController();
   LatLng userLoc;
   bool editing = false;
+  final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
 
   @override
   void initState() {
@@ -215,7 +218,7 @@ class _AddVendorState extends State<AddVendor> {
     return loading
         ? Loading()
         : Scaffold(
-            backgroundColor: Colors.brown[50],
+            //backgroundColor: Colors.brown[50],
             appBar: AppBar(
               title: Text('Add Vendor'),
               elevation: 0.0,
@@ -372,6 +375,12 @@ class _AddVendorState extends State<AddVendor> {
                             (images.length != 0 || imageIds.length != 0)) {
                           setState(() => loading = true);
 
+                          for (int i = 0; i < tags.length; i++) {
+                            if (filter.hasProfanity(tags[i])) tags.removeAt(i);
+                          }
+                          name = filter.censor(name);
+                          description = filter.censor(description);
+                          address = filter.censor(address);
                           http.Response result;
                           if (editing) {
                             result = await VendorDBService.updateVendor(

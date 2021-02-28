@@ -1,16 +1,15 @@
-import 'dart:convert';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:profanity_filter/profanity_filter.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
-import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:test_proj/shared/hindi_profanity.dart';
 
 class AddReview extends StatefulWidget {
   //final VendorData vendorData;
@@ -23,6 +22,7 @@ class AddReview extends StatefulWidget {
 class _AddReviewState extends State<AddReview> {
   String alertText = "";
   Review review = Review();
+  final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
   TextEditingController mycontroller = new TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -34,6 +34,7 @@ class _AddReviewState extends State<AddReview> {
             icon: Icon(Icons.check),
             onPressed: () async {
               if (review.stars != 0) {
+                review.review = filter.censor(review.review);
                 final response = await VendorDBService.addVendorReview(
                     review, widget.vendor, await user.getIdToken());
                 if (response.statusCode == 200) {

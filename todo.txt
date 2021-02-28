@@ -3,9 +3,9 @@ bad word filtering.
 bad images filtering.
 better map provider.
 auth: google, phone, forgot password.
-edit, delete reviews.
 firebase ios.
 ios testing.
+markers for categories.
 
 RELEASE:
 name.

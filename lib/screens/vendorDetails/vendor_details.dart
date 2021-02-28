@@ -259,7 +259,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                         IconButton(
                           icon: Icon(Icons.arrow_back_ios),
                           color: Colors.black,
-                          onPressed: () {},
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
                         VendorOptions(vendor: vendor),
                       ],

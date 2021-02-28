@@ -48,7 +48,7 @@ class _HomeState extends State<Home> {
             child: FilterChip(
               labelPadding: EdgeInsets.all(5),
               label: Text(fil),
-              backgroundColor: Colors.white,
+              //backgroundColor: Colors.white,
               padding: EdgeInsets.all(5),
               selected: isSelected[fil],
               selectedColor: Colors.blue,
@@ -75,7 +75,7 @@ class _HomeState extends State<Home> {
               child: FilterChip(
                 labelPadding: EdgeInsets.all(5),
                 label: Text(mainSelectedFilter),
-                backgroundColor: Colors.white,
+                //backgroundColor: Colors.white,
                 padding: EdgeInsets.all(5),
                 selected: isSelected[mainSelectedFilter],
                 selectedColor: Colors.red,
@@ -112,7 +112,7 @@ class _HomeState extends State<Home> {
                 child: FilterChip(
                   labelPadding: EdgeInsets.all(5),
                   label: Text(fil),
-                  backgroundColor: Colors.white,
+                  //backgroundColor: Colors.white,
                   padding: EdgeInsets.all(5),
                   selected: areSelected[mainSelectedFilter][ind],
                   selectedColor: Colors.blue,
@@ -226,7 +226,7 @@ class _HomeState extends State<Home> {
     // });
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.brown[50],
+      //backgroundColor: Colors.brown[50],
       drawer: Drawer(
         child: ListView(
           // Important: Remove any padding from the ListView.
