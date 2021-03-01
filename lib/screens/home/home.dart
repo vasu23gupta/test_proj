@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/screens/add_vendor.dart';
+import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +49,6 @@ class _HomeState extends State<Home> {
             child: FilterChip(
               labelPadding: EdgeInsets.all(5),
               label: Text(fil),
-              //backgroundColor: Colors.white,
               padding: EdgeInsets.all(5),
               selected: isSelected[fil],
               selectedColor: Colors.blue,
@@ -75,7 +75,6 @@ class _HomeState extends State<Home> {
               child: FilterChip(
                 labelPadding: EdgeInsets.all(5),
                 label: Text(mainSelectedFilter),
-                //backgroundColor: Colors.white,
                 padding: EdgeInsets.all(5),
                 selected: isSelected[mainSelectedFilter],
                 selectedColor: Colors.red,
@@ -112,7 +111,6 @@ class _HomeState extends State<Home> {
                 child: FilterChip(
                   labelPadding: EdgeInsets.all(5),
                   label: Text(fil),
-                  //backgroundColor: Colors.white,
                   padding: EdgeInsets.all(5),
                   selected: areSelected[mainSelectedFilter][ind],
                   selectedColor: Colors.blue,
@@ -189,7 +187,10 @@ class _HomeState extends State<Home> {
         point: vendor.coordinates,
         builder: (context) => IconButton(
           //alignment: Alignment.bottomRight,
-          icon: Icon(Icons.circle),
+          icon: Icon(
+            Icons.circle,
+            color: Theme.of(context).iconTheme.color,
+          ),
           iconSize: 40.0,
           onPressed: () {
             Navigator.push(
@@ -226,7 +227,6 @@ class _HomeState extends State<Home> {
     // });
     return Scaffold(
       key: _scaffoldKey,
-      //backgroundColor: Colors.brown[50],
       drawer: Drawer(
         child: ListView(
           // Important: Remove any padding from the ListView.
@@ -259,19 +259,6 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      // appBar: AppBar(
-      //   title: Text('Map'),
-      //   elevation: 0.0,
-      //   actions: <Widget>[
-      //     IconButton(
-      //       icon: Icon(Icons.search),
-      //       onPressed: () {
-      //         Navigator.push(
-      //             context, MaterialPageRoute(builder: (context) => Search()));
-      //       },
-      //     )
-      //   ],
-      // ),
       body: Stack(
         children: <Widget>[
           //map
@@ -282,11 +269,9 @@ class _HomeState extends State<Home> {
                 if (!loadingMarkers && controller.zoom > 16.5) {
                   updateMarkers();
                 }
-                //print(controller.bounds.northEast.longitude);
               },
               zoom: 18.45,
               center: mapCenter,
-              //center: new LatLng(userLoc.latitude, userLoc.longitude),
             ),
             layers: [
               new TileLayerOptions(
@@ -297,19 +282,6 @@ class _HomeState extends State<Home> {
               new MarkerLayerOptions(
                 markers: vendorMarkers,
               ),
-              // new MarkerLayerOptions(
-              //   markers: [
-              //     new Marker(
-              //       width: 45.0,
-              //       height: 45.0,
-              //       //point: new LatLng(28.612757, 77.230445),
-              //       point: userLoc,
-              //       builder: (ctx) => new Container(
-              //         child: new FlutterLogo(),
-              //       ),
-              //     ),
-              //   ],
-              // ),
             ],
           ),
           //search bar
@@ -318,12 +290,11 @@ class _HomeState extends State<Home> {
             right: 15,
             left: 15,
             child: Container(
-              color: Colors.white,
+              color: Theme.of(context).backgroundColor,
               child: Row(
                 children: <Widget>[
                   //drawer
                   IconButton(
-                    splashColor: Theme.of(context).splashColor,
                     icon: Icon(Icons.menu),
                     onPressed: () {
                       _scaffoldKey.currentState.openDrawer();
@@ -404,9 +375,10 @@ class _HomeState extends State<Home> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddVendor(
-                        userLoc: LatLng(userLoc.latitude, userLoc.longitude),
-                      ),
+                      builder: (context) => AddVendorNameDescription(),
+                      // builder: (context) => AddVendor(
+                      //   userLoc: LatLng(userLoc.latitude, userLoc.longitude),
+                      //),
                     ),
                   );
                 }
@@ -418,55 +390,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-// class Home extends StatelessWidget {
-//   final AuthService _auth = AuthService();
-//   @override
-//   Widget build(BuildContext context) {
-//     return StreamProvider<List<AppUser>>.value(
-//       value: DatabaseService().users,
-//       child: Scaffold(
-//         backgroundColor: Colors.brown[50],
-//         appBar: AppBar(
-//           title: Text('Map'),
-//           backgroundColor: Colors.brown[400],
-//           elevation: 0.0,
-//           actions: <Widget>[
-//             FlatButton.icon(
-//               icon: Icon(Icons.person),
-//               label: Text('logout'),
-//               onPressed: () async {
-//                 await _auth.signOut();
-//               },
-//             )
-//           ],
-//         ),
-//         body: new FlutterMap(
-//           mapController: controller,
-//           options: new MapOptions(
-//             zoom: 13.0,
-//             center: new LatLng(28.612757, 77.230445),
-//           ),
-//           layers: [
-//             new TileLayerOptions(
-//               urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-//               subdomains: ['a', 'b', 'c'],
-//             ),
-//             // new MarkerLayerOptions(
-//             //   markers: [
-//             //     new Marker(
-//             //       width: 45.0,
-//             //       height: 45.0,
-//             //       point: new LatLng(28.612757, 77.230445),
-//             //       builder: (ctx) => new Container(
-//             //         child: new FlutterLogo(),
-//             //       ),
-//             //     ),
-//             //   ],
-//             // ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

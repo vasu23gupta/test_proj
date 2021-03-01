@@ -1,11 +1,11 @@
 APP:
-bad word filtering.
 bad images filtering.
 better map provider.
 auth: google, phone, forgot password.
 firebase ios.
 ios testing.
 markers for categories.
+user points, quotas.
 
 RELEASE:
 name.

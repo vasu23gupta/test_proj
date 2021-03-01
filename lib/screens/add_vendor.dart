@@ -375,8 +375,8 @@ class _AddVendorState extends State<AddVendor> {
                             (images.length != 0 || imageIds.length != 0)) {
                           setState(() => loading = true);
 
-                          for (int i = 0; i < tags.length; i++) {
-                            if (filter.hasProfanity(tags[i])) tags.removeAt(i);
+                          for (var tag in tags) {
+                            if (filter.hasProfanity(tag)) tags.remove(tag);
                           }
                           name = filter.censor(name);
                           description = filter.censor(description);
