@@ -372,10 +372,15 @@ class _HomeState extends State<Home> {
                     userLoc = await locSer.getLocation();
                     if (userLoc == null) return;
                   }
+                  Vendor vendor = Vendor();
+                  vendor.coordinates =
+                      LatLng(userLoc.latitude, userLoc.longitude);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddVendorNameDescription(),
+                      builder: (context) => AddVendorNameDescription(
+                        vendor: vendor,
+                      ),
                       // builder: (context) => AddVendor(
                       //   userLoc: LatLng(userLoc.latitude, userLoc.longitude),
                       //),

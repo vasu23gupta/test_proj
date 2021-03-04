@@ -1,13 +1,16 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:test_proj/models/vendor.dart';
+import 'package:test_proj/screens/add_vendor/tags_images.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:test_proj/shared/constants.dart';
 
 class AddVendorLocationAddress extends StatefulWidget {
+  final Vendor vendor;
+  AddVendorLocationAddress({this.vendor});
   @override
   _AddVendorLocationAddressState createState() =>
       _AddVendorLocationAddressState();
@@ -16,13 +19,23 @@ class AddVendorLocationAddress extends StatefulWidget {
 class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
   TextEditingController _addressController = TextEditingController();
   MapController controller = MapController();
-  LatLng vendorLatLng;
   LatLng userLoc;
   Marker marker = Marker();
+  Vendor vendor;
+  String errorText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    vendor = widget.vendor;
+    userLoc = vendor.coordinates;
+    vendor.coordinates = null;
+  }
+
   void _putMarkerOnMap(LatLng point) {
     setState(
       () {
-        vendorLatLng = point;
+        vendor.coordinates = point;
         http
             .get(
           "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
@@ -56,7 +69,9 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          //map
           SizedBox(
             height: 300.0,
             width: 350.0,
@@ -83,12 +98,41 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
             ),
           ),
           //address
-          SizedBox(
-            height: 20.0,
-          ),
           TextField(
             controller: _addressController,
             decoration: textInputDecoration.copyWith(hintText: 'Address'),
+          ),
+          //errortext
+          Text(
+            errorText,
+            style: TextStyle(color: Colors.red),
+          ),
+          //next button
+          RaisedButton(
+            color: Colors.pink[400],
+            child: Text(
+              'Next >',
+              style: TextStyle(color: Colors.white),
+            ),
+            onPressed: () {
+              if (_addressController.text.isNotEmpty &&
+                  vendor.coordinates != null) {
+                errorText = '';
+                vendor.address = _addressController.text;
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AddVendorTagsImages(
+                      vendor: vendor,
+                    ),
+                  ),
+                );
+              } else {
+                setState(() {
+                  errorText =
+                      "Please make sure address is not empty and location is selected.";
+                });
+              }
+            },
           ),
         ],
       ),

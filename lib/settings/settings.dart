@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:test_proj/models/customUser.dart';
-import 'package:test_proj/services/database.dart';
 import 'package:test_proj/settings/darkthemebutton.dart';
-import 'add_theme.dart';
 
 class SettingsPage extends StatelessWidget {
   @override

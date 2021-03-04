@@ -24,7 +24,6 @@ HashMap<String, List<String>> FILTERS = HashMap.from({
   "Repair": ["Car", "Bike", "Cycle"],
   "yvyvu": ["yrvr", "45y95"],
   "251125v": ["wyye4y"],
-  "vb845yb": [null],
 });
 HashMap<String, List<bool>> areSelected = HashMap.from({
   "Food": [false, false, false],
