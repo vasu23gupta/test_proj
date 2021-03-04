@@ -69,11 +69,13 @@ class VendorDBService {
   }
 
   static Future<void> addImages(List<Asset> images, String vendorId) async {
-    for (var imgAsset in images) {
-      String path =
-          await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
-      Response imgResponse = await VendorDBService.addImage(path, vendorId);
-      print(imgResponse.statusCode);
+    if (images.isNotEmpty) {
+      for (var imgAsset in images) {
+        String path =
+            await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
+        Response imgResponse = await VendorDBService.addImage(path, vendorId);
+        print(imgResponse.statusCode);
+      }
     }
   }
 
@@ -83,6 +85,8 @@ class VendorDBService {
     LatLng coordinates,
     List<String> tags,
     List<String> imgs,
+    List<String> removedImageIds,
+    List<Asset> newImages,
     String description,
     String address,
   ) async {
@@ -100,6 +104,10 @@ class VendorDBService {
       headers: {'content-type': 'application/json'},
       body: body,
     );
+    var body2 = jsonEncode({'imageIds': removedImageIds});
+    await addImages(newImages, id);
+    await http.patch(imagesUrl + 'deleteImages',
+        headers: {'content-type': 'application/json'}, body: body2);
     return response;
   }
 
@@ -205,7 +213,6 @@ class VendorDBService {
     var list = (jsonDecode(response.body))
         .map((json) => Vendor.fromJsonSearch(json))
         .toList();
-    //print(list);
     return list;
   }
 
