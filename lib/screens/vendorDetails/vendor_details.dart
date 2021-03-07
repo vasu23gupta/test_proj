@@ -15,6 +15,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:test_proj/shared/starRating.dart';
 import 'package:test_proj/shared/loginPopup.dart';
+import 'package:test_proj/screens/home/home.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -247,7 +248,12 @@ class _VendorDetailsState extends State<VendorDetails> {
                         IconButton(
                           icon: Icon(Icons.arrow_back_ios),
                           color: Colors.black,
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => Home()),
+                            );
+                          },
                         ),
                         Options(vendor: vendor),
                       ],
@@ -271,12 +277,14 @@ class _VendorDetailsState extends State<VendorDetails> {
                       SizedBox(height: 10.0),
                       Row(
                         children: <Widget>[
-                          Text(
-                            description,
-                            style: TextStyle(
-                                color: Colors.grey,
-                                fontFamily: 'Montserrat',
-                                fontSize: 38),
+                          Flexible(
+                            child: Text(
+                              description,
+                              style: TextStyle(
+                                  color: Colors.grey,
+                                  fontFamily: 'Montserrat',
+                                  fontSize: 38),
+                            ),
                           ),
                         ],
                       ),
@@ -356,7 +364,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                                   vendor.coordinates.longitude));
                         },
                         child: Icon(Icons.navigation),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -374,67 +382,16 @@ class _VendorDetailsState extends State<VendorDetails> {
                 //reviewsLoading
                 //    ? Loading()
                 /* : */ Container(
-                  padding: EdgeInsets.only(left: 20),
-                  height: 280,
-                  child: ListView.builder(
+                    padding: EdgeInsets.only(left: 20),
+                    height: 280,
+                    child: ListView.builder(
                       controller: scrollController,
                       itemCount: vendorReviews.length,
                       itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Column(
-                            children: [
-                              Card(
-                                  color: Colors.amberAccent[100],
-                                  child: Column(
-                                    children: <Widget>[
-                                      StarRating(
-                                          rating: vendorReviews[index].stars),
-                                      Text(
-                                        vendorReviews[index].review,
-                                        style: TextStyle(
-                                            fontSize: 24,
-                                            fontFamily: 'Montserrat',
-                                            color: Colors.black),
-                                      ),
-                                      Text(
-                                        vendorReviews[index].byUser,
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            fontFamily: 'Montserrat',
-                                            color: Colors.grey),
-                                      ),
-                                    ],
-                                  )),
+                        return ReviewTile(review: vendorReviews[index]);
+                      },
+                    )),
 
-                              /* StarRating(
-                                        rating: vendorReviews[index].stars),*/
-                              /* ListTileTheme(
-                                      dense: true,
-                                      style: ListTileStyle.drawer,
-                                      tileColor: Colors.amberAccent[50],
-                                      child: ListTile(
-                                        selected: false,
-                                        title: Text(
-                                          vendorReviews[index].review,
-                                          style: TextStyle(
-                                              fontSize: 24,
-                                              fontFamily: 'Montserrat',
-                                              color: Colors.black),
-                                        ),
-                                        subtitle: Text(
-                                          vendorReviews[index].byUser,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              fontFamily: 'Montserrat',
-                                              color: Colors.grey),
-                                        ),
-                                      ),
-                                    ),*/
-                            ],
-                          ),
-                        );
-                      }),
-                ),
                 /*  */
                 //Padding(
                 //       padding: const EdgeInsets.all(2.0),
@@ -447,35 +404,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                 ),
                 //add review button
                 Row(children: <Widget>[
-                  vendor.reviewed
-                      ? Container()
-                      : RaisedButton(
-                          color: Colors.pink[400],
-                          child: Text(
-                            'Add review',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: () {
-                            if (user.isAnon) {
-                              showDialog<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return LoginPopup(
-                                      to: "add a review",
-                                    );
-                                  });
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddReview(
-                                    vendor: vendor,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
                   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(
@@ -485,6 +413,35 @@ class _VendorDetailsState extends State<VendorDetails> {
                     onPressed: () {},
                   ),
                 ]),
+                vendor.reviewed
+                    ? Container()
+                    : RaisedButton(
+                        color: Colors.pink[400],
+                        child: Text(
+                          'Add review',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () {
+                          if (user.isAnon) {
+                            showDialog<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return LoginPopup(
+                                    to: "add a review",
+                                  );
+                                });
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddReview(
+                                  vendor: vendor,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
               ],
             ),
           );
@@ -511,4 +468,123 @@ class _VendorDetailsState extends State<VendorDetails> {
                       ],
                     ),
                   ),*/
+}
+
+class ReviewTile extends StatelessWidget {
+  final Review review;
+  ReviewTile({this.review});
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Column(
+        children: [
+          (review.stars.toDouble() >= 4)
+              ? Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5)),
+                      side: BorderSide(width: 5, color: Colors.green)),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Column(
+                          children: <Widget>[
+                            StarRating(rating: review.stars),
+                            Text(
+                              review.review,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontFamily: 'Montserrat',
+                                color: Colors.black,
+                              ),
+                            ),
+                            Text(
+                              review.byUser,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'Montserrat',
+                                color: Colors.grey,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : ((review.stars.toDouble() < 4 && review.stars.toDouble() > 2)
+                  ? Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          side:
+                              BorderSide(width: 5, color: Colors.amberAccent)),
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Column(
+                              children: <Widget>[
+                                StarRating(rating: review.stars),
+                                Text(
+                                  review.review,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontFamily: 'Montserrat',
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Text(
+                                  review.byUser,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          side: BorderSide(width: 5, color: Colors.red)),
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Column(
+                              children: <Widget>[
+                                StarRating(rating: review.stars),
+                                Text(
+                                  review.review,
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontFamily: 'Montserrat',
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                Text(
+                                  review.byUser,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontFamily: 'Montserrat',
+                                    color: Colors.grey,
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ))
+        ],
+      ),
+    );
+  }
 }

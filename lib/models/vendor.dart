@@ -37,6 +37,11 @@ class Vendor {
   }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
+    List<String> temp = new List<String>();
+    for (var item in json['tags']) {
+      temp.add(item.toString());
+    }
+    this.tags = temp;
     this.id = json['_id'];
     this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
         json['location']['coordinates'][0].toDouble());

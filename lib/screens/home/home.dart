@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/models/customUser.dart';
+import 'package:test_proj/my_flutter_app_icons.dart';
 import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
@@ -181,14 +182,15 @@ class _HomeState extends State<Home> {
       if (!vendors.contains(vendor)) vendors.add(vendor);
     }
     for (Vendor vendor in vendors) {
-      Marker marker = new Marker(
+      Marker marker;
+      /* new Marker(
         //anchorPos: AnchorPos.align(AnchorAlign.center),
         width: 45.0,
         height: 45.0,
         point: vendor.coordinates,
         builder: (context) => IconButton(
           //alignment: Alignment.bottomRight,
-          icon: Icon(Icons.circle),
+          icon: Icon(Cusicon.food),
           iconSize: 40.0,
           onPressed: () {
             Navigator.push(
@@ -201,7 +203,70 @@ class _HomeState extends State<Home> {
             );
           },
         ),
-      );
+      );*/
+      (vendor.tags.contains('food') || vendor.tags.contains('Food'))
+          ? marker = new Marker(
+              width: 45.0,
+              height: 45.0,
+              point: vendor.coordinates,
+              builder: (context) => IconButton(
+                //alignment: Alignment.bottomRight,
+                icon: Icon(Cusicon.food),
+                iconSize: 20.0,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VendorDetails(
+                        vendor: vendor,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
+          : vendor.tags.contains('repair')
+              ? marker = new Marker(
+                  width: 45.0,
+                  height: 45.0,
+                  point: vendor.coordinates,
+                  builder: (context) => IconButton(
+                    //alignment: Alignment.bottomRight,
+                    icon: Icon(Cusicon.repair),
+                    iconSize: 40.0,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VendorDetails(
+                            vendor: vendor,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                )
+              : marker = new Marker(
+                  width: 45.0,
+                  height: 45.0,
+                  point: vendor.coordinates,
+                  builder: (context) => IconButton(
+                    //alignment: Alignment.bottomRight,
+                    icon: Icon(Icons.circle),
+                    iconSize: 20.0,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => VendorDetails(
+                            vendor: vendor,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+
       if (!vendorMarkers.contains(marker)) {
         vendorMarkers.add(marker);
       }
@@ -461,7 +526,7 @@ class _HomeState extends State<Home> {
 //             // ),
 //           ],
 //         ),
-//       ),
+//       ),UI
 //     );
 //   }
 // }
