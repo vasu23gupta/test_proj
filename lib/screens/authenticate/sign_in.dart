@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_proj/screens/authenticate/forgot_password.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
@@ -122,6 +123,14 @@ class _SignInState extends State<SignIn> {
                           print('signed in');
                         }
                       },
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ForgotPassword(),
+                        ),
+                      ),
+                      child: Text('Forgot Password'),
                     ),
                   ],
                 ),
