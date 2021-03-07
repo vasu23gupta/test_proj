@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/my_flutter_app_icons.dart';
 import 'package:test_proj/screens/add_vendor.dart';
+import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
@@ -29,7 +31,7 @@ class _HomeState extends State<Home> {
   MapController controller = MapController();
   LatLng mapCenter = LatLng(28.612757, 77.230445);
   LocationData userLoc;
-  List<String> selectedFilters = List();
+  List<String> selectedFilters = [];
   String mainSelectedFilter = '';
   bool filtersHaveChanged = false;
   List<Vendor> vendors = [];
@@ -48,7 +50,6 @@ class _HomeState extends State<Home> {
             child: FilterChip(
               labelPadding: EdgeInsets.all(5),
               label: Text(fil),
-              backgroundColor: Colors.white,
               padding: EdgeInsets.all(5),
               selected: isSelected[fil],
               selectedColor: Colors.blue,
@@ -75,7 +76,6 @@ class _HomeState extends State<Home> {
               child: FilterChip(
                 labelPadding: EdgeInsets.all(5),
                 label: Text(mainSelectedFilter),
-                backgroundColor: Colors.white,
                 padding: EdgeInsets.all(5),
                 selected: isSelected[mainSelectedFilter],
                 selectedColor: Colors.red,
@@ -112,7 +112,6 @@ class _HomeState extends State<Home> {
                 child: FilterChip(
                   labelPadding: EdgeInsets.all(5),
                   label: Text(fil),
-                  backgroundColor: Colors.white,
                   padding: EdgeInsets.all(5),
                   selected: areSelected[mainSelectedFilter][ind],
                   selectedColor: Colors.blue,
@@ -281,7 +280,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
     // vendors.forEach((element) {
     //   print(element.id);
     //   print(element.name);
@@ -290,14 +289,17 @@ class _HomeState extends State<Home> {
     // });
     return Scaffold(
       key: _scaffoldKey,
-      backgroundColor: Colors.brown[50],
       drawer: Drawer(
         child: ListView(
           // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(user.isAnon ? "Guest" : user.uid),
+              child: Text(user.isAnonymous
+                  ? "Guest"
+                  : user.displayName != null
+                      ? user.displayName
+                      : user.uid),
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
@@ -311,7 +313,7 @@ class _HomeState extends State<Home> {
                   );
                 }),
             ListTile(
-              title: Text(user.isAnon ? 'Sign In' : 'Logout'),
+              title: Text(user.isAnonymous ? 'Sign In' : 'Logout'),
               onTap: () async {
                 await _auth.signOut();
               },
@@ -319,19 +321,6 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-      // appBar: AppBar(
-      //   title: Text('Map'),
-      //   elevation: 0.0,
-      //   actions: <Widget>[
-      //     IconButton(
-      //       icon: Icon(Icons.search),
-      //       onPressed: () {
-      //         Navigator.push(
-      //             context, MaterialPageRoute(builder: (context) => Search()));
-      //       },
-      //     )
-      //   ],
-      // ),
       body: Stack(
         children: <Widget>[
           //map
@@ -342,11 +331,9 @@ class _HomeState extends State<Home> {
                 if (!loadingMarkers && controller.zoom > 16.5) {
                   updateMarkers();
                 }
-                //print(controller.bounds.northEast.longitude);
               },
               zoom: 18.45,
               center: mapCenter,
-              //center: new LatLng(userLoc.latitude, userLoc.longitude),
             ),
             layers: [
               new TileLayerOptions(
@@ -357,19 +344,6 @@ class _HomeState extends State<Home> {
               new MarkerLayerOptions(
                 markers: vendorMarkers,
               ),
-              // new MarkerLayerOptions(
-              //   markers: [
-              //     new Marker(
-              //       width: 45.0,
-              //       height: 45.0,
-              //       //point: new LatLng(28.612757, 77.230445),
-              //       point: userLoc,
-              //       builder: (ctx) => new Container(
-              //         child: new FlutterLogo(),
-              //       ),
-              //     ),
-              //   ],
-              // ),
             ],
           ),
           //search bar
@@ -378,12 +352,11 @@ class _HomeState extends State<Home> {
             right: 15,
             left: 15,
             child: Container(
-              color: Colors.white,
+              color: Theme.of(context).backgroundColor,
               child: Row(
                 children: <Widget>[
                   //drawer
                   IconButton(
-                    splashColor: Theme.of(context).splashColor,
                     icon: Icon(Icons.menu),
                     onPressed: () {
                       _scaffoldKey.currentState.openDrawer();
@@ -433,7 +406,8 @@ class _HomeState extends State<Home> {
               onPressed: () async {
                 userLoc = await locSer.getLocation();
                 if (userLoc != null)
-                  mapCenter = LatLng(userLoc.latitude, userLoc.longitude);
+                  setState(() =>
+                      mapCenter = LatLng(userLoc.latitude, userLoc.longitude));
                 controller.move(
                   mapCenter,
                   18.45,
@@ -448,7 +422,7 @@ class _HomeState extends State<Home> {
               heroTag: null,
               child: Icon(Icons.add),
               onPressed: () async {
-                if (user.isAnon) {
+                if (user.isAnonymous) {
                   showDialog<void>(
                       context: context,
                       builder: (BuildContext context) {
@@ -461,12 +435,18 @@ class _HomeState extends State<Home> {
                     userLoc = await locSer.getLocation();
                     if (userLoc == null) return;
                   }
+                  Vendor vendor = Vendor();
+                  vendor.coordinates =
+                      LatLng(userLoc.latitude, userLoc.longitude);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => AddVendor(
-                        userLoc: LatLng(userLoc.latitude, userLoc.longitude),
+                      builder: (context) => AddVendorNameDescription(
+                        vendor: vendor,
                       ),
+                      // builder: (context) => AddVendor(
+                      //   userLoc: LatLng(userLoc.latitude, userLoc.longitude),
+                      //),
                     ),
                   );
                 }
@@ -478,55 +458,3 @@ class _HomeState extends State<Home> {
     );
   }
 }
-
-// class Home extends StatelessWidget {
-//   final AuthService _auth = AuthService();
-//   @override
-//   Widget build(BuildContext context) {
-//     return StreamProvider<List<AppUser>>.value(
-//       value: DatabaseService().users,
-//       child: Scaffold(
-//         backgroundColor: Colors.brown[50],
-//         appBar: AppBar(
-//           title: Text('Map'),
-//           backgroundColor: Colors.brown[400],
-//           elevation: 0.0,
-//           actions: <Widget>[
-//             FlatButton.icon(
-//               icon: Icon(Icons.person),
-//               label: Text('logout'),
-//               onPressed: () async {
-//                 await _auth.signOut();
-//               },
-//             )
-//           ],
-//         ),
-//         body: new FlutterMap(
-//           mapController: controller,
-//           options: new MapOptions(
-//             zoom: 13.0,
-//             center: new LatLng(28.612757, 77.230445),
-//           ),
-//           layers: [
-//             new TileLayerOptions(
-//               urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-//               subdomains: ['a', 'b', 'c'],
-//             ),
-//             // new MarkerLayerOptions(
-//             //   markers: [
-//             //     new Marker(
-//             //       width: 45.0,
-//             //       height: 45.0,
-//             //       point: new LatLng(28.612757, 77.230445),
-//             //       builder: (ctx) => new Container(
-//             //         child: new FlutterLogo(),
-//             //       ),
-//             //     ),
-//             //   ],
-//             // ),
-//           ],
-//         ),
-//       ),UI
-//     );
-//   }
-// }

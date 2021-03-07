@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:test_proj/screens/SearchResults.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
 import '../vendorDetails/vendor_details.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:test_proj/screens/SearchResults.dart';
 
 enum SingingCharacter {
   RatingHighToLow,
@@ -35,10 +39,37 @@ class _SearchState extends State<Search> {
   }
 
   LatLng userLocFut;
+  List<Marker> buildMarkers(List<dynamic> searchResults) {
+    List<Marker> toShowOnMap = [];
+    for (Vendor vendor in searchResults) {
+      toShowOnMap.add(new Marker(
+        //anchorPos: AnchorPos.align(AnchorAlign.center),
+        width: 45.0,
+        height: 45.0,
+        point: vendor.coordinates,
+        builder: (context) => IconButton(
+          //alignment: Alignment.bottomRight,
+          icon: Icon(Icons.circle),
+          iconSize: 40.0,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VendorDetails(
+                  vendor: vendor,
+                ),
+              ),
+            );
+          },
+        ),
+      ));
+    }
+    return toShowOnMap;
+  }
 
   Widget buildSuggestions() {
     //print('enter');
-    var selectedIndex;
+    //var selectedIndex;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -55,7 +86,7 @@ class _SearchState extends State<Search> {
                     //print(entered);
                     return ListTile(
                       onTap: () async {
-                        selectedIndex = index;
+                        //selectedIndex = index;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -100,6 +131,7 @@ class _SearchState extends State<Search> {
   ListView suggestions;
   List<String> tags = ['1', '2,', '3', '4'];
   TextEditingController query = new TextEditingController();
+  String dropdownValue = "no limit: default";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -120,15 +152,19 @@ class _SearchState extends State<Search> {
             onChanged: (value) async {
               List<dynamic> sR = [];
               if (value.length != 0) {
-                sR = await VendorDBService.getVendorsFromSearch(value);
+                print(value +
+                    " " +
+                    dropdownValue +
+                    " " +
+                    userLocFut.latitude.toString() +
+                    " " +
+                    userLocFut.longitude.toString());
+                sR = await VendorDBService.getVendorsFromSearch(
+                    value, dropdownValue, userLocFut);
               }
               setState(() {
                 this.searchResults = sR;
                 sortBy = SingingCharacter.Relevance;
-                //print(this.searchResults.length);
-                //var entered = 'false';
-                //this.suggestions =
-                ///print(suggestions);
               });
             },
           ),
@@ -150,6 +186,36 @@ class _SearchState extends State<Search> {
               mainAxisSize: MainAxisSize.max,
               alignment: MainAxisAlignment.spaceEvenly,
               children: [
+                DropdownButton<String>(
+                  hint: Text(
+                    "Search Radius",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  isExpanded: false,
+                  value: dropdownValue,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (String newValue) {
+                    setState(() {
+                      dropdownValue = newValue;
+                    });
+                  },
+                  items: <String>['no limit: default', '10km', '15km', '5km']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
                 FlatButton(
                   onPressed: () {
                     showModalBottomSheet(
@@ -307,7 +373,7 @@ class _SearchState extends State<Search> {
                       Text(
                         "Sort",
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 15,
                         ),
                       ),
                     ],
@@ -320,11 +386,44 @@ class _SearchState extends State<Search> {
                       Icon(Icons.filter_alt),
                       Text("Filter",
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 15,
                           )),
                     ],
                   ),
-                )
+                ),
+                FlatButton(
+                  onPressed: () {
+                    if (this.searchResults.isEmpty) {
+                      Fluttertoast.showToast(
+                          msg: "Search Results are empty",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => new SearchResults(
+                            markers: buildMarkers(this.searchResults),
+                            mapCenter: this.userLocFut,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.location_pin),
+                      Text("Show On Map",
+                          style: TextStyle(
+                            fontSize: 15,
+                          )),
+                    ],
+                  ),
+                ),
               ],
             ),
             buildSuggestions(),

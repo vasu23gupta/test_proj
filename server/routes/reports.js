@@ -3,6 +3,7 @@ const router = express.Router();
 const Report = require('../models/Report');
 const User = require('../models/User');
 const Vendor = require('../models/Vendor');
+const admin = require('../firebaseAdminSdk');
 
 // get all reports (for testing)
 router.get('/', async (req, res) => {
@@ -20,7 +21,7 @@ router.get('/:reportId', async (req, res) => {
         const report = await Report.findById(req.params.reportId);
         res.json(report);
     } catch (err) {
-        res.json({message: err});
+        res.json({ message: err });
     }
 });
 
@@ -28,41 +29,49 @@ router.get('/:reportId', async (req, res) => {
 router.post('/', async (req, res) => {
 
     try {
-
+        var jwt = req.get('authorisation');
+        var userObj = await admin.auth().verifyIdToken(jwt);
+        if (userObj.firebase.sign_in_provider == 'anonymous') return;
+        var userId = userObj.uid;
+        print(userId);
         var vendor = await Vendor.findById(
             req.body.vendorId,
             {
                 reporters: 1,
             }
         ).lean();
-
-        if (vendor.reporters.includes(req.body.by)) {
+        print(vendor);
+        if (vendor.reporters.includes(userId)) {
             res.json({ message: 'You have already reviewed this vendor.' });
             return;
-        }
+        }else print('doesnt');
 
         const report = new Report({
-            by: req.body.by,
+            by: userId,
             report: req.body.report,
-            vendor: req.body.vendor
+            vendor: req.body.vendorId
         });
 
         const savedReport = await report.save();
-        const updatedUser = await User.updateOne({ _id: req.body.by }, {
+        const updatedUser = await User.updateOne({ _id: userId }, {
             $push: {
                 reportsByMe: savedReport._id,
                 vendorsReportedByMe: req.body.vendorId
             },
         });
-        var updatedVendor = await Vendor.updateOne({ _id: req.body.vendor }, {
+        print(updatedUser);
+        var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
             $push: {
                 reports: savedReport._id,
-                reporters: req.body.by
+                reporters: userId
             },
-            $inc: { totalReports: 1,},
+            $inc: { totalReports: 1, },
         });
+        print(updatedVendor);
+        print(savedReport);
         res.json(savedReport);
     } catch (err) {
+        print(err);
         res.json({ message: err });
     }
 });
@@ -94,3 +103,7 @@ router.patch('/:reportId', async (req, res) => {
 });
 
 module.exports = router;
+
+function print(string) {
+    console.log(string);
+}

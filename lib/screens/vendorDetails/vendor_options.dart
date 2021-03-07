@@ -1,24 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loginPopup.dart';
 import '../add_vendor.dart';
 
-class Options extends StatelessWidget {
+class VendorOptions extends StatelessWidget {
   final Vendor vendor;
-  Options({this.vendor});
+  VendorOptions({this.vendor});
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
     //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
     return PopupMenuButton<String>(
       onSelected: (value) {
         switch (value) {
           case 'Edit':
-            if (user.isAnon) {
+            if (user.isAnonymous) {
               showDialog<void>(
                   context: context,
                   builder: (BuildContext context) {
@@ -38,7 +38,7 @@ class Options extends StatelessWidget {
             }
             break;
           case 'Report':
-            if (user.isAnon) {
+            if (user.isAnonymous) {
               showDialog<void>(
                   context: context,
                   builder: (BuildContext context) {
@@ -92,7 +92,7 @@ class _ReportState extends State<Report> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
     return AlertDialog(
       content: Stack(
         overflow: Overflow.visible,
@@ -185,7 +185,9 @@ class _ReportState extends State<Report> {
 
                           if (selectedReport.isNotEmpty) {
                             final response = await VendorDBService.reportVendor(
-                                selectedReport, widget.vendor, user.uid);
+                                selectedReport,
+                                widget.vendor,
+                                await user.getIdToken());
                             if (response.statusCode == 200) {
                               setState(() {
                                 alertText = "Reported successfully";

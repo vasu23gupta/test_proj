@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
-import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/add_review.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_options.dart';
@@ -25,7 +25,7 @@ class VendorDetails extends StatefulWidget {
 }
 
 class _VendorDetailsState extends State<VendorDetails> {
-  CustomUser user;
+  User user;
   Vendor vendor;
   List<Review> vendorReviews = [];
   var vendorReviewIndexToBeFetched = 0;
@@ -34,13 +34,14 @@ class _VendorDetailsState extends State<VendorDetails> {
   bool loading = true;
   bool reviewsLoading = false;
   bool getNewReviews = true;
+  Review myReview;
 
   Future<void> getReviews(String id) async {
     setState(() {
       reviewsLoading = true;
       getNewReviews = false;
     });
-    Review review = await VendorDBService.getReview(id);
+    Review review = await VendorDBService.getReviewByReviewId(id);
     setState(() {
       if (review.review != null) vendorReviews.add(review);
       vendorReviewIndexToBeFetched += 1;
@@ -71,7 +72,8 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getVendor() async {
-    Vendor v = await VendorDBService.getVendor(vendor.id, user.uid);
+    Vendor v =
+        await VendorDBService.getVendor(vendor.id, await user.getIdToken());
     // Vendor v = await _dbService.getVendor(
     //   id: vendor.id,
     //   vendor: vendor,
@@ -83,6 +85,10 @@ class _VendorDetailsState extends State<VendorDetails> {
     //   coordinates: vendor.coordinates == null,
     //   stars: vendor.stars == null,
     // );
+    if (v.reviewed) {
+      myReview = await VendorDBService.getReviewByUserAndVendorId(
+          vendor.id, await user.getIdToken());
+    }
     setState(() {
       this.vendor = v;
       loading = false;
@@ -134,7 +140,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     //if (!loading) print(this.vendor.name);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      user = Provider.of<CustomUser>(context, listen: false);
+      user = Provider.of<User>(context, listen: false);
       getVendor();
     });
   }
@@ -143,6 +149,12 @@ class _VendorDetailsState extends State<VendorDetails> {
   void dispose() {
     scrollController.dispose();
     super.dispose();
+  }
+
+  void deleteReview() {
+    setState(() {
+      vendor.reviewed = false;
+    });
   }
 
   @override
@@ -248,14 +260,9 @@ class _VendorDetailsState extends State<VendorDetails> {
                         IconButton(
                           icon: Icon(Icons.arrow_back_ios),
                           color: Colors.black,
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => Home()),
-                            );
-                          },
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                        Options(vendor: vendor),
+                        VendorOptions(vendor: vendor),
                       ],
                     ),
                   ],
@@ -368,9 +375,14 @@ class _VendorDetailsState extends State<VendorDetails> {
                     ],
                   ),
                 ),
-
+                vendor.reviewed
+                    ? MyReview(
+                        myReview: myReview,
+                        deleteReviewFromUi: deleteReview,
+                      )
+                    : Container(),
                 Text(
-                  "Reviews",
+                  "Reviews:",
                   style: TextStyle(
                       fontSize: 25.0,
                       fontFamily: 'Montserrat',
@@ -382,16 +394,16 @@ class _VendorDetailsState extends State<VendorDetails> {
                 //reviewsLoading
                 //    ? Loading()
                 /* : */ Container(
-                    padding: EdgeInsets.only(left: 20),
-                    height: 280,
-                    child: ListView.builder(
+                  padding: EdgeInsets.only(left: 20),
+                  height: 280,
+                  child: ListView.builder(
                       controller: scrollController,
                       itemCount: vendorReviews.length,
                       itemBuilder: (context, index) {
-                        return ReviewTile(review: vendorReviews[index]);
-                      },
-                    )),
-
+                        if (vendorReviews[index].review.isNotEmpty)
+                          return ReviewTile(review: vendorReviews[index]);
+                      }),
+                ),
                 /*  */
                 //Padding(
                 //       padding: const EdgeInsets.all(2.0),
@@ -422,7 +434,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () {
-                          if (user.isAnon) {
+                          if (user.isAnonymous) {
                             showDialog<void>(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -582,7 +594,128 @@ class ReviewTile extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ))
+                    )),
+          Card(
+            color: Colors.amberAccent[100],
+            child: Column(
+              children: <Widget>[
+                StarRating(rating: review.stars),
+                Text(
+                  review.review == null ? '' : review.review,
+                  style: TextStyle(
+                      fontSize: 24,
+                      fontFamily: 'Montserrat',
+                      color: Colors.black),
+                ),
+                Text(
+                  review.byUser,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'Montserrat',
+                      color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MyReview extends StatelessWidget {
+  final Review myReview;
+  final Function deleteReviewFromUi;
+  MyReview({this.myReview, this.deleteReviewFromUi});
+  @override
+  Widget build(BuildContext context) {
+    User user = Provider.of<User>(context, listen: false);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      //crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Your Review:",
+              style: TextStyle(
+                  fontSize: 25.0,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey),
+            ),
+            PopupMenuButton<String>(
+              onSelected: (value) async {
+                switch (value) {
+                  case 'Edit':
+                    showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return EditReviewDialogue();
+                        });
+                    break;
+                  case 'Delete':
+                    var res = await VendorDBService.deleteReview(
+                        myReview.id, await user.getIdToken());
+                    if (res.statusCode == 200) {
+                      deleteReviewFromUi();
+                    }
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {'Edit', 'Delete'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
+        ReviewTile(review: myReview)
+      ],
+    );
+  }
+}
+
+class EditReviewDialogue extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Stack(
+        overflow: Overflow.visible,
+        children: <Widget>[
+          //close button
+          Positioned(
+            right: -40.0,
+            top: -40.0,
+            child: InkResponse(
+              onTap: () {
+                Navigator.of(context).pop();
+              },
+              child: CircleAvatar(
+                child: Icon(Icons.close),
+                backgroundColor: Colors.red,
+              ),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                child: Text(
+                  'Coming soon! Meanwhile you can delete your current review and post a new review.',
+                  textAlign: TextAlign.center,
+                  textScaleFactor: 1.25,
+                ),
+                height: 70,
+                width: 500,
+              ),
+            ],
+          ),
         ],
       ),
     );

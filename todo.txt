@@ -1,0 +1,13 @@
+APP:
+better map provider.
+auth: verify email, forgot password.
+firebase ios.
+ios testing.
+markers for categories.
+user points, quotas.
+
+RELEASE:
+name.
+graphics.
+privacy policy, terms of service.
+online server.
