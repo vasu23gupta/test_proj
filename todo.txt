@@ -1,7 +1,6 @@
 APP:
-bad images filtering.
 better map provider.
-auth: google, phone, forgot password.
+auth: verify email, forgot password.
 firebase ios.
 ios testing.
 markers for categories.

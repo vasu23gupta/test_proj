@@ -24,7 +24,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   Vendor vendor;
   String errorText = '';
   List<String> tags = [];
-  List<Asset> images = List<Asset>();
+  List<Asset> images = [];
   bool loading = false;
   final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
   User user;
@@ -118,7 +118,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   }
 
   Future<void> loadAssets() async {
-    List<Asset> resultList = List<Asset>();
+    List<Asset> resultList = [];
     //String error = 'No Error Dectected';
 
     try {

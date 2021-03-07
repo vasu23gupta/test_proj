@@ -26,8 +26,6 @@ class UserDBService {
       headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
-    print(response.body);
-    print(response.statusCode);
     return response;
   }
 }
@@ -62,7 +60,7 @@ class VendorDBService {
       headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
-    print(response.body);
+    //print(response.body);
     await addImages(images, jsonDecode(response.body)['_id']);
     return response;
   }
@@ -72,7 +70,7 @@ class VendorDBService {
       String path =
           await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
       Response imgResponse = await VendorDBService.addImage(path, vendorId);
-      print(imgResponse.statusCode);
+      //print(imgResponse.statusCode);
     }
   }
 

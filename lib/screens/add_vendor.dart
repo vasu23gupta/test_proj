@@ -6,7 +6,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/services/location_service.dart';
@@ -28,17 +27,17 @@ class _AddVendorState extends State<AddVendor> {
   String description = '';
   String name = '';
   String address = '';
-  List<Asset> images = List<Asset>(); // when creating new vendor
-  List<NetworkImage> netImages = List();
+  List<Asset> images = []; // when creating new vendor
+  List<NetworkImage> netImages = [];
   MapController controller = new MapController();
-  List<String> imageIds = new List<String>();
+  List<String> imageIds = [];
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   List<Marker> markers = [];
   LatLng vendorLatLng;
   String error = '';
   String currentTag;
-  List<String> tags = new List<String>();
+  List<String> tags = [];
   TextEditingController addTagController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   LatLng userLoc;
@@ -183,7 +182,7 @@ class _AddVendorState extends State<AddVendor> {
     String _error = 'No Error Dectected';
 
     Future<void> loadAssets() async {
-      List<Asset> resultList = List<Asset>();
+      List<Asset> resultList = [];
       //String error = 'No Error Dectected';
 
       try {

@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
-import 'package:test_proj/models/customUser.dart';
-import 'package:test_proj/screens/add_vendor.dart';
 import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
@@ -30,7 +28,7 @@ class _HomeState extends State<Home> {
   MapController controller = MapController();
   LatLng mapCenter = LatLng(28.612757, 77.230445);
   LocationData userLoc;
-  List<String> selectedFilters = List();
+  List<String> selectedFilters = [];
   String mainSelectedFilter = '';
   bool filtersHaveChanged = false;
   List<Vendor> vendors = [];

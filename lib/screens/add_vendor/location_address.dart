@@ -45,7 +45,6 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
           if ((json['responseCode']) == 200) {
             //address = json['results'][0]['formatted_address'];
             _addressController.text = json['results'][0]['formatted_address'];
-            ;
           } else
             print(json['responseCode']);
         });
