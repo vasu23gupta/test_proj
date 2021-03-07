@@ -1,17 +1,19 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
+import 'package:profanity_filter/profanity_filter.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/models/customUser.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
+import 'package:test_proj/shared/hindi_profanity.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 
@@ -27,24 +29,25 @@ class _AddVendorState extends State<AddVendor> {
   String description = '';
   String name = '';
   String address = '';
-  // ignore: deprecated_member_use
-  List<Asset> images = List<Asset>(); // when creating new vendor
-  List<NetworkImage> netImages = List();
+  List<Asset> images = []; // when creating new vendor
+  List<NetworkImage> netImages = [];
   MapController controller = new MapController();
-  List<String> imageIds = new List<String>();
+  List<String> imageIds = [];
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
   List<Marker> markers = [];
   LatLng vendorLatLng;
   String error = '';
   String currentTag;
-  List<String> tags = new List<String>();
+  List<String> tags = [];
   TextEditingController addTagController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   LatLng userLoc;
   List<String> imageIdsToBeRemoved = [];
   bool editing = false;
   Vendor vendor;
+  final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
+
   @override
   void initState() {
     super.initState();
@@ -200,12 +203,12 @@ class _AddVendorState extends State<AddVendor> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<CustomUser>(context);
+    final user = Provider.of<User>(context);
 
     String _error = 'No Error Dectected';
 
     Future<void> loadAssets() async {
-      List<Asset> resultList = List<Asset>();
+      List<Asset> resultList = [];
       //String error = 'No Error Dectected';
 
       try {
@@ -242,7 +245,7 @@ class _AddVendorState extends State<AddVendor> {
     return loading
         ? Loading()
         : Scaffold(
-            backgroundColor: Colors.brown[50],
+            //backgroundColor: Colors.brown[50],
             appBar: AppBar(
               title: Text('Add Vendor'),
               elevation: 0.0,
@@ -399,6 +402,12 @@ class _AddVendorState extends State<AddVendor> {
                             (images.length != 0 || imageIds.length != 0)) {
                           setState(() => loading = true);
 
+                          for (var tag in tags) {
+                            if (filter.hasProfanity(tag)) tags.remove(tag);
+                          }
+                          name = filter.censor(name);
+                          description = filter.censor(description);
+                          address = filter.censor(address);
                           http.Response result;
                           if (editing) {
                             result = await VendorDBService.updateVendor(
@@ -419,7 +428,7 @@ class _AddVendorState extends State<AddVendor> {
                               tags,
                               images,
                               description,
-                              user.uid,
+                              await user.getIdToken(),
                               address,
                             );
                           }

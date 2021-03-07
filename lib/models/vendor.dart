@@ -1,5 +1,6 @@
 import 'package:latlong/latlong.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/services/database.dart';
 import 'Review.dart';
 
@@ -16,19 +17,24 @@ class Vendor {
   double stars = 0;
   String address;
   DateTime createdOn;
-  //VendorData data;
+  bool reported;
+  bool reviewed;
+  List<Asset> assetImages;
 
-  Vendor(
-      {this.id,
-      this.coordinates,
-      this.name,
-      this.tags,
-      this.description,
-      this.imageIds,
-      this.reviewIds,
-      this.stars,
-      this.createdOn,
-      this.address}) {
+  Vendor({
+    this.id,
+    this.coordinates,
+    this.name,
+    this.tags,
+    this.description,
+    this.imageIds,
+    this.reviewIds,
+    this.stars,
+    this.createdOn,
+    this.address,
+    this.reported,
+    this.reviewed,
+  }) {
     this.images = this.imageIds == null ? null : List(imageIds.length);
   }
 
@@ -39,7 +45,7 @@ class Vendor {
   }
 
   factory Vendor.fromJsonSearch(Map<String, dynamic> json) {
-    List<String> temp = new List<String>();
+    List<String> temp = [];
     for (var item in json['tags']) {
       temp.add(item.toString());
     }
@@ -55,9 +61,9 @@ class Vendor {
   }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
-    List<String> temp = new List<String>();
-    List<String> temp2 = new List<String>();
-    List<String> temp3 = new List<String>();
+    List<String> temp = [];
+    List<String> temp2 = [];
+    List<String> temp3 = [];
     for (var item in json['tags']) {
       temp.add(item.toString());
     }
@@ -78,6 +84,8 @@ class Vendor {
       reviewIds: temp3,
       stars: json['rating'].toDouble(),
       address: json['address'],
+      reported: json['reported'],
+      reviewed: json['reviewed'],
     );
   }
 

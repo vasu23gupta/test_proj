@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const admin = require('../firebaseAdminSdk');
 
 // get all users (for testing)
 router.get('/', async (req, res) => {
@@ -24,11 +25,14 @@ router.get('/:userId', async (req, res) => {
 
 //add user
 router.post('/', async (req, res) => {
-    const user = new User({
-        _id: req.body.userId
-    });
-
     try {
+        var jwt = req.get('authorisation');
+        var userObj = await admin.auth().verifyIdToken(jwt);
+        if (userObj.firebase.sign_in_provider == 'anonymous') return;
+        var userId = userObj.uid;
+        const user = new User({
+            _id: userId
+        });
         const savedUser = await user.save();
         res.json(savedUser);
     } catch (err) {
