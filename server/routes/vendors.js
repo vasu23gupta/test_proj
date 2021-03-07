@@ -122,9 +122,13 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
 });
 
 //search
-router.get('/search/:query', async (req, res) => {
+router.get('/search/:query/:radius/:lat/:long', async (req, res) => {
 
+    let radius = parseFloat(req.params.radius);
+    let lat = parseFloat(req.params.lat);
+    let long = parseFloat(req.params.long);
     let searchText = req.params.query;
+    var radiusSearch;
     searchText = searchText.trim();
     //let searchRegex= searchText;
     var searchTexts = searchText.split(" ");
@@ -147,20 +151,42 @@ router.get('/search/:query', async (req, res) => {
             "$search": searchText
         }
     };
+    var regexSearchOptions;
+    if (!(radius == "0")) {
+        console.log("entered");
+        console.log(radius + " " + long + " " + lat + " " + radius / (1.609 * 3963.2));
+        //https://docs.mongodb.com/manual/reference/operator/query/nearSphere/
+        radiusSearch = {
+            "location.coordinates": {
+                $nearSphere: {
+                    $geometry: {
+                        type: "Point",
+                        coordinates: [long, lat]
+                    },
+                    $maxDistance: radius * 1000
+                }
+            }
+        };
+        regexSearchOptions = {
+            $and: [{ $or: searchTextList }, radiusSearch]
+        };
 
-    var regexSearchOptions = {
-        $or: searchTextList
-    };
-    Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location: 1, createdAt: 1 }, function (err, docs) {
+    }
+    else {
 
-        if (err) {
-            res.json({ message: err });
-        } else if (docs) {
-            res.json(docs);
-        }
+        regexSearchOptions = {
+            $or: searchTextList
+        };
+        Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location: 1, createdAt: 1 }, function (err, docs) {
 
-    });
+            if (err) {
+                res.json({ message: err });
+            } else if (docs) {
+                res.json(docs);
+            }
 
+        });
+    }
     //res.json({message:searchString});
     /* try {
         const vendors=await Vendor.find({$text:{$search: searchString}})

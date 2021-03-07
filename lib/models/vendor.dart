@@ -96,6 +96,10 @@ class Vendor {
     return images[index];
   }
 
+  NetworkImage getImageFomId(String imageId) {
+    return VendorDBService.getVendorImage(imageId);
+  }
+
   // bool operator ==(other) {
   //   return (other is Vendor &&
   //           other.id == id &&

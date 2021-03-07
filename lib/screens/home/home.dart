@@ -342,7 +342,8 @@ class _HomeState extends State<Home> {
               onPressed: () async {
                 userLoc = await locSer.getLocation();
                 if (userLoc != null)
-                  mapCenter = LatLng(userLoc.latitude, userLoc.longitude);
+                  setState(() =>
+                      mapCenter = LatLng(userLoc.latitude, userLoc.longitude));
                 controller.move(
                   mapCenter,
                   18.45,

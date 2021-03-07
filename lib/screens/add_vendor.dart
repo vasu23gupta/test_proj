@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +43,9 @@ class _AddVendorState extends State<AddVendor> {
   TextEditingController addTagController = TextEditingController();
   TextEditingController addressController = TextEditingController();
   LatLng userLoc;
+  List<String> imageIdsToBeRemoved = [];
   bool editing = false;
+  Vendor vendor;
   final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
 
   @override
@@ -50,16 +54,26 @@ class _AddVendorState extends State<AddVendor> {
     addressController.text = address;
     if (widget.vendor != null) {
       editing = true;
-      Vendor vendor = widget.vendor;
+      vendor = widget.vendor;
       name = vendor.name;
       userLoc = vendor.coordinates;
       tags = vendor.tags;
       description = vendor.description;
-      imageIds = vendor.imageIds;
-      netImages = vendor.images;
+      imageIds = new List<String>.from(vendor.imageIds);
+      netImages = new List<NetworkImage>.from(vendor.images);
       _putMarkerOnMap(userLoc);
     } else
       userLoc = widget.userLoc;
+  }
+
+  Future<void> addImages(List<Asset> images, String vendorId) async {
+    for (var imgAsset in images) {
+      String path =
+          await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
+      //Response imgResponse = await VendorDBService.addImage(path, vendorId);
+      //print(imgResponse.statusCode);
+      //imageIds.add(await MultipartFile.fromFile(path));
+    }
   }
 
   void _putMarkerOnMap(LatLng point) {
@@ -98,14 +112,14 @@ class _AddVendorState extends State<AddVendor> {
   }
 
   Widget previewImages() {
-    if ((editing && netImages.length == 0) || (!editing && images.length == 0))
+    if (netImages.length == 0 && images.length == 0)
       return Container();
     else {
       //print(netImages.length);
       return SizedBox(
         height: 150,
         child: ListView.builder(
-          itemCount: editing ? netImages.length : images.length,
+          itemCount: editing ? netImages.length + images.length : images.length,
           itemBuilder: (context, index) {
             return Stack(
               overflow: Overflow.visible,
@@ -113,9 +127,14 @@ class _AddVendorState extends State<AddVendor> {
                 if (editing)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Image(
-                      image: widget.vendor.getImage(index),
-                    ),
+                    child: index < netImages.length
+                        ? Image(
+                            image: widget.vendor.getImageFomId(imageIds[index]))
+                        : AssetThumb(
+                            asset: images[index - netImages.length],
+                            width: 150,
+                            height: 150,
+                          ),
                   )
                 else
                   Padding(
@@ -134,7 +153,14 @@ class _AddVendorState extends State<AddVendor> {
                   child: InkResponse(
                     onTap: () {
                       setState(() {
-                        images.removeAt(index);
+                        if (index < imageIds.length) {
+                          imageIdsToBeRemoved.add(imageIds[index]);
+                          print(imageIds[index]);
+                          imageIds.removeAt(index);
+                          netImages.removeAt(index);
+                        } else if (index < images.length + imageIds.length) {
+                          images.removeAt(imageIds.length - index);
+                        }
                       });
                     },
                     child: CircleAvatar(
@@ -199,6 +225,7 @@ class _AddVendorState extends State<AddVendor> {
             selectCircleStrokeColor: "#000000",
           ),
         );
+        for (int i = 0; i < resultList.length; i++) {}
       } on Exception catch (e) {
         _error = e.toString();
       }
@@ -210,6 +237,7 @@ class _AddVendorState extends State<AddVendor> {
 
       setState(() {
         images = resultList;
+
         //print(images.length);
       });
     }
@@ -388,6 +416,8 @@ class _AddVendorState extends State<AddVendor> {
                               vendorLatLng,
                               tags,
                               imageIds,
+                              imageIdsToBeRemoved,
+                              images,
                               description,
                               address,
                             );

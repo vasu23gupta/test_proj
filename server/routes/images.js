@@ -82,6 +82,17 @@ router.post('/', upload.single('vendorImg'), async function (req, res) {
     }
 });
 
+router.patch('/deleteImages',async (req,res)=>{
+    try{
+        const removedImageIds=await Image.deleteMany({ _id: {$in: req.body.imageIds}});
+        console.log("removed");
+        res.json(removedImageIds);
+    }
+    catch(err)
+    {
+        res.json({message: err});
+    }
+})
 // router.post('/:vendorImg',async function (req, res) {
 //     // var f = req.file;
 //     var image = new Image();
