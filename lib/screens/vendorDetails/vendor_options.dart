@@ -26,6 +26,14 @@ class VendorOptions extends StatelessWidget {
                       to: "edit a vendor",
                     );
                   });
+            } else if (!user.emailVerified) {
+              showDialog<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return VerifyEmailPopup(
+                      to: "edit a vendor",
+                    );
+                  });
             } else {
               Navigator.push(
                 context,
@@ -46,6 +54,14 @@ class VendorOptions extends StatelessWidget {
                       to: "report a vendor",
                     );
                   });
+              // } else if (!user.emailVerified) {
+              //   showDialog<void>(
+              //       context: context,
+              //       builder: (BuildContext context) {
+              //         return VerifyEmailPopup(
+              //           to: "report a vendor",
+              //         );
+              //       });
             } else {
               vendor.reported
                   ? print('reported')

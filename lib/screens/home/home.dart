@@ -430,6 +430,14 @@ class _HomeState extends State<Home> {
                           to: "add a vendor",
                         );
                       });
+                  // } else if (!user.emailVerified) {
+                  //   showDialog<void>(
+                  //       context: context,
+                  //       builder: (BuildContext context) {
+                  //         return VerifyEmailPopup(
+                  //           to: "add a vendor",
+                  //         );
+                  //       });
                 } else {
                   if (userLoc == null) {
                     userLoc = await locSer.getLocation();

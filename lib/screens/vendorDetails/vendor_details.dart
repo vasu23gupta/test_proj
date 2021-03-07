@@ -442,6 +442,14 @@ class _VendorDetailsState extends State<VendorDetails> {
                                     to: "add a review",
                                   );
                                 });
+                            // } else if (!user.emailVerified) {
+                            //   showDialog<void>(
+                            //       context: context,
+                            //       builder: (BuildContext context) {
+                            //         return VerifyEmailPopup(
+                            //           to: "add a review",
+                            //         );
+                            //       });
                           } else {
                             Navigator.push(
                               context,

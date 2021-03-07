@@ -78,6 +78,7 @@ class AuthService {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = result.user;
+      user.sendEmailVerification();
 
       //create a new document for the user with the uid
       //await UserDatabaseService(uid: user.uid).updateUserName(user.displayName);
