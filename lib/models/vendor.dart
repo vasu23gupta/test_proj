@@ -105,22 +105,11 @@ class Vendor {
     return VendorDBService.getVendorImage(imageId);
   }
 
-  // bool operator ==(other) {
-  //   return (other is Vendor &&
-  //           other.id == id &&
-  //           other.name == name &&
-  //           other.coordinates == coordinates &&
-  //           listEquals(other.tags, tags)
-  //       //other.dataId == dataId,
-  //       );
-  // }
+  @override
+  bool operator ==(other) {
+    return (other is Vendor && other.id == id);
+  }
 
-  // bool contains(String string) {
-  //   if (tags.contains(string) || name.startsWith(string)) return true;
-  //   return false;
-  // }
-
-  // @override
-  // int get hashCode => hashValues(
-  //     name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
+  @override
+  int get hashCode => id.hashCode;
 }

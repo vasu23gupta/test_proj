@@ -3,9 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
-import 'package:test_proj/models/customUser.dart';
-import 'package:test_proj/my_flutter_app_icons.dart';
-import 'package:test_proj/screens/add_vendor.dart';
+import 'package:test_proj/shared/my_flutter_app_icons.dart';
 import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
@@ -422,41 +420,33 @@ class _HomeState extends State<Home> {
               heroTag: null,
               child: Icon(Icons.add),
               onPressed: () async {
-                if (user.isAnonymous) {
+                if (user.isAnonymous)
                   showDialog<void>(
                       context: context,
-                      builder: (BuildContext context) {
-                        return LoginPopup(
-                          to: "add a vendor",
-                        );
-                      });
-                  // } else if (!user.emailVerified) {
-                  //   showDialog<void>(
-                  //       context: context,
-                  //       builder: (BuildContext context) {
-                  //         return VerifyEmailPopup(
-                  //           to: "add a vendor",
-                  //         );
-                  //       });
-                } else {
-                  if (userLoc == null) {
-                    userLoc = await locSer.getLocation();
-                    if (userLoc == null) return;
-                  }
+                      builder: (_) => LoginPopup(to: "add a vendor"));
+                // else if (!user.emailVerified) {
+                //   await user.reload();
+                //   if (!user.emailVerified)
+                //     showDialog<void>(
+                //         context: context,
+                //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
+                //   else {
+                //     Vendor vendor = Vendor();
+                //      if (userLoc != null) vendor.coordinates =
+                //         LatLng(userLoc.latitude, userLoc.longitude);
+                //     Navigator.of(context).push(MaterialPageRoute(
+                //         builder: (_) =>
+                //             AddVendorNameDescription(vendor: vendor)));
+                //   }
+                // }
+                else {
                   Vendor vendor = Vendor();
-                  vendor.coordinates =
-                      LatLng(userLoc.latitude, userLoc.longitude);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddVendorNameDescription(
-                        vendor: vendor,
-                      ),
-                      // builder: (context) => AddVendor(
-                      //   userLoc: LatLng(userLoc.latitude, userLoc.longitude),
-                      //),
-                    ),
-                  );
+                  if (userLoc != null)
+                    vendor.coordinates =
+                        LatLng(userLoc.latitude, userLoc.longitude);
+                  Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => AddVendorNameDescription(vendor: vendor),
+                  ));
                 }
               },
             ),

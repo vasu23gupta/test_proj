@@ -1,9 +1,6 @@
 APP:
+ui.
 better map provider.
-auth: verify email, forgot password.
-firebase ios.
-ios testing.
-markers for categories.
 user points, quotas.
 
 RELEASE:

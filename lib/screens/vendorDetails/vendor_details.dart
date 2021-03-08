@@ -429,65 +429,33 @@ class _VendorDetailsState extends State<VendorDetails> {
                     ? Container()
                     : RaisedButton(
                         color: Colors.pink[400],
-                        child: Text(
-                          'Add review',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          if (user.isAnonymous) {
+                        child: Text('Add review',
+                            style: TextStyle(color: Colors.white)),
+                        onPressed: () async {
+                          if (user.isAnonymous)
                             showDialog<void>(
                                 context: context,
-                                builder: (BuildContext context) {
-                                  return LoginPopup(
-                                    to: "add a review",
-                                  );
-                                });
-                            // } else if (!user.emailVerified) {
-                            //   showDialog<void>(
-                            //       context: context,
-                            //       builder: (BuildContext context) {
-                            //         return VerifyEmailPopup(
-                            //           to: "add a review",
-                            //         );
-                            //       });
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddReview(
-                                  vendor: vendor,
-                                ),
-                              ),
-                            );
-                          }
+                                builder: (_) => LoginPopup(to: "add a review"));
+                          // else if (!user.emailVerified) {
+                          //   await user.reload();
+                          //   if (!user.emailVerified)
+                          //     showDialog<void>(
+                          //         context: context,
+                          //         builder: (_) =>
+                          //             VerifyEmailPopup(to: "add a review"));
+                          //   else
+                          //     Navigator.of(context).push(MaterialPageRoute(
+                          //         builder: (_) => AddReview(vendor: vendor)));
+                          // }
+                          else
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => AddReview(vendor: vendor)));
                         },
                       ),
               ],
             ),
           );
   }
-
-/* SizedBox(
-                    height: 300.0,
-                    //width: 350.0,
-                    child: new FlutterMap(
-                      mapController: controller,
-                      options: new MapOptions(
-                        zoom: 18.45,
-                        center: vendorLoc,
-                      ),
-                      layers: [
-                        new TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        new MarkerLayerOptions(
-                          markers: [vendorMarker],
-                        ),
-                      ],
-                    ),
-                  ),*/
 }
 
 class ReviewTile extends StatelessWidget {
