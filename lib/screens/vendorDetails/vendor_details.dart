@@ -45,7 +45,6 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       if (review.review != null) vendorReviews.add(review);
       vendorReviewIndexToBeFetched += 1;
-      //print(vendorReviewIndexToBeFetched);
     });
   }
 
@@ -56,14 +55,12 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getFiveReviews() async {
-    //print(this.vendor.name);
     for (int i = 0;
         getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
         i++) {
       /* setState(() {
         reviewsLoading = true;
       }); */
-      //print(getCurrentIndexToBeFetched());
       await getReviews(vendor.reviewIds[getCurrentIndexToBeFetched()]);
     }
     setState(() {
@@ -92,6 +89,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       this.vendor = v;
       loading = false;
+      print('reviewed: ' + v.reviewed.toString());
     });
   }
 
@@ -108,7 +106,7 @@ class _VendorDetailsState extends State<VendorDetails> {
         });
       }
     });
-    //print(this.vendor.name);
+
     //getFiveReviews(vendorReviewIndexToBeFetched);
     // WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
     //     .getVendor(
@@ -133,11 +131,9 @@ class _VendorDetailsState extends State<VendorDetails> {
           )
           .then((value) => setState(() {
                 vendor = value;
-                print(vendor.reviewIds);
                 loading = false;
               }));
     }); */
-    //if (!loading) print(this.vendor.name);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       user = Provider.of<User>(context, listen: false);
@@ -167,7 +163,6 @@ class _VendorDetailsState extends State<VendorDetails> {
       /* if (vendor.reviewIds.isNotEmpty) {
         List<Review> reviews = new List<Review>();
         for (var reviewId in vendor.reviewIds) {
-          print("e");
           _dbService
               .getReview(
             reviewId,
@@ -175,14 +170,12 @@ class _VendorDetailsState extends State<VendorDetails> {
               .then((value) {
             reviews.add(value);
             changed = true;
-            print(value.review);
           });
         }
         if (changed) {
           setState(() {
             vendorReviews = reviews;
             changed = false;
-            print(vendorReviews.length);
           });
         }
       } */
@@ -190,7 +183,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     if (!reviewsLoading && !loading && getNewReviews) {
       getFiveReviews();
     }
-    //print(vendorReviews.length);
+
     LatLng vendorLoc = widget.vendor.coordinates;
     MapController controller = new MapController();
 
@@ -216,7 +209,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                   children: <Widget>[
                     Container(
                       height: 300.0,
-                      //print(index);
                       child: PhotoViewGallery.builder(
                         scrollPhysics: const BouncingScrollPhysics(),
                         builder: (BuildContext context, int index) {
@@ -363,7 +355,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                       FloatingActionButton(
                         onPressed: () async {
                           //final availableMaps = await MapLauncher.installedMaps;
-                          //print(availableMaps);
 
                           await MapLauncher.showDirections(
                               mapType: MapType.google,

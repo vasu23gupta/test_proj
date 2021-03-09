@@ -2,6 +2,11 @@ APP:
 ui.
 better map provider.
 user points, quotas.
+filters.
+show name everywhere.
+provide userloc everywhere.
+snackbars.
+glogin database.
 
 RELEASE:
 name.

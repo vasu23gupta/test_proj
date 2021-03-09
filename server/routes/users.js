@@ -31,7 +31,8 @@ router.post('/', async (req, res) => {
         if (userObj.firebase.sign_in_provider == 'anonymous') return;
         var userId = userObj.uid;
         const user = new User({
-            _id: userId
+            _id: userId,
+            username: req.body.username
         });
         const savedUser = await user.save();
         res.json(savedUser);

@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 //get one review by id
 router.get('/:reviewId', async (req, res) => {
     try {
-        const review = await Review.findById(req.params.reviewId);
+        const review = await Review.findById(req.params.reviewId).populate('by', 'username');
         res.json(review);
     } catch (err) {
         res.json({ message: err });
@@ -37,7 +37,7 @@ router.get('/userAndVendorId/:vendorId', async (req, res) => {
                 by: userId,
                 vendorId: req.params.vendorId,
             }
-        )
+        ).populate('by', 'username');
         res.json(review[0]);
     } catch (err) {
         res.json({ message: err });
@@ -46,7 +46,6 @@ router.get('/userAndVendorId/:vendorId', async (req, res) => {
 
 //add review
 router.post('/', async (req, res) => {
-
     try {
         var jwt = req.get('authorisation');
         var userObj = await admin.auth().verifyIdToken(jwt);
@@ -85,7 +84,7 @@ router.post('/', async (req, res) => {
                 reviewers: userId
             },
             $inc: { totalReviews: 1, totalStars: savedReview.stars },
-        });
+        }, { new: true });
         const totalReviews = vendor.totalReviews;
         const totalStars = vendor.totalStars;
         var rating = totalStars / totalReviews;
