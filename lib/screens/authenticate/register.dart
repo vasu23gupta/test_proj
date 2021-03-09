@@ -19,6 +19,7 @@ class _RegisterState extends State<Register> {
   //text field state
   String email = '';
   String password = '';
+  String username = '';
   String error = '';
 
   @override
@@ -56,6 +57,19 @@ class _RegisterState extends State<Register> {
                           onChanged: (val) {
                             setState(() => email = val);
                           }),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      TextFormField(
+                        decoration:
+                            textInputDecoration.copyWith(hintText: 'Username'),
+                        obscureText: true,
+                        validator: (val) =>
+                            val.isEmpty ? 'Enter a username' : null,
+                        onChanged: (val) {
+                          setState(() => username = val);
+                        },
+                      ),
                       SizedBox(
                         height: 20.0,
                       ),
