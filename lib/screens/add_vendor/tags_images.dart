@@ -32,7 +32,6 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   List<String> allTags = [];
   Widget tagsSuggestionsOverlay;
   Container emptyContainer = Container();
-  List temp = ['dgssdg', 'rwr', 'vtvb'];
 
   Future<void> addVendor() async {
     setState(() => loading = true);
@@ -259,9 +258,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                     onPressed: () {
                       if (addTagController.text.isNotEmpty) {
                         tags.add(addTagController.text);
-                        setState(() {
-                          addTagController.clear();
-                        });
+                        setState(() => addTagController.clear());
                       }
                     },
                   ),

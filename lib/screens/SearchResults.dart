@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:location/location.dart';
 import 'package:latlong/latlong.dart';
 
 class SearchResults extends StatelessWidget {
   SearchResults({this.markers, this.mapCenter});
 
   final List<Marker> markers;
-  LatLng userLoc;
   final MapController controller = MapController();
   final LatLng mapCenter;
 

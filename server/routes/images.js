@@ -4,8 +4,8 @@ const router = express.Router();
 const Vendor = require('../models/Vendor');
 const Image = require('../models/Image');
 const multer = require('multer');
-const deepai = require('deepai');
-deepai.setApiKey('506d04ca-79e2-4daa-97cd-7eb4c8722a1a');
+//const deepai = require('deepai');
+//deepai.setApiKey('506d04ca-79e2-4daa-97cd-7eb4c8722a1a');
 
 const storage = multer.diskStorage({
     filename: function (req, file, cb) {
@@ -52,34 +52,45 @@ router.post('/', upload.single('vendorImg'), async function (req, res) {
     image.img.data = fs.readFileSync(f.path);
     image.img.contentType = f.mimetype;
     image.vendorId = req.body.vendorId;
-    var score = 0;
     try {
-        var resp = await deepai.callStandardApi("nsfw-detector", {
-            image: fs.createReadStream(f.path),
+        const savedImage = await image.save();
+        var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
+            $push: {
+                images: savedImage._id
+            },
         });
-        score = resp.output.nsfw_score;
-        //console.log(score);
+        res.json(savedImage);
     } catch (err) {
-        console.log(err);
+        res.json({ message: err });
     }
+    // var score = 0;
+    // try {
+    //     var resp = await deepai.callStandardApi("nsfw-detector", {
+    //         image: fs.createReadStream(f.path),
+    //     });
+    //     score = resp.output.nsfw_score;
+    //     //console.log(score);
+    // } catch (err) {
+    //     console.log(err);
+    // }
 
-    if(score<0.15){
-        try {
-            const savedImage = await image.save();
-            var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
-                $push: {
-                    images: savedImage._id
-                },
-            });
+    // if(score<0.15){
+    //     try {
+    //         const savedImage = await image.save();
+    //         var updatedVendor = await Vendor.updateOne({ _id: req.body.vendorId }, {
+    //             $push: {
+    //                 images: savedImage._id
+    //             },
+    //         });
 
-            res.json(savedImage);
-        } catch (err) {
-            res.json({ message: err });
-        }
-    }
-    else{
-        res.json({"imageRejected":true});
-    }
+    //         res.json(savedImage);
+    //     } catch (err) {
+    //         res.json({ message: err });
+    //     }
+    // }
+    // else{
+    //     res.json({"imageRejected":true});
+    // }
 });
 
 router.patch('/deleteImages',async (req,res)=>{
