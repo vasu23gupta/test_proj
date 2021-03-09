@@ -161,8 +161,6 @@ class _HomeState extends State<Home> {
 
   Future<void> updateMarkers() async {
     delayUpdate();
-    //vendorMarkers.clear();
-    //vendors.clear();
     if (filtersHaveChanged) {
       filtersHaveChanged = false;
       vendorMarkers.clear();
@@ -179,90 +177,86 @@ class _HomeState extends State<Home> {
       if (!vendors.contains(vendor)) vendors.add(vendor);
     }
     for (Vendor vendor in vendors) {
-      Marker marker;
-      /* new Marker(
-        //anchorPos: AnchorPos.align(AnchorAlign.center),
+      Marker marker = Marker(
         width: 45.0,
         height: 45.0,
         point: vendor.coordinates,
         builder: (context) => IconButton(
           //alignment: Alignment.bottomRight,
-          icon: Icon(Cusicon.food),
+          icon: vendor.tags.contains('Food')
+              ? Icon(Cusicon.food)
+              : vendor.tags.contains('repair')
+                  ? Icon(Cusicon.repair)
+                  : Icon(Icons.location_on),
           iconSize: 40.0,
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VendorDetails(
-                  vendor: vendor,
-                ),
-              ),
-            );
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => VendorDetails(vendor: vendor)));
           },
         ),
-      );*/
-      (vendor.tags.contains('food') || vendor.tags.contains('Food'))
-          ? marker = new Marker(
-              width: 45.0,
-              height: 45.0,
-              point: vendor.coordinates,
-              builder: (context) => IconButton(
-                //alignment: Alignment.bottomRight,
-                icon: Icon(Cusicon.food),
-                iconSize: 20.0,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VendorDetails(
-                        vendor: vendor,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )
-          : vendor.tags.contains('repair')
-              ? marker = new Marker(
-                  width: 45.0,
-                  height: 45.0,
-                  point: vendor.coordinates,
-                  builder: (context) => IconButton(
-                    //alignment: Alignment.bottomRight,
-                    icon: Icon(Cusicon.repair),
-                    iconSize: 40.0,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VendorDetails(
-                            vendor: vendor,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              : marker = new Marker(
-                  width: 45.0,
-                  height: 45.0,
-                  point: vendor.coordinates,
-                  builder: (context) => IconButton(
-                    //alignment: Alignment.bottomRight,
-                    icon: Icon(Icons.circle),
-                    iconSize: 20.0,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VendorDetails(
-                            vendor: vendor,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
+      );
+      // (vendor.tags.contains('food') || vendor.tags.contains('Food'))
+      //     ? marker = new Marker(
+      //         width: 45.0,
+      //         height: 45.0,
+      //         point: vendor.coordinates,
+      //         builder: (context) => IconButton(
+      //           //alignment: Alignment.bottomRight,
+      //           icon: Icon(Cusicon.food),
+      //           iconSize: 20.0,
+      //           onPressed: () {
+      //             Navigator.push(
+      //               context,
+      //               MaterialPageRoute(
+      //                 builder: (context) => VendorDetails(
+      //                   vendor: vendor,
+      //                 ),
+      //               ),
+      //             );
+      //           },
+      //         ),
+      //       )
+      //     : vendor.tags.contains('repair')
+      //         ? marker = new Marker(
+      //             width: 45.0,
+      //             height: 45.0,
+      //             point: vendor.coordinates,
+      //             builder: (context) => IconButton(
+      //               //alignment: Alignment.bottomRight,
+      //               icon: Icon(Cusicon.repair),
+      //               iconSize: 40.0,
+      //               onPressed: () {
+      //                 Navigator.push(
+      //                   context,
+      //                   MaterialPageRoute(
+      //                     builder: (context) => VendorDetails(
+      //                       vendor: vendor,
+      //                     ),
+      //                   ),
+      //                 );
+      //               },
+      //             ),
+      //           )
+      //         : marker = new Marker(
+      //             width: 45.0,
+      //             height: 45.0,
+      //             point: vendor.coordinates,
+      //             builder: (context) => IconButton(
+      //               //alignment: Alignment.bottomRight,
+      //               icon: Icon(Icons.circle),
+      //               iconSize: 20.0,
+      //               onPressed: () {
+      //                 Navigator.push(
+      //                   context,
+      //                   MaterialPageRoute(
+      //                     builder: (context) => VendorDetails(
+      //                       vendor: vendor,
+      //                     ),
+      //                   ),
+      //                 );
+      //               },
+      //             ),
+      //           );
 
       if (!vendorMarkers.contains(marker)) {
         vendorMarkers.add(marker);

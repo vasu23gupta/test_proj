@@ -455,138 +455,164 @@ class ReviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Column(
-        children: [
-          (review.stars.toDouble() >= 4)
-              ? Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      side: BorderSide(width: 5, color: Colors.green)),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Column(
-                          children: <Widget>[
-                            StarRating(rating: review.stars),
-                            Text(
-                              review.review,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontFamily: 'Montserrat',
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              review.byUser,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Montserrat',
-                                color: Colors.grey,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : ((review.stars.toDouble() < 4 && review.stars.toDouble() > 2)
-                  ? Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          side:
-                              BorderSide(width: 5, color: Colors.amberAccent)),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Column(
-                              children: <Widget>[
-                                StarRating(rating: review.stars),
-                                Text(
-                                  review.review,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  review.byUser,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          side: BorderSide(width: 5, color: Colors.red)),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Column(
-                              children: <Widget>[
-                                StarRating(rating: review.stars),
-                                Text(
-                                  review.review,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  review.byUser,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
-          Card(
-            color: Colors.amberAccent[100],
+        title: Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        ),
+        side: BorderSide(
+          width: 5,
+          color: review.stars > 4
+              ? Colors.green[900]
+              : review.stars > 3
+                  ? Colors.green[300]
+                  : review.stars > 2
+                      ? Colors.yellow
+                      : review.stars > 1
+                          ? Colors.orange
+                          : Colors.red,
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(5),
             child: Column(
               children: <Widget>[
                 StarRating(rating: review.stars),
                 Text(
-                  review.review == null ? '' : review.review,
+                  review.review,
                   style: TextStyle(
-                      fontSize: 24,
-                      fontFamily: 'Montserrat',
-                      color: Colors.black),
+                    fontSize: 24,
+                    fontFamily: 'Montserrat',
+                    color: Colors.black,
+                  ),
                 ),
                 Text(
                   review.byUser,
                   style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Montserrat',
-                      color: Colors.grey),
-                ),
+                    fontSize: 12,
+                    fontFamily: 'Montserrat',
+                    color: Colors.grey,
+                  ),
+                )
               ],
             ),
           ),
         ],
       ),
-    );
+    )
+        // Column(
+        //   children: [
+        //     (review.stars.toDouble() >= 4)
+        //         ? Card(
+        //             elevation: 5,
+        //             shape: RoundedRectangleBorder(
+        //                 borderRadius: BorderRadius.all(Radius.circular(5)),
+        //                 side: BorderSide(width: 5, color: Colors.green)),
+        //             child: Column(
+        //               children: <Widget>[
+        //                 Padding(
+        //                   padding: EdgeInsets.all(5),
+        //                   child: Column(
+        //                     children: <Widget>[
+        //                       StarRating(rating: review.stars),
+        //                       Text(
+        //                         review.review,
+        //                         style: TextStyle(
+        //                           fontSize: 24,
+        //                           fontFamily: 'Montserrat',
+        //                           color: Colors.black,
+        //                         ),
+        //                       ),
+        //                       Text(
+        //                         review.byUser,
+        //                         style: TextStyle(
+        //                           fontSize: 12,
+        //                           fontFamily: 'Montserrat',
+        //                           color: Colors.grey,
+        //                         ),
+        //                       )
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ],
+        //             ),
+        //           )
+        //         : ((review.stars.toDouble() < 4 && review.stars.toDouble() > 2)
+        //             ? Card(
+        //                 elevation: 5,
+        //                 shape: RoundedRectangleBorder(
+        //                     borderRadius: BorderRadius.all(Radius.circular(5)),
+        //                     side:
+        //                         BorderSide(width: 5, color: Colors.amberAccent)),
+        //                 child: Column(
+        //                   children: <Widget>[
+        //                     Padding(
+        //                       padding: EdgeInsets.all(5),
+        //                       child: Column(
+        //                         children: <Widget>[
+        //                           StarRating(rating: review.stars),
+        //                           Text(
+        //                             review.review,
+        //                             style: TextStyle(
+        //                               fontSize: 24,
+        //                               fontFamily: 'Montserrat',
+        //                               color: Colors.black,
+        //                             ),
+        //                           ),
+        //                           Text(
+        //                             review.byUser,
+        //                             style: TextStyle(
+        //                               fontSize: 12,
+        //                               fontFamily: 'Montserrat',
+        //                               color: Colors.grey,
+        //                             ),
+        //                           )
+        //                         ],
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               )
+        //             : Card(
+        //                 elevation: 5,
+        //                 shape: RoundedRectangleBorder(
+        //                     borderRadius: BorderRadius.all(Radius.circular(5)),
+        //                     side: BorderSide(width: 5, color: Colors.red)),
+        //                 child: Column(
+        //                   children: <Widget>[
+        //                     Padding(
+        //                       padding: EdgeInsets.all(5),
+        //                       child: Column(
+        //                         children: <Widget>[
+        //                           StarRating(rating: review.stars),
+        //                           Text(
+        //                             review.review,
+        //                             style: TextStyle(
+        //                               fontSize: 24,
+        //                               fontFamily: 'Montserrat',
+        //                               color: Colors.black,
+        //                             ),
+        //                           ),
+        //                           Text(
+        //                             review.byUser,
+        //                             style: TextStyle(
+        //                               fontSize: 12,
+        //                               fontFamily: 'Montserrat',
+        //                               color: Colors.grey,
+        //                             ),
+        //                           )
+        //                         ],
+        //                       ),
+        //                     ),
+        //                   ],
+        //                 ),
+        //               )),
+        //   ],
+        // ),
+        );
   }
 }
 

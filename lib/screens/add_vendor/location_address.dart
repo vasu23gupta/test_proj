@@ -52,12 +52,9 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
           width: 45.0,
           height: 45.0,
           point: point,
-          builder: (context) => new Container(
-            child: IconButton(
-              icon: Icon(Icons.location_on),
-              iconSize: 80.0,
-              onPressed: () {},
-            ),
+          builder: (context) => Icon(
+            Icons.location_on,
+            size: 40,
           ),
         );
       },
@@ -102,17 +99,11 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
             decoration: textInputDecoration.copyWith(hintText: 'Address'),
           ),
           //errortext
-          Text(
-            errorText,
-            style: TextStyle(color: Colors.red),
-          ),
+          Text(errorText, style: TextStyle(color: Colors.red)),
           //next button
           RaisedButton(
             color: Colors.pink[400],
-            child: Text(
-              'Next >',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: Text('Next >', style: TextStyle(color: Colors.white)),
             onPressed: () {
               if (_addressController.text.isNotEmpty &&
                   vendor.coordinates != null) {
