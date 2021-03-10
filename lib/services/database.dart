@@ -18,12 +18,17 @@ class UserDBService {
 
   Future<http.Response> addUser(String username) async {
     var body = jsonEncode({'username': username});
+    final response = await http.post(usersUrl,
+        headers: {'content-type': 'application/json', 'authorisation': jwt},
+        body: body);
+    return response;
+  }
 
-    final response = await http.post(
-      usersUrl,
-      headers: {'content-type': 'application/json', 'authorisation': jwt},
-      body: body,
-    );
+  Future<http.Response> googleLogin(String username) async {
+    var body = jsonEncode({'username': username});
+    final response = await http.post(usersUrl + 'google',
+        headers: {'content-type': 'application/json', 'authorisation': jwt},
+        body: body);
     return response;
   }
 }
@@ -67,7 +72,7 @@ class VendorDBService {
       for (var imgAsset in images) {
         String path =
             await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
-        Response imgResponse = await VendorDBService.addImage(path, vendorId);
+        await VendorDBService.addImage(path, vendorId);
       }
     }
   }

@@ -71,9 +71,7 @@ class _SignInState extends State<SignIn> {
                         setState(() => password = val);
                       },
                     ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
+                    SizedBox(height: 20.0),
                     RaisedButton(
                         color: Colors.pink[400],
                         child: Text(
@@ -85,22 +83,17 @@ class _SignInState extends State<SignIn> {
                             setState(() => loading = true);
                             dynamic result = await _auth
                                 .signInWithEmailAndPassword(email, password);
-                            if (result == null) {
+                            if (result == null)
                               setState(() {
                                 loading = false;
                                 error =
                                     'could not sign in with those credentials';
                               });
-                            }
                           }
                         }),
-                    SizedBox(
-                      height: 12.0,
-                    ),
-                    Text(
-                      error,
-                      style: TextStyle(color: Colors.red, fontSize: 14.0),
-                    ),
+                    SizedBox(height: 12.0),
+                    Text(error,
+                        style: TextStyle(color: Colors.red, fontSize: 14.0)),
                     RaisedButton(
                       child: Text(
                           '(Continue without signing in) Sign in anonimously'),
@@ -125,13 +118,10 @@ class _SignInState extends State<SignIn> {
                       },
                     ),
                     TextButton(
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ForgotPassword(),
-                        ),
-                      ),
-                      child: Text('Forgot Password'),
-                    ),
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => ForgotPassword())),
+                        child: Text('Forgot Password')),
                   ],
                 ),
               ),
