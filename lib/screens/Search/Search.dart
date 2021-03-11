@@ -75,7 +75,7 @@ class _SearchState extends State<Search> {
 
   Widget buildSuggestions() {
     //print('enter');
-    var selectedIndex;
+    //var selectedIndex;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -92,7 +92,7 @@ class _SearchState extends State<Search> {
                     //print(entered);
                     return ListTile(
                       onTap: () async {
-                        selectedIndex = index;
+                        //selectedIndex = index;
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -1,5 +1,6 @@
 import 'package:latlong/latlong.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/services/database.dart';
 import 'Review.dart';
 
@@ -16,30 +17,40 @@ class Vendor {
   double stars = 0;
   String address;
   DateTime createdOn;
-  //VendorData data;
+  bool reported;
+  bool reviewed;
+  List<Asset> assetImages;
 
-  Vendor(
-      {this.id,
-      this.coordinates,
-      this.name,
-      this.tags,
-      this.description,
-      this.imageIds,
-      this.reviewIds,
-      this.stars,
-      this.createdOn,
-      this.address}) {
+  Vendor({
+    this.id,
+    this.coordinates,
+    this.name,
+    this.tags,
+    this.description,
+    this.imageIds,
+    this.reviewIds,
+    this.stars,
+    this.createdOn,
+    this.address,
+    this.reported,
+    this.reviewed,
+  }) {
     this.images = this.imageIds == null ? null : List(imageIds.length);
   }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
+    List<String> temp = new List<String>();
+    for (var item in json['tags']) {
+      temp.add(item.toString());
+    }
+    this.tags = temp;
     this.id = json['_id'];
     this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
         json['location']['coordinates'][0].toDouble());
   }
 
   factory Vendor.fromJsonSearch(Map<String, dynamic> json) {
-    List<String> temp = new List<String>();
+    List<String> temp = [];
     for (var item in json['tags']) {
       temp.add(item.toString());
     }
@@ -55,9 +66,9 @@ class Vendor {
   }
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
-    List<String> temp = new List<String>();
-    List<String> temp2 = new List<String>();
-    List<String> temp3 = new List<String>();
+    List<String> temp = [];
+    List<String> temp2 = [];
+    List<String> temp3 = [];
     for (var item in json['tags']) {
       temp.add(item.toString());
     }
@@ -78,6 +89,8 @@ class Vendor {
       reviewIds: temp3,
       stars: json['rating'].toDouble(),
       address: json['address'],
+      reported: json['reported'],
+      reviewed: json['reviewed'],
     );
   }
 
@@ -92,22 +105,11 @@ class Vendor {
     return VendorDBService.getVendorImage(imageId);
   }
 
-  // bool operator ==(other) {
-  //   return (other is Vendor &&
-  //           other.id == id &&
-  //           other.name == name &&
-  //           other.coordinates == coordinates &&
-  //           listEquals(other.tags, tags)
-  //       //other.dataId == dataId,
-  //       );
-  // }
+  @override
+  bool operator ==(other) {
+    return (other is Vendor && other.id == id);
+  }
 
-  // bool contains(String string) {
-  //   if (tags.contains(string) || name.startsWith(string)) return true;
-  //   return false;
-  // }
-
-  // @override
-  // int get hashCode => hashValues(
-  //     name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
+  @override
+  int get hashCode => id.hashCode;
 }

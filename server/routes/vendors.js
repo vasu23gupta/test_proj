@@ -1,11 +1,21 @@
 const express = require('express');
-//var fs = require('fs');
 const router = express.Router();
 const Vendor = require('../models/Vendor');
 const User = require('../models/User');
-//const Image = require('../models/Image');
-//const multer  = require('multer')
-//const upload = multer({dest: './uploads/'});
+const admin = require('../firebaseAdminSdk');
+
+// async function getUserFromJwt(jwt) {
+//     var obj = await admin.auth().verifyIdToken(jwt);
+//     if (obj.firebase.sign_in_provider == 'anonymous') { return 'anonymous'; }
+//     var user = await User.findById(obj.uid);
+//     return user;
+// }
+
+//test auth
+// router.post('/test', async (req, res) => {
+//     var user = await getUserFromJwt(req.get('authorisation'));
+// });
+
 
 // get all vendors for debugging
 router.get('/', async (req, res) => {
@@ -20,7 +30,29 @@ router.get('/', async (req, res) => {
 //get one vendor by id
 router.get('/:vendorId', async (req, res) => {
     try {
-        const vendor = await Vendor.findById(req.params.vendorId, { totalStars: 0, totalReviews: 0, reports: 0, totalReports: 0 });
+        var jwt = req.get('authorisation');
+        var userObj = await admin.auth().verifyIdToken(jwt);
+        const userId = userObj.uid;
+
+        var vendor = await Vendor.findById(
+            req.params.vendorId,
+            {
+                totalStars: 0,
+                totalReviews: 0,
+                reports: 0,
+                totalReports: 0,
+            }
+        ).lean(); //lean converts docs to json
+
+        if (vendor.reviewers.includes(userId)) vendor['reviewed'] = true;
+        else vendor['reviewed'] = false;
+
+        if (vendor.reporters.includes(userId)) vendor['reported'] = true;
+        else vendor['reported'] = false;
+
+        delete vendor['reviewers'];
+        delete vendor['reporters'];
+
         res.json(vendor);
     } catch (err) {
         res.json({ message: err });
@@ -31,7 +63,6 @@ router.get('/:vendorId', async (req, res) => {
 router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rating', async (req, res) => {
     //    if (req.params.vendorId=="null") {
     try {
-        //console.log(req.params.name=='true'?1:0);
         const vendor = await Vendor.findById({ _id: req.params.vendorId }, {
             _id: 0,
             __v: 0,
@@ -43,7 +74,6 @@ router.get('/:vendorId/:name/:tags/:location/:description/:images/:reviews/:rati
             reviews: req.params.reviews == 'true' ? 1 : 0,
             rating: req.params.rating == 'true' ? 1 : 0
         });
-        //console.log(vendor);
         res.json(vendor);
     } catch (err) {
         res.json({ message: err });
@@ -80,7 +110,7 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
                 }
             }
         }
-    }, { location: true }).exec(function (err, docs) {
+    }, { location: true, tags:true}).exec(function (err, docs) {
         if (err) {
             res.json({ message: err });
         }
@@ -94,9 +124,9 @@ router.get('/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
 //search
 router.get('/search/:query/:radius/:lat/:long', async (req, res) => {
 
-    let radius=parseFloat(req.params.radius);
-    let lat=parseFloat(req.params.lat);
-    let long=parseFloat(req.params.long);
+    let radius = parseFloat(req.params.radius);
+    let lat = parseFloat(req.params.lat);
+    let long = parseFloat(req.params.long);
     let searchText = req.params.query;
     var radiusSearch;
     searchText = searchText.trim();
@@ -104,7 +134,7 @@ router.get('/search/:query/:radius/:lat/:long', async (req, res) => {
     var searchTexts = searchText.split(" ");
     var searchTextList = [];
     for (i = 0; i < searchTexts.length; i++) {
-        var reg=new RegExp(searchTexts[i],"i")
+        var reg = new RegExp(searchTexts[i], "i")
         searchTextList.push({
             name: {
                 $regex: reg
@@ -122,43 +152,41 @@ router.get('/search/:query/:radius/:lat/:long', async (req, res) => {
         }
     };
     var regexSearchOptions;
-    if(!(radius=="0"))
-    {
+    if (!(radius == "0")) {
         console.log("entered");
-        console.log(radius+" "+long+" "+lat+" "+radius/(1.609*3963.2));
+        console.log(radius + " " + long + " " + lat + " " + radius / (1.609 * 3963.2));
         //https://docs.mongodb.com/manual/reference/operator/query/nearSphere/
-        radiusSearch={
-            "location.coordinates":{
-                $nearSphere:{
+        radiusSearch = {
+            "location.coordinates": {
+                $nearSphere: {
                     $geometry: {
                         type: "Point",
-                        coordinates:[long,lat]
+                        coordinates: [long, lat]
                     },
-                $maxDistance:radius*1000
+                    $maxDistance: radius * 1000
                 }
             }
         };
-        regexSearchOptions={
-            $and:[{$or: searchTextList},radiusSearch]
-            };
-        
+        regexSearchOptions = {
+            $and: [{ $or: searchTextList }, radiusSearch]
+        };
+
     }
-    else{
-        
-    regexSearchOptions = {
-        $or: searchTextList
-    };
+    else {
+
+        regexSearchOptions = {
+            $or: searchTextList
+        };
+        Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location: 1, createdAt: 1 }, function (err, docs) {
+
+            if (err) {
+                res.json({ message: err });
+            } else if (docs) {
+                res.json(docs);
+            }
+
+        });
     }
-    Vendor.find(regexSearchOptions, { name: 1, tags: 1, rating: 1, location:1, createdAt:1}, function (err, docs) {
-
-        if (err) {
-            res.json({ message: err });
-        } else if (docs) {
-            res.json(docs);
-        }
-
-    });
-
     //res.json({message:searchString});
     /* try {
         const vendors=await Vendor.find({$text:{$search: searchString}})
@@ -192,7 +220,7 @@ router.get('/filterOnMap/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
     var swLat = req.params.swLat;
     var swLng = req.params.swLng;
     Vendor.find({
-        tags: { $in: tagsList }, 
+        tags: { $in: tagsList },
         location: {
             $geoWithin: {
                 $geometry: {
@@ -220,22 +248,28 @@ router.get('/filterOnMap/:neLat/:neLng/:swLat/:swLng', async (req, res) => {
 
 //add a vendor
 router.post('/', async (req, res) => {
-    const vendor = new Vendor({
-        name: req.body.name,
-        location: { coordinates: [req.body.lng, req.body.lat] },
-        tags: req.body.tags,
-        description: req.body.description,
-        totalReviews: 0,
-        totalStars: 0,
-        rating: 0,
-        totalReports: 0,
-        postedBy: req.body.userId,
-        address: req.body.address,
-    });
 
     try {
+        var jwt = req.get('authorisation');
+        var userObj = await admin.auth().verifyIdToken(jwt);
+        if (userObj.firebase.sign_in_provider == 'anonymous') return;
+        var userId = userObj.uid;
+
+        const vendor = new Vendor({
+            name: req.body.name,
+            location: { coordinates: [req.body.lng, req.body.lat] },
+            tags: req.body.tags,
+            description: req.body.description,
+            totalReviews: 0,
+            totalStars: 0,
+            rating: 0,
+            totalReports: 0,
+            postedBy: userId,
+            address: req.body.address,
+        });
+
         const savedVendor = await vendor.save();
-        const updatedUser = await User.updateOne({ _id: req.body.userId }, {
+        const updatedUser = await User.updateOne({ _id: userId }, {
             $push: {
                 vendors: savedVendor._id
             },
@@ -307,7 +341,6 @@ module.exports = router;
 
 // router.post('/photo', upload.single('vendorImg'), async function(req,res){
 //     var f = req.file;
-//     //console.log(f);
 //     var image = new Image();
 //     image.img.data = fs.readFileSync(f.path)
 //     image.img.contentType = f.mimetype;
