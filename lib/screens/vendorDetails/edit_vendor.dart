@@ -93,7 +93,7 @@ class _EditVendorState extends State<EditVendor> {
       description = vendor.description;
       imageIds = new List<String>.from(vendor.imageIds);
       netImages = new List<NetworkImage>.from(vendor.images);
-      _putMarkerOnMap(userLoc);
+      _putMarkerOnMap(vendor.coordinates);
     } else
       userLoc = widget.userLoc;
   }

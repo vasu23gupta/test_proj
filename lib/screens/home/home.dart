@@ -400,10 +400,7 @@ class _HomeState extends State<Home> {
                 if (userLoc != null)
                   setState(() =>
                       mapCenter = LatLng(userLoc.latitude, userLoc.longitude));
-                controller.move(
-                  mapCenter,
-                  18.45,
-                );
+                controller.move(mapCenter, 18.45);
               },
             ),
           ),
