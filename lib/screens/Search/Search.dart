@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:test_proj/screens/Search/Filter.dart';
 import 'package:test_proj/screens/SearchResults.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -20,14 +21,19 @@ enum SingingCharacter {
 }
 
 class Search extends StatefulWidget {
+  List<dynamic> searchRes=[];
+  Search({this.searchRes});
   @override
   _SearchState createState() => _SearchState();
 }
 
 class _SearchState extends State<Search> {
+    List<dynamic> searchResults = [];
+
   @override
   void initState() {
     super.initState();
+    this.searchResults=widget.searchRes;
     LocationService locSer = new LocationService();
 
     locSer.getLocation().then((value) {
@@ -76,7 +82,7 @@ class _SearchState extends State<Search> {
       children: <Widget>[
         new Flexible(
           fit: FlexFit.loose,
-          child: this.searchResults.length != 0
+          child: this.searchResults!=null && this.searchResults.length != 0
               ? new ListView.builder(
                   shrinkWrap: true,
                   itemCount: this.searchResults.length,
@@ -126,7 +132,6 @@ class _SearchState extends State<Search> {
   bool sort = false;
   SingingCharacter sortBy = SingingCharacter.Relevance;
   String selectedSortBy = "";
-  List<dynamic> searchResults = [];
   List<String> selectedFilters = [];
   ListView suggestions;
   List<String> tags = ['1', '2,', '3', '4'];
@@ -380,7 +385,24 @@ class _SearchState extends State<Search> {
                   ),
                 ),
                 FlatButton(
-                  onPressed: null,
+                  onPressed: () {
+                    if(this.searchResults!=null && this.searchResults.isNotEmpty)
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (contrex) => Filter(searchResults: this.searchResults,)),
+                    );
+                    else
+                    {
+                      Fluttertoast.showToast(
+                          msg: "Search Results are empty",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
+                    }
+                  },
                   child: Row(
                     children: [
                       Icon(Icons.filter_alt),
@@ -393,7 +415,7 @@ class _SearchState extends State<Search> {
                 ),
                 FlatButton(
                   onPressed: () {
-                    if (this.searchResults.isEmpty) {
+                    if (this.searchResults!=null && this.searchResults.isEmpty) {
                       Fluttertoast.showToast(
                           msg: "Search Results are empty",
                           toastLength: Toast.LENGTH_SHORT,
