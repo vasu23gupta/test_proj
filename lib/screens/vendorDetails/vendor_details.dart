@@ -427,6 +427,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                             showDialog<void>(
                                 context: context,
                                 builder: (_) => LoginPopup(to: "add a review"));
+                          //DONT DELETE
                           // else if (!user.emailVerified) {
                           //   await user.reload();
                           //   if (!user.emailVerified)
@@ -458,9 +459,7 @@ class ReviewTile extends StatelessWidget {
         title: Card(
       elevation: 5,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(5),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(5)),
         side: BorderSide(
           width: 5,
           color: review.stars > 4
@@ -502,117 +501,7 @@ class ReviewTile extends StatelessWidget {
           ),
         ],
       ),
-    )
-        // Column(
-        //   children: [
-        //     (review.stars.toDouble() >= 4)
-        //         ? Card(
-        //             elevation: 5,
-        //             shape: RoundedRectangleBorder(
-        //                 borderRadius: BorderRadius.all(Radius.circular(5)),
-        //                 side: BorderSide(width: 5, color: Colors.green)),
-        //             child: Column(
-        //               children: <Widget>[
-        //                 Padding(
-        //                   padding: EdgeInsets.all(5),
-        //                   child: Column(
-        //                     children: <Widget>[
-        //                       StarRating(rating: review.stars),
-        //                       Text(
-        //                         review.review,
-        //                         style: TextStyle(
-        //                           fontSize: 24,
-        //                           fontFamily: 'Montserrat',
-        //                           color: Colors.black,
-        //                         ),
-        //                       ),
-        //                       Text(
-        //                         review.byUser,
-        //                         style: TextStyle(
-        //                           fontSize: 12,
-        //                           fontFamily: 'Montserrat',
-        //                           color: Colors.grey,
-        //                         ),
-        //                       )
-        //                     ],
-        //                   ),
-        //                 ),
-        //               ],
-        //             ),
-        //           )
-        //         : ((review.stars.toDouble() < 4 && review.stars.toDouble() > 2)
-        //             ? Card(
-        //                 elevation: 5,
-        //                 shape: RoundedRectangleBorder(
-        //                     borderRadius: BorderRadius.all(Radius.circular(5)),
-        //                     side:
-        //                         BorderSide(width: 5, color: Colors.amberAccent)),
-        //                 child: Column(
-        //                   children: <Widget>[
-        //                     Padding(
-        //                       padding: EdgeInsets.all(5),
-        //                       child: Column(
-        //                         children: <Widget>[
-        //                           StarRating(rating: review.stars),
-        //                           Text(
-        //                             review.review,
-        //                             style: TextStyle(
-        //                               fontSize: 24,
-        //                               fontFamily: 'Montserrat',
-        //                               color: Colors.black,
-        //                             ),
-        //                           ),
-        //                           Text(
-        //                             review.byUser,
-        //                             style: TextStyle(
-        //                               fontSize: 12,
-        //                               fontFamily: 'Montserrat',
-        //                               color: Colors.grey,
-        //                             ),
-        //                           )
-        //                         ],
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               )
-        //             : Card(
-        //                 elevation: 5,
-        //                 shape: RoundedRectangleBorder(
-        //                     borderRadius: BorderRadius.all(Radius.circular(5)),
-        //                     side: BorderSide(width: 5, color: Colors.red)),
-        //                 child: Column(
-        //                   children: <Widget>[
-        //                     Padding(
-        //                       padding: EdgeInsets.all(5),
-        //                       child: Column(
-        //                         children: <Widget>[
-        //                           StarRating(rating: review.stars),
-        //                           Text(
-        //                             review.review,
-        //                             style: TextStyle(
-        //                               fontSize: 24,
-        //                               fontFamily: 'Montserrat',
-        //                               color: Colors.black,
-        //                             ),
-        //                           ),
-        //                           Text(
-        //                             review.byUser,
-        //                             style: TextStyle(
-        //                               fontSize: 12,
-        //                               fontFamily: 'Montserrat',
-        //                               color: Colors.grey,
-        //                             ),
-        //                           )
-        //                         ],
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               )),
-        //   ],
-        // ),
-        );
+    ));
   }
 }
 
@@ -643,26 +532,20 @@ class MyReview extends StatelessWidget {
                 switch (value) {
                   case 'Edit':
                     showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return EditReviewDialogue();
-                        });
+                        context: context, builder: (_) => EditReviewDialogue());
                     break;
                   case 'Delete':
                     var res = await VendorDBService.deleteReview(
                         myReview.id, await user.getIdToken());
-                    if (res.statusCode == 200) {
-                      deleteReviewFromUi();
-                    }
+                    if (res.statusCode == 200) deleteReviewFromUi();
+
                     break;
                 }
               },
               itemBuilder: (BuildContext context) {
                 return {'Edit', 'Delete'}.map((String choice) {
                   return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
+                      value: choice, child: Text(choice));
                 }).toList();
               },
             ),

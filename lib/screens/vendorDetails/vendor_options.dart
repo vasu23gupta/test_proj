@@ -22,6 +22,7 @@ class VendorOptions extends StatelessWidget {
               showDialog<void>(
                   context: context,
                   builder: (_) => LoginPopup(to: "edit a vendor"));
+            //DONT DELETE
             // else if (!user.emailVerified) {
             //   await user.reload();
             //   if (!user.emailVerified)
@@ -41,6 +42,7 @@ class VendorOptions extends StatelessWidget {
               showDialog<void>(
                   context: context,
                   builder: (_) => LoginPopup(to: "report a vendor"));
+            //DONT DELETE
             // else if (!user.emailVerified) {
             //   await user.reload();
             //   if (!user.emailVerified)
@@ -86,11 +88,7 @@ class _ReportState extends State<Report> {
   String otherReportString = '';
   String alertText = '';
 
-  void updateReport(String report) {
-    setState(() {
-      selectedReport = report;
-    });
-  }
+  void updateReport(String report) => setState(() => selectedReport = report);
 
   @override
   Widget build(BuildContext context) {
@@ -177,10 +175,8 @@ class _ReportState extends State<Report> {
                       ),
                       RaisedButton(
                         color: Colors.pink[400],
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                        child: Text('Submit',
+                            style: TextStyle(color: Colors.white)),
                         onPressed: () async {
                           if (selectedReport == reasons[3])
                             selectedReport += " " + otherReportString;
@@ -203,7 +199,7 @@ class _ReportState extends State<Report> {
                           }
                         },
                       ),
-                      Text(alertText),
+                      Text(alertText)
                     ],
                   ),
                 ),

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:test_proj/screens/Search/Filter.dart';
-import 'package:test_proj/screens/SearchResults.dart';
+import 'package:test_proj/screens/Search/SearchResults.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
 import '../vendorDetails/vendor_details.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:test_proj/screens/SearchResults.dart';
 
 enum SingingCharacter {
   RatingHighToLow,
@@ -21,19 +20,19 @@ enum SingingCharacter {
 }
 
 class Search extends StatefulWidget {
-  List<dynamic> searchRes=[];
+  List<dynamic> searchRes = [];
   Search({this.searchRes});
   @override
   _SearchState createState() => _SearchState();
 }
 
 class _SearchState extends State<Search> {
-    List<dynamic> searchResults = [];
+  List<dynamic> searchResults = [];
 
   @override
   void initState() {
     super.initState();
-    this.searchResults=widget.searchRes;
+    this.searchResults = widget.searchRes;
     LocationService locSer = new LocationService();
 
     locSer.getLocation().then((value) {
@@ -82,7 +81,7 @@ class _SearchState extends State<Search> {
       children: <Widget>[
         new Flexible(
           fit: FlexFit.loose,
-          child: this.searchResults!=null && this.searchResults.length != 0
+          child: this.searchResults != null && this.searchResults.length != 0
               ? new ListView.builder(
                   shrinkWrap: true,
                   itemCount: this.searchResults.length,
@@ -386,13 +385,16 @@ class _SearchState extends State<Search> {
                 ),
                 FlatButton(
                   onPressed: () {
-                    if(this.searchResults!=null && this.searchResults.isNotEmpty)
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (contrex) => Filter(searchResults: this.searchResults,)),
-                    );
-                    else
-                    {
+                    if (this.searchResults != null &&
+                        this.searchResults.isNotEmpty)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (contrex) => Filter(
+                                  searchResults: this.searchResults,
+                                )),
+                      );
+                    else {
                       Fluttertoast.showToast(
                           msg: "Search Results are empty",
                           toastLength: Toast.LENGTH_SHORT,
@@ -415,7 +417,8 @@ class _SearchState extends State<Search> {
                 ),
                 FlatButton(
                   onPressed: () {
-                    if (this.searchResults!=null && this.searchResults.isEmpty) {
+                    if (this.searchResults != null &&
+                        this.searchResults.isEmpty) {
                       Fluttertoast.showToast(
                           msg: "Search Results are empty",
                           toastLength: Toast.LENGTH_SHORT,
