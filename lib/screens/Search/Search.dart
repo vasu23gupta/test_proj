@@ -20,7 +20,7 @@ enum SingingCharacter {
 }
 
 class Search extends StatefulWidget {
-  List<dynamic> searchRes = [];
+  final List<dynamic> searchRes;
   Search({this.searchRes});
   @override
   _SearchState createState() => _SearchState();
@@ -32,8 +32,8 @@ class _SearchState extends State<Search> {
   @override
   void initState() {
     super.initState();
-    this.searchResults = widget.searchRes;
-    LocationService locSer = new LocationService();
+    this.searchResults = widget.searchRes == null ? [] : widget.searchRes;
+    LocationService locSer = LocationService();
 
     locSer.getLocation().then((value) {
       setState(() {
@@ -47,7 +47,7 @@ class _SearchState extends State<Search> {
   List<Marker> buildMarkers(List<dynamic> searchResults) {
     List<Marker> toShowOnMap = [];
     for (Vendor vendor in searchResults) {
-      toShowOnMap.add(new Marker(
+      toShowOnMap.add(Marker(
         //anchorPos: AnchorPos.align(AnchorAlign.center),
         width: 45.0,
         height: 45.0,
@@ -56,16 +56,9 @@ class _SearchState extends State<Search> {
           //alignment: Alignment.bottomRight,
           icon: Icon(Icons.circle),
           iconSize: 40.0,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VendorDetails(
-                  vendor: vendor,
-                ),
-              ),
-            );
-          },
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => VendorDetails(vendor: vendor),
+          )),
         ),
       ));
     }
@@ -79,10 +72,10 @@ class _SearchState extends State<Search> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        new Flexible(
+        Flexible(
           fit: FlexFit.loose,
           child: this.searchResults != null && this.searchResults.length != 0
-              ? new ListView.builder(
+              ? ListView.builder(
                   shrinkWrap: true,
                   itemCount: this.searchResults.length,
                   itemBuilder: (context, index) {
@@ -90,25 +83,12 @@ class _SearchState extends State<Search> {
                     Vendor resultList = this.searchResults[index];
                     //print(entered);
                     return ListTile(
-                      onTap: () async {
-                        //selectedIndex = index;
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VendorDetails(
-                              vendor: resultList,
-                            ),
-                          ),
-                        );
-                        //Navigator.pop(context);
-                      },
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => VendorDetails(vendor: resultList))),
                       title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            resultList.name,
-                            style: TextStyle(fontSize: 20),
-                          ),
+                          Text(resultList.name, style: TextStyle(fontSize: 20)),
                           Row(
                             children: resultList.tags
                                 .map((x) => Text(x,
@@ -141,11 +121,8 @@ class _SearchState extends State<Search> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context)),
           title: TextField(
             controller: query,
             decoration: InputDecoration(
@@ -155,7 +132,7 @@ class _SearchState extends State<Search> {
             ),
             onChanged: (value) async {
               List<dynamic> sR = [];
-              if (value.length != 0) {
+              if (value.length > 1) {
                 print(value +
                     " " +
                     dropdownValue +
@@ -175,12 +152,10 @@ class _SearchState extends State<Search> {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.clear),
-              onPressed: () {
-                setState(() {
-                  query.text = '';
-                  searchResults = [];
-                });
-              },
+              onPressed: () => setState(() {
+                query.text = '';
+                searchResults = [];
+              }),
             )
           ],
         ),
@@ -203,22 +178,17 @@ class _SearchState extends State<Search> {
                   iconSize: 24,
                   elevation: 16,
                   style: TextStyle(color: Colors.deepPurple),
-                  underline: Container(
-                    height: 2,
-                    color: Colors.deepPurpleAccent,
-                  ),
-                  onChanged: (String newValue) {
-                    setState(() {
-                      dropdownValue = newValue;
-                    });
-                  },
+                  underline:
+                      Container(height: 2, color: Colors.deepPurpleAccent),
+                  onChanged: (String newValue) =>
+                      setState(() => dropdownValue = newValue),
                   items: <String>['no limit: default', '10km', '15km', '5km']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                      .map<DropdownMenuItem<String>>(
+                          (String value) => DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              ))
+                      .toList(),
                 ),
                 FlatButton(
                   onPressed: () {
@@ -387,14 +357,11 @@ class _SearchState extends State<Search> {
                   onPressed: () {
                     if (this.searchResults != null &&
                         this.searchResults.isNotEmpty)
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (contrex) => Filter(
-                                  searchResults: this.searchResults,
-                                )),
-                      );
-                    else {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => Filter(
+                                searchResults: this.searchResults,
+                              )));
+                    else
                       Fluttertoast.showToast(
                           msg: "Search Results are empty",
                           toastLength: Toast.LENGTH_SHORT,
@@ -403,15 +370,11 @@ class _SearchState extends State<Search> {
                           backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 16.0);
-                    }
                   },
                   child: Row(
                     children: [
                       Icon(Icons.filter_alt),
-                      Text("Filter",
-                          style: TextStyle(
-                            fontSize: 15,
-                          )),
+                      Text("Filter", style: TextStyle(fontSize: 15)),
                     ],
                   ),
                 ),
@@ -427,17 +390,11 @@ class _SearchState extends State<Search> {
                           backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 16.0);
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => new SearchResults(
-                            markers: buildMarkers(this.searchResults),
-                            mapCenter: this.userLocFut,
-                          ),
-                        ),
-                      );
-                    }
+                    } else
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => SearchResults(
+                              markers: buildMarkers(this.searchResults),
+                              mapCenter: this.userLocFut)));
                   },
                   child: Row(
                     children: [

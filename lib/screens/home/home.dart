@@ -274,17 +274,13 @@ class _HomeState extends State<Home> {
                   //drawer
                   IconButton(
                     icon: Icon(Icons.menu),
-                    onPressed: () {
-                      _scaffoldKey.currentState.openDrawer();
-                    },
+                    onPressed: () => _scaffoldKey.currentState.openDrawer(),
                   ),
                   //search
                   Expanded(
                     child: TextField(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Search()));
-                      },
+                      onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => Search())),
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(horizontal: 15),

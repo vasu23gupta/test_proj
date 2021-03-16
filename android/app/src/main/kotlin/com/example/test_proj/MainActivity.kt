@@ -1,4 +1,4 @@
-package com.example.test_proj
+package com.VasuGupta.LocalPedia
 
 import io.flutter.embedding.android.FlutterActivity
 
