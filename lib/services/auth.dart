@@ -73,17 +73,20 @@ class AuthService {
   }
 
   //register email pass
-  Future registerWithEmailAndPassword(String email, String password) async {
+  Future<User> registerWithEmailAndPassword(
+      String email, String password, String username) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User user = result.user;
       user.sendEmailVerification();
+      await user.updateProfile(displayName: username);
+      await user.reload();
 
       //create a new document for the user with the uid
       //await UserDatabaseService(uid: user.uid).updateUserName(user.displayName);
       Response response =
-          await UserDBService(jwt: await user.getIdToken()).addUser();
+          await UserDBService(jwt: await user.getIdToken()).addUser(username);
       if (response.statusCode == 200) {
         return user;
         //return _userFromFirebaseUser(user);

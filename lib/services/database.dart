@@ -16,7 +16,7 @@ class UserDBService {
   static String url = "http://10.0.2.2:3000/";
   static String usersUrl = url + "users/";
 
-  Future<http.Response> addUser() async {
+  Future<http.Response> addUser(String username) async {
     var body = jsonEncode({
       'userId': jwt,
     });
