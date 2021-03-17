@@ -8,6 +8,43 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:82667693703:android:76438220276cd429c1ba22",
+        "android_client_info": {
+          "package_name": "com.VasuGupta.LocalPedia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "82667693703-ceo5dd3bjr4kh049n6uj0jvk8n6q036i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.VasuGupta.LocalPedia",
+            "certificate_hash": "dea39e9ad3500b1b708b6fc5f4f8b349c9eafeb8"
+          }
+        },
+        {
+          "client_id": "82667693703-pujcesbbgp9b2t7qokmrmo717h1jonpd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBapVwcjH6VH4x7yTh8zxH5xQA7L268bjU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "82667693703-pujcesbbgp9b2t7qokmrmo717h1jonpd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:82667693703:android:8840b9a30d8a1099c1ba22",
         "android_client_info": {
           "package_name": "com.VasuGupta.test_proj"
@@ -15,11 +52,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "82667693703-m51boomao1eajsdh74c73gnmdsd8i1vv.apps.googleusercontent.com",
+          "client_id": "82667693703-c66076b3j7con4rj6empidkvop3f44og.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.VasuGupta.test_proj",
-            "certificate_hash": "d5e0ec42065625aef50de695543f07fb89bc597e"
+            "certificate_hash": "dea39e9ad3500b1b708b6fc5f4f8b349c9eafeb8"
           }
         },
         {

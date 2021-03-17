@@ -1,10 +1,10 @@
 APP:
+ui.
 better map provider.
-auth: verify email, forgot password.
-firebase ios.
-ios testing.
-markers for categories.
 user points, quotas.
+show name everywhere.
+provide userloc everywhere.
+snackbars.
 
 RELEASE:
 name.

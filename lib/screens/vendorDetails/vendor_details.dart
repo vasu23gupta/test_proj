@@ -45,7 +45,6 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       if (review.review != null) vendorReviews.add(review);
       vendorReviewIndexToBeFetched += 1;
-      //print(vendorReviewIndexToBeFetched);
     });
   }
 
@@ -56,14 +55,12 @@ class _VendorDetailsState extends State<VendorDetails> {
   }
 
   Future<void> getFiveReviews() async {
-    //print(this.vendor.name);
     for (int i = 0;
         getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
         i++) {
       /* setState(() {
         reviewsLoading = true;
       }); */
-      //print(getCurrentIndexToBeFetched());
       await getReviews(vendor.reviewIds[getCurrentIndexToBeFetched()]);
     }
     setState(() {
@@ -92,6 +89,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       this.vendor = v;
       loading = false;
+      print('reviewed: ' + v.reviewed.toString());
     });
   }
 
@@ -108,7 +106,7 @@ class _VendorDetailsState extends State<VendorDetails> {
         });
       }
     });
-    //print(this.vendor.name);
+
     //getFiveReviews(vendorReviewIndexToBeFetched);
     // WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
     //     .getVendor(
@@ -133,11 +131,9 @@ class _VendorDetailsState extends State<VendorDetails> {
           )
           .then((value) => setState(() {
                 vendor = value;
-                print(vendor.reviewIds);
                 loading = false;
               }));
     }); */
-    //if (!loading) print(this.vendor.name);
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       user = Provider.of<User>(context, listen: false);
@@ -167,7 +163,6 @@ class _VendorDetailsState extends State<VendorDetails> {
       /* if (vendor.reviewIds.isNotEmpty) {
         List<Review> reviews = new List<Review>();
         for (var reviewId in vendor.reviewIds) {
-          print("e");
           _dbService
               .getReview(
             reviewId,
@@ -175,14 +170,12 @@ class _VendorDetailsState extends State<VendorDetails> {
               .then((value) {
             reviews.add(value);
             changed = true;
-            print(value.review);
           });
         }
         if (changed) {
           setState(() {
             vendorReviews = reviews;
             changed = false;
-            print(vendorReviews.length);
           });
         }
       } */
@@ -190,7 +183,7 @@ class _VendorDetailsState extends State<VendorDetails> {
     if (!reviewsLoading && !loading && getNewReviews) {
       getFiveReviews();
     }
-    //print(vendorReviews.length);
+
     LatLng vendorLoc = widget.vendor.coordinates;
     MapController controller = new MapController();
 
@@ -216,7 +209,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                   children: <Widget>[
                     Container(
                       height: 300.0,
-                      //print(index);
                       child: PhotoViewGallery.builder(
                         scrollPhysics: const BouncingScrollPhysics(),
                         builder: (BuildContext context, int index) {
@@ -363,7 +355,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                       FloatingActionButton(
                         onPressed: () async {
                           //final availableMaps = await MapLauncher.installedMaps;
-                          //print(availableMaps);
 
                           await MapLauncher.showDirections(
                               mapType: MapType.google,
@@ -429,65 +420,34 @@ class _VendorDetailsState extends State<VendorDetails> {
                     ? Container()
                     : RaisedButton(
                         color: Colors.pink[400],
-                        child: Text(
-                          'Add review',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          if (user.isAnonymous) {
+                        child: Text('Add review',
+                            style: TextStyle(color: Colors.white)),
+                        onPressed: () async {
+                          if (user.isAnonymous)
                             showDialog<void>(
                                 context: context,
-                                builder: (BuildContext context) {
-                                  return LoginPopup(
-                                    to: "add a review",
-                                  );
-                                });
-                            // } else if (!user.emailVerified) {
-                            //   showDialog<void>(
-                            //       context: context,
-                            //       builder: (BuildContext context) {
-                            //         return VerifyEmailPopup(
-                            //           to: "add a review",
-                            //         );
-                            //       });
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddReview(
-                                  vendor: vendor,
-                                ),
-                              ),
-                            );
-                          }
+                                builder: (_) => LoginPopup(to: "add a review"));
+                          //DONT DELETE
+                          // else if (!user.emailVerified) {
+                          //   await user.reload();
+                          //   if (!user.emailVerified)
+                          //     showDialog<void>(
+                          //         context: context,
+                          //         builder: (_) =>
+                          //             VerifyEmailPopup(to: "add a review"));
+                          //   else
+                          //     Navigator.of(context).push(MaterialPageRoute(
+                          //         builder: (_) => AddReview(vendor: vendor)));
+                          // }
+                          else
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (_) => AddReview(vendor: vendor)));
                         },
                       ),
               ],
             ),
           );
   }
-
-/* SizedBox(
-                    height: 300.0,
-                    //width: 350.0,
-                    child: new FlutterMap(
-                      mapController: controller,
-                      options: new MapOptions(
-                        zoom: 18.45,
-                        center: vendorLoc,
-                      ),
-                      layers: [
-                        new TileLayerOptions(
-                          urlTemplate:
-                              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                          subdomains: ['a', 'b', 'c'],
-                        ),
-                        new MarkerLayerOptions(
-                          markers: [vendorMarker],
-                        ),
-                      ],
-                    ),
-                  ),*/
 }
 
 class ReviewTile extends StatelessWidget {
@@ -496,138 +456,52 @@ class ReviewTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Column(
-        children: [
-          (review.stars.toDouble() >= 4)
-              ? Card(
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      side: BorderSide(width: 5, color: Colors.green)),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Column(
-                          children: <Widget>[
-                            StarRating(rating: review.stars),
-                            Text(
-                              review.review,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontFamily: 'Montserrat',
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              review.byUser,
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontFamily: 'Montserrat',
-                                color: Colors.grey,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : ((review.stars.toDouble() < 4 && review.stars.toDouble() > 2)
-                  ? Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          side:
-                              BorderSide(width: 5, color: Colors.amberAccent)),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Column(
-                              children: <Widget>[
-                                StarRating(rating: review.stars),
-                                Text(
-                                  review.review,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  review.byUser,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Card(
-                      elevation: 5,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          side: BorderSide(width: 5, color: Colors.red)),
-                      child: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.all(5),
-                            child: Column(
-                              children: <Widget>[
-                                StarRating(rating: review.stars),
-                                Text(
-                                  review.review,
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Text(
-                                  review.byUser,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontFamily: 'Montserrat',
-                                    color: Colors.grey,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
-          Card(
-            color: Colors.amberAccent[100],
+        title: Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+        side: BorderSide(
+          width: 5,
+          color: review.stars > 4
+              ? Colors.green[900]
+              : review.stars > 3
+                  ? Colors.green[300]
+                  : review.stars > 2
+                      ? Colors.yellow
+                      : review.stars > 1
+                          ? Colors.orange
+                          : Colors.red,
+        ),
+      ),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(5),
             child: Column(
               children: <Widget>[
                 StarRating(rating: review.stars),
                 Text(
-                  review.review == null ? '' : review.review,
+                  review.review,
                   style: TextStyle(
-                      fontSize: 24,
-                      fontFamily: 'Montserrat',
-                      color: Colors.black),
+                    fontSize: 24,
+                    fontFamily: 'Montserrat',
+                    color: Colors.black,
+                  ),
                 ),
                 Text(
                   review.byUser,
                   style: TextStyle(
-                      fontSize: 12,
-                      fontFamily: 'Montserrat',
-                      color: Colors.grey),
-                ),
+                    fontSize: 12,
+                    fontFamily: 'Montserrat',
+                    color: Colors.grey,
+                  ),
+                )
               ],
             ),
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -658,26 +532,20 @@ class MyReview extends StatelessWidget {
                 switch (value) {
                   case 'Edit':
                     showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return EditReviewDialogue();
-                        });
+                        context: context, builder: (_) => EditReviewDialogue());
                     break;
                   case 'Delete':
                     var res = await VendorDBService.deleteReview(
                         myReview.id, await user.getIdToken());
-                    if (res.statusCode == 200) {
-                      deleteReviewFromUi();
-                    }
+                    if (res.statusCode == 200) deleteReviewFromUi();
+
                     break;
                 }
               },
               itemBuilder: (BuildContext context) {
                 return {'Edit', 'Delete'}.map((String choice) {
                   return PopupMenuItem<String>(
-                    value: choice,
-                    child: Text(choice),
-                  );
+                      value: choice, child: Text(choice));
                 }).toList();
               },
             ),

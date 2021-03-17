@@ -17,15 +17,18 @@ class UserDBService {
   static String usersUrl = url + "users/";
 
   Future<http.Response> addUser(String username) async {
-    var body = jsonEncode({
-      'userId': jwt,
-    });
+    var body = jsonEncode({'username': username});
+    final response = await http.post(usersUrl,
+        headers: {'content-type': 'application/json', 'authorisation': jwt},
+        body: body);
+    return response;
+  }
 
-    final response = await http.post(
-      usersUrl,
-      headers: {'content-type': 'application/json', 'authorisation': jwt},
-      body: body,
-    );
+  Future<http.Response> googleLogin(String username) async {
+    var body = jsonEncode({'username': username});
+    final response = await http.post(usersUrl + 'google',
+        headers: {'content-type': 'application/json', 'authorisation': jwt},
+        body: body);
     return response;
   }
 }
@@ -60,7 +63,6 @@ class VendorDBService {
       headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
-    //print(response.body);
     await addImages(images, jsonDecode(response.body)['_id']);
     return response;
   }
@@ -70,8 +72,7 @@ class VendorDBService {
       for (var imgAsset in images) {
         String path =
             await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
-        Response imgResponse = await VendorDBService.addImage(path, vendorId);
-        print(imgResponse.statusCode);
+        await VendorDBService.addImage(path, vendorId);
       }
     }
   }
@@ -177,6 +178,7 @@ class VendorDBService {
 
   static Future<Review> getReviewByReviewId(String id) async {
     final response = await http.get(reviewsUrl + id);
+
     return Review.fromJson(jsonDecode(response.body));
   }
 
@@ -233,10 +235,6 @@ class VendorDBService {
     // Iterable jsonList = json.decode(response.body);
     // List<Vendor> vendors =
     //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
-    //print(vendorsUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng);
-    //print(response.statusCode);
-    //print(json.decode(response.body));
-    //print(response.body);
     List<Vendor> vendors = (json.decode(response.body) as List)
         .map((i) => Vendor.fromJsonCoords(i))
         .toList();
@@ -264,20 +262,6 @@ class VendorDBService {
     // Iterable jsonList = json.decode(response.body);
     // List<Vendor> vendors =
     //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
-    // print(
-    //   vendorsUrl +
-    //       "filterOnMap/" +
-    //       neLat +
-    //       '/' +
-    //       neLng +
-    //       '/' +
-    //       swLat +
-    //       '/' +
-    //       swLng,
-    // );
-    //print(response.statusCode);
-    //print(response.data);
-    //print(response.body);
     List<Vendor> vendors =
         ((response.data) as List).map((i) => Vendor.fromJsonCoords(i)).toList();
     return vendors;
@@ -301,11 +285,8 @@ class VendorDBService {
   //     bool imageIds = false,
   //     bool reviewIds = false,
   //     bool stars = false}) async {
-  //   print(coordinates);
   //   // if (id != null) {
   //   //   final response = await http.get(vendorsUrl + id);
-  //   //   //print('response: ' + response.statusCode.toString());
-  //   //   //print(Vendor.fromJson(jsonDecode(response.body)));
   //   //   return Vendor.fromJson(jsonDecode(response.body));
   //   // } else {
   //   String url = vendorsUrl +
@@ -325,11 +306,9 @@ class VendorDBService {
   //       '/' +
   //       stars.toString() +
   //       '/';
-  //   print(url);
   //   final response = await http.get(url);
 
   //   var json = jsonDecode(response.body);
-  //   print(json);
   //   if (name) vendor.name = json['name'];
   //   if (tags) vendor.tags = List.castFrom<dynamic, String>(json['tags']);
   //   if (coordinates)
@@ -353,7 +332,6 @@ class VendorDBService {
   //   var list = (jsonDecode(response.body))
   //       .map((json) => Vendor.fromJson(json))
   //       .toList();
-  //   //print(list);
   //   return list;
   // }
 }

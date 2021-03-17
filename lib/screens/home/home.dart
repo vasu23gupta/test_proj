@@ -3,9 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
-import 'package:test_proj/models/customUser.dart';
-import 'package:test_proj/my_flutter_app_icons.dart';
-import 'package:test_proj/screens/add_vendor.dart';
+import 'package:test_proj/shared/my_flutter_app_icons.dart';
 import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
@@ -163,112 +161,38 @@ class _HomeState extends State<Home> {
 
   Future<void> updateMarkers() async {
     delayUpdate();
-    //vendorMarkers.clear();
-    //vendors.clear();
     if (filtersHaveChanged) {
       filtersHaveChanged = false;
       vendorMarkers.clear();
       vendors.clear();
     }
     List<Vendor> temp;
-    if (selectedFilters.isEmpty) {
+    if (selectedFilters.isEmpty)
       temp = await VendorDBService.getAllVendorsInScreen(controller.bounds);
-    } else {
+    else
       temp = await VendorDBService.filterVendorsInScreen(
           controller.bounds, selectedFilters);
-    }
-    for (Vendor vendor in temp) {
+
+    for (Vendor vendor in temp)
       if (!vendors.contains(vendor)) vendors.add(vendor);
-    }
+
     for (Vendor vendor in vendors) {
-      Marker marker;
-      /* new Marker(
-        //anchorPos: AnchorPos.align(AnchorAlign.center),
+      Marker marker = Marker(
         width: 45.0,
         height: 45.0,
         point: vendor.coordinates,
-        builder: (context) => IconButton(
-          //alignment: Alignment.bottomRight,
-          icon: Icon(Cusicon.food),
+        builder: (_) => IconButton(
+          icon: vendor.tags.contains('Food')
+              ? Icon(Cusicon.food)
+              : vendor.tags.contains('repair')
+                  ? Icon(Cusicon.repair)
+                  : Icon(Icons.location_on),
           iconSize: 40.0,
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => VendorDetails(
-                  vendor: vendor,
-                ),
-              ),
-            );
-          },
+          onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => VendorDetails(vendor: vendor))),
         ),
-      );*/
-      (vendor.tags.contains('food') || vendor.tags.contains('Food'))
-          ? marker = new Marker(
-              width: 45.0,
-              height: 45.0,
-              point: vendor.coordinates,
-              builder: (context) => IconButton(
-                //alignment: Alignment.bottomRight,
-                icon: Icon(Cusicon.food),
-                iconSize: 20.0,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => VendorDetails(
-                        vendor: vendor,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            )
-          : vendor.tags.contains('repair')
-              ? marker = new Marker(
-                  width: 45.0,
-                  height: 45.0,
-                  point: vendor.coordinates,
-                  builder: (context) => IconButton(
-                    //alignment: Alignment.bottomRight,
-                    icon: Icon(Cusicon.repair),
-                    iconSize: 40.0,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VendorDetails(
-                            vendor: vendor,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                )
-              : marker = new Marker(
-                  width: 45.0,
-                  height: 45.0,
-                  point: vendor.coordinates,
-                  builder: (context) => IconButton(
-                    //alignment: Alignment.bottomRight,
-                    icon: Icon(Icons.circle),
-                    iconSize: 20.0,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VendorDetails(
-                            vendor: vendor,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-
-      if (!vendorMarkers.contains(marker)) {
-        vendorMarkers.add(marker);
-      }
+      );
+      if (!vendorMarkers.contains(marker)) vendorMarkers.add(marker);
     }
     setState(() {});
     // for (var item in vendorMarkers) {
@@ -295,29 +219,21 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             DrawerHeader(
-              child: Text(user.isAnonymous
-                  ? "Guest"
-                  : user.displayName != null
-                      ? user.displayName
-                      : user.uid),
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-            ),
+                child: Text(user.isAnonymous
+                    ? "Guest"
+                    : user.displayName != null
+                        ? user.displayName
+                        : user.uid),
+                decoration: BoxDecoration(color: Colors.blue)),
             ListTile(
                 title: Text('Settings'),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SettingsPage()),
-                  );
-                }),
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => SettingsPage()))),
             ListTile(
-              title: Text(user.isAnonymous ? 'Sign In' : 'Logout'),
-              onTap: () async {
-                await _auth.signOut();
-              },
-            ),
+                title: Text(user.isAnonymous ? 'Sign In' : 'Logout'),
+                onTap: () async {
+                  await _auth.signOut();
+                }),
           ],
         ),
       ),
@@ -325,27 +241,27 @@ class _HomeState extends State<Home> {
         children: <Widget>[
           //map
           FlutterMap(
-            mapController: controller,
-            options: MapOptions(
-              onPositionChanged: (position, hasGesture) async {
-                if (!loadingMarkers && controller.zoom > 16.5) {
-                  updateMarkers();
-                }
-              },
-              zoom: 18.45,
-              center: mapCenter,
-            ),
-            layers: [
-              new TileLayerOptions(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c'],
-              ),
-              new MarkerLayerOptions(
-                markers: vendorMarkers,
-              ),
-            ],
-          ),
+              mapController: controller,
+              options: MapOptions(
+                  maxZoom: 18.45,
+                  onPositionChanged: (position, hasGesture) async {
+                    if (!loadingMarkers &&
+                        controller.zoom > 16.5 &&
+                        selectedFilters.isEmpty)
+                      updateMarkers();
+                    else if (!loadingMarkers &&
+                        controller.zoom > 15 &&
+                        selectedFilters.isNotEmpty) updateMarkers();
+                  },
+                  zoom: 18.45,
+                  center: mapCenter),
+              layers: [
+                TileLayerOptions(
+                    urlTemplate:
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    subdomains: ['a', 'b', 'c']),
+                MarkerLayerOptions(markers: vendorMarkers)
+              ]),
           //search bar
           Positioned(
             top: 60,
@@ -358,17 +274,13 @@ class _HomeState extends State<Home> {
                   //drawer
                   IconButton(
                     icon: Icon(Icons.menu),
-                    onPressed: () {
-                      _scaffoldKey.currentState.openDrawer();
-                    },
+                    onPressed: () => _scaffoldKey.currentState.openDrawer(),
                   ),
                   //search
                   Expanded(
                     child: TextField(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => Search()));
-                      },
+                      onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => Search())),
                       decoration: InputDecoration(
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(horizontal: 15),
@@ -385,9 +297,7 @@ class _HomeState extends State<Home> {
             left: 10,
             child: Row(children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width,
-                child: filterBar(),
-              ),
+                  width: MediaQuery.of(context).size.width, child: filterBar()),
             ]),
             height: 60.0,
             width: MediaQuery.of(context).size.width,
@@ -408,10 +318,7 @@ class _HomeState extends State<Home> {
                 if (userLoc != null)
                   setState(() =>
                       mapCenter = LatLng(userLoc.latitude, userLoc.longitude));
-                controller.move(
-                  mapCenter,
-                  18.45,
-                );
+                controller.move(mapCenter, 18.45);
               },
             ),
           ),
@@ -422,41 +329,34 @@ class _HomeState extends State<Home> {
               heroTag: null,
               child: Icon(Icons.add),
               onPressed: () async {
-                if (user.isAnonymous) {
+                if (user.isAnonymous)
                   showDialog<void>(
                       context: context,
-                      builder: (BuildContext context) {
-                        return LoginPopup(
-                          to: "add a vendor",
-                        );
-                      });
-                  // } else if (!user.emailVerified) {
-                  //   showDialog<void>(
-                  //       context: context,
-                  //       builder: (BuildContext context) {
-                  //         return VerifyEmailPopup(
-                  //           to: "add a vendor",
-                  //         );
-                  //       });
-                } else {
-                  if (userLoc == null) {
-                    userLoc = await locSer.getLocation();
-                    if (userLoc == null) return;
-                  }
+                      builder: (_) => LoginPopup(to: "add a vendor"));
+                //DONT DELETE
+                // else if (!user.emailVerified) {
+                //   await user.reload();
+                //   if (!user.emailVerified)
+                //     showDialog<void>(
+                //         context: context,
+                //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
+                //   else {
+                //     Vendor vendor = Vendor();
+                //      if (userLoc != null) vendor.coordinates =
+                //         LatLng(userLoc.latitude, userLoc.longitude);
+                //     Navigator.of(context).push(MaterialPageRoute(
+                //         builder: (_) =>
+                //             AddVendorNameDescription(vendor: vendor)));
+                //   }
+                // }
+                else {
                   Vendor vendor = Vendor();
-                  vendor.coordinates =
-                      LatLng(userLoc.latitude, userLoc.longitude);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddVendorNameDescription(
-                        vendor: vendor,
-                      ),
-                      // builder: (context) => AddVendor(
-                      //   userLoc: LatLng(userLoc.latitude, userLoc.longitude),
-                      //),
-                    ),
-                  );
+                  if (userLoc != null)
+                    vendor.coordinates =
+                        LatLng(userLoc.latitude, userLoc.longitude);
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) =>
+                          AddVendorNameDescription(vendor: vendor)));
                 }
               },
             ),

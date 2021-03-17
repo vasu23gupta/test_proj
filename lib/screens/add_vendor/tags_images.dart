@@ -32,7 +32,14 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   List<String> allTags = [];
   Widget tagsSuggestionsOverlay;
   Container emptyContainer = Container();
-  List temp = ['dgssdg', 'rwr', 'vtvb'];
+
+  String capitaliseFirstLetter(String string) {
+    return string
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
 
   Future<void> addVendor() async {
     setState(() => loading = true);
@@ -191,19 +198,19 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
       // width: 500,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: suggestions.map((e) {
-          return ListTile(
-            title: Center(child: Text(e)),
-            onTap: () {
-              if (!tags.contains(e)) tags.add(e);
-              setState(() {
-                addTagController.clear();
-                suggestions.clear();
-                tagsSuggestionsOverlay = emptyContainer;
-              });
-            },
-          );
-        }).toList(),
+        children: suggestions
+            .map((e) => ListTile(
+                  title: Center(child: Text(e)),
+                  onTap: () {
+                    if (!tags.contains(e)) tags.add(e);
+                    setState(() {
+                      addTagController.clear();
+                      suggestions.clear();
+                      tagsSuggestionsOverlay = emptyContainer;
+                    });
+                  },
+                ))
+            .toList(),
       ),
     );
   }
@@ -257,12 +264,10 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () {
-                      if (addTagController.text.isNotEmpty) {
-                        tags.add(addTagController.text);
-                        setState(() {
-                          addTagController.clear();
-                        });
-                      }
+                      String tag = capitaliseFirstLetter(addTagController.text);
+                      if (tag.isNotEmpty && !tags.contains(tag)) tags.add(tag);
+
+                      setState(() => addTagController.clear());
                     },
                   ),
                   //show tags

@@ -250,11 +250,13 @@ class _RegisterState extends State<Register> {
                         child: Padding(
                       padding: EdgeInsets.all(8),
                       child: TextFormField(
-                        controller:  _reenterController,
+                        controller: _reenterController,
                         style: TextStyle(color: Colors.green),
                         keyboardType: TextInputType.text,
                         obscureText: true,
-                        validator: (val) => _passwordController.text != val ? 'Passwords do not match':null,
+                        validator: (val) => _passwordController.text != val
+                            ? 'Passwords do not match'
+                            : null,
                         onChanged: (val) {
                           setState(() => _reenterController.text = val);
                         },
