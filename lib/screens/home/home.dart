@@ -258,8 +258,11 @@ class _HomeState extends State<Home> {
               layers: [
                 TileLayerOptions(
                     urlTemplate:
-                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a', 'b', 'c']),
+                        "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                    additionalOptions: {
+                      'subscriptionKey':
+                          '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
+                    }),
                 MarkerLayerOptions(markers: vendorMarkers)
               ]),
           //search bar

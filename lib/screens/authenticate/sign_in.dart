@@ -46,9 +46,7 @@ class _SignInState extends State<SignIn> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
-                    SizedBox(
-                      height: 20.0,
-                    ),
+                    SizedBox(height: 20.0),
                     TextFormField(
                         decoration:
                             textInputDecoration.copyWith(hintText: 'E-mail'),
@@ -57,9 +55,7 @@ class _SignInState extends State<SignIn> {
                         onChanged: (val) {
                           setState(() => email = val);
                         }),
-                    SizedBox(
-                      height: 20.0,
-                    ),
+                    SizedBox(height: 20.0),
                     TextFormField(
                       decoration:
                           textInputDecoration.copyWith(hintText: 'Password'),
@@ -99,11 +95,7 @@ class _SignInState extends State<SignIn> {
                           '(Continue without signing in) Sign in anonimously'),
                       onPressed: () async {
                         dynamic result = await _auth.signInAnon();
-                        if (result == null) {
-                          print('error signing in');
-                        } else {
-                          print('signed in');
-                        }
+                        if (result == null) print('error signing in');
                       },
                     ),
                     RaisedButton(

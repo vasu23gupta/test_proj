@@ -7,7 +7,4 @@ provide userloc everywhere.
 snackbars.
 
 RELEASE:
-name.
 graphics.
-privacy policy, terms of service.
-online server.
