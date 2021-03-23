@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +7,7 @@ import 'package:test_proj/models/Review.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:dio/dio.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UserDBService {
   final String jwt;
@@ -189,9 +189,8 @@ class VendorDBService {
     return Review.fromJson(jsonDecode(response.body));
   }
 
-  static NetworkImage getVendorImage(String imageId) {
-    return NetworkImage(imagesUrl + imageId);
-  }
+  static CachedNetworkImageProvider getVendorImage(String imageId) =>
+      CachedNetworkImageProvider(imagesUrl + imageId);
 
   static Future getVendorsFromSearch(
       String query, String searchRadius, LatLng userLoc) async {

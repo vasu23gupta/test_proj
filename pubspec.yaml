@@ -44,6 +44,7 @@ dependencies:
   fluttertoast: ^7.1.6
   profanity_filter: ^1.0.4
   google_sign_in: 
+  cached_network_image:
 
 
 dev_dependencies:

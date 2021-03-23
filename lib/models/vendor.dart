@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
@@ -94,21 +95,11 @@ class Vendor {
     );
   }
 
-  NetworkImage getImage(int index) {
-    if (images[index] == null) {
-      images[index] = VendorDBService.getVendorImage(imageIds[index]);
-    }
-    return images[index];
-  }
-
-  NetworkImage getImageFomId(String imageId) {
-    return VendorDBService.getVendorImage(imageId);
-  }
+  CachedNetworkImageProvider getImageFomId(String imageId) =>
+      VendorDBService.getVendorImage(imageId);
 
   @override
-  bool operator ==(other) {
-    return (other is Vendor && other.id == id);
-  }
+  bool operator ==(other) => (other is Vendor && other.id == id);
 
   @override
   int get hashCode => id.hashCode;

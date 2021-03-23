@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/add_review.dart';
+import 'package:test_proj/screens/vendorDetails/full_screen_image.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/loading.dart';
@@ -15,7 +16,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:test_proj/shared/starRating.dart';
 import 'package:test_proj/shared/loginPopup.dart';
-import 'package:test_proj/screens/home/home.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -213,6 +213,12 @@ class _VendorDetailsState extends State<VendorDetails> {
                         scrollPhysics: const BouncingScrollPhysics(),
                         builder: (BuildContext context, int index) {
                           return PhotoViewGalleryPageOptions(
+                            onTapDown: (context, details, controllerValue) =>
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (_) => FullScreenImage(
+                                          imageIDs: vendor.imageIds,
+                                          index: index,
+                                        ))),
                             maxScale: PhotoViewComputedScale.contained * 2.0,
                             minScale: PhotoViewComputedScale.contained * 0.8,
                             imageProvider: VendorDBService.getVendorImage(
