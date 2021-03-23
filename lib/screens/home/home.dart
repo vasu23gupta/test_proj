@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/shared/my_flutter_app_icons.dart';
@@ -23,21 +24,23 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  bool loadingMarkers = false;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _loadingMarkers = false;
   final AuthService _auth = AuthService();
-  MapController controller = MapController();
-  LatLng mapCenter = LatLng(28.612757, 77.230445);
-  LocationData userLoc;
-  List<String> selectedFilters = [];
-  String mainSelectedFilter = '';
-  bool filtersHaveChanged = false;
-  List<Vendor> vendors = [];
-  List<Marker> vendorMarkers = [];
-  LocationService locSer = LocationService();
+  MapController _controller = MapController();
+  LatLng _mapCenter = LatLng(28.612757, 77.230445);
+  LocationData _userLoc;
+  List<String> _selectedFilters = [];
+  String _mainSelectedFilter = '';
+  bool _filtersHaveChanged = false;
+  List<Vendor> _vendors = [];
+  List<Marker> _vendorMarkers = [];
+  LocationService _locSer = LocationService();
+  var brightness;
+  bool darkModeOn;
 
-  ListView filterBar() {
-    if (mainSelectedFilter.isEmpty) {
+  ListView _filterBar() {
+    if (_mainSelectedFilter.isEmpty) {
       List<String> filtersKeys = FILTERS.keys.toList();
       return ListView.builder(
         itemCount: FILTERS.length,
@@ -52,11 +55,11 @@ class _HomeState extends State<Home> {
               selected: isSelected[fil],
               selectedColor: Colors.blue,
               onSelected: (val) {
-                filtersHaveChanged = true;
-                selectedFilters.add(fil);
-                mainSelectedFilter = fil;
-                isSelected[mainSelectedFilter] = val;
-                updateMarkers();
+                _filtersHaveChanged = true;
+                _selectedFilters.add(fil);
+                _mainSelectedFilter = fil;
+                isSelected[_mainSelectedFilter] = val;
+                _updateMarkers();
                 setState(() {});
               },
             ),
@@ -66,32 +69,34 @@ class _HomeState extends State<Home> {
       );
     } else {
       return ListView.builder(
-        itemCount: FILTERS[mainSelectedFilter].length + 1,
+        itemCount: FILTERS[_mainSelectedFilter].length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             return Container(
               margin: EdgeInsets.all(5),
               child: FilterChip(
                 labelPadding: EdgeInsets.all(5),
-                label: Text(mainSelectedFilter),
+                label: Text(_mainSelectedFilter),
                 padding: EdgeInsets.all(5),
-                selected: isSelected[mainSelectedFilter],
+                selected: isSelected[_mainSelectedFilter],
                 selectedColor: Colors.red,
                 onSelected: (val) {
-                  isSelected[mainSelectedFilter] = val;
-                  for (int i = 0; i < FILTERS[mainSelectedFilter].length; i++) {
-                    String subFilter = FILTERS[mainSelectedFilter][i];
-                    areSelected[mainSelectedFilter][i] = false;
-                    selectedFilters.removeWhere((String name) {
+                  isSelected[_mainSelectedFilter] = val;
+                  for (int i = 0;
+                      i < FILTERS[_mainSelectedFilter].length;
+                      i++) {
+                    String subFilter = FILTERS[_mainSelectedFilter][i];
+                    areSelected[_mainSelectedFilter][i] = false;
+                    _selectedFilters.removeWhere((String name) {
                       return name == subFilter;
                     });
                   }
-                  filtersHaveChanged = true;
-                  selectedFilters.removeWhere((String name) {
-                    return name == mainSelectedFilter;
+                  _filtersHaveChanged = true;
+                  _selectedFilters.removeWhere((String name) {
+                    return name == _mainSelectedFilter;
                   });
-                  mainSelectedFilter = '';
-                  updateMarkers();
+                  _mainSelectedFilter = '';
+                  _updateMarkers();
                   setState(() {});
                   // String filters = '';
                   // for (var item in widget.selectedFilters) {
@@ -103,7 +108,7 @@ class _HomeState extends State<Home> {
             );
           } else {
             int ind = index - 1;
-            String fil = FILTERS[mainSelectedFilter][ind];
+            String fil = FILTERS[_mainSelectedFilter][ind];
             if (fil != null)
               return Container(
                 margin: EdgeInsets.all(5),
@@ -111,19 +116,19 @@ class _HomeState extends State<Home> {
                   labelPadding: EdgeInsets.all(5),
                   label: Text(fil),
                   padding: EdgeInsets.all(5),
-                  selected: areSelected[mainSelectedFilter][ind],
+                  selected: areSelected[_mainSelectedFilter][ind],
                   selectedColor: Colors.blue,
                   onSelected: (val) {
-                    areSelected[mainSelectedFilter][ind] = val;
-                    filtersHaveChanged = true;
+                    areSelected[_mainSelectedFilter][ind] = val;
+                    _filtersHaveChanged = true;
                     if (val) {
-                      selectedFilters.add(fil);
+                      _selectedFilters.add(fil);
                     } else {
-                      selectedFilters.removeWhere((String name) {
+                      _selectedFilters.removeWhere((String name) {
                         return name == fil;
                       });
                     }
-                    updateMarkers();
+                    _updateMarkers();
                     setState(() {});
                     // String filters = '';
                     // for (var item in widget.selectedFilters) {
@@ -144,44 +149,54 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-        (_) => updateMarkers().whenComplete(() => setState(() {})));
-    locSer.getLocation().then((value) {
+        (_) => _updateMarkers().whenComplete(() => setState(() {})));
+    brightness = SchedulerBinding.instance.window.platformBrightness;
+    darkModeOn = brightness == Brightness.dark;
+    _moveMapToUserLocation();
+  }
+
+  void _moveMapToUserLocation() async {
+    _locSer.getLocation().then((value) {
       if (value != null) {
-        userLoc = value;
-        mapCenter = LatLng(value.latitude, value.longitude);
+        setState(() {
+          _userLoc = value;
+          _mapCenter = LatLng(value.latitude, value.longitude);
+        });
+        _controller.move(_mapCenter, 18.45);
       }
     });
   }
 
-  void delayUpdate() async {
-    loadingMarkers = true;
+  void _delayUpdate() async {
+    _loadingMarkers = true;
     await Future.delayed(Duration(milliseconds: 1000), () {});
-    loadingMarkers = false;
+    _loadingMarkers = false;
   }
 
-  Future<void> updateMarkers() async {
-    delayUpdate();
-    if (filtersHaveChanged) {
-      filtersHaveChanged = false;
-      vendorMarkers.clear();
-      vendors.clear();
+  Future<void> _updateMarkers() async {
+    _delayUpdate();
+    if (_filtersHaveChanged) {
+      _filtersHaveChanged = false;
+      _vendorMarkers.clear();
+      _vendors.clear();
     }
     List<Vendor> temp;
-    if (selectedFilters.isEmpty)
-      temp = await VendorDBService.getAllVendorsInScreen(controller.bounds);
+    if (_selectedFilters.isEmpty)
+      temp = await VendorDBService.getAllVendorsInScreen(_controller.bounds);
     else
       temp = await VendorDBService.filterVendorsInScreen(
-          controller.bounds, selectedFilters);
+          _controller.bounds, _selectedFilters);
 
     for (Vendor vendor in temp)
-      if (!vendors.contains(vendor)) vendors.add(vendor);
+      if (!_vendors.contains(vendor)) _vendors.add(vendor);
 
-    for (Vendor vendor in vendors) {
+    for (Vendor vendor in _vendors) {
       Marker marker = Marker(
         width: 45.0,
         height: 45.0,
         point: vendor.coordinates,
         builder: (_) => IconButton(
+          color: Theme.of(context).iconTheme.color,
           icon: vendor.tags.contains('Food')
               ? Icon(Cusicon.food)
               : vendor.tags.contains('repair')
@@ -192,25 +207,14 @@ class _HomeState extends State<Home> {
               MaterialPageRoute(builder: (_) => VendorDetails(vendor: vendor))),
         ),
       );
-      if (!vendorMarkers.contains(marker)) vendorMarkers.add(marker);
+      if (!_vendorMarkers.contains(marker)) _vendorMarkers.add(marker);
     }
     setState(() {});
-    // for (var item in vendorMarkers) {
-    //   print(item.anchor.hashCode);
-    // }
-    //print(vendors.length);
-    //print(vendorMarkers.length);
   }
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
-    // vendors.forEach((element) {
-    //   print(element.id);
-    //   print(element.name);
-    //   print(element.coordinates.toString());
-    //   print(element.tags.toString());
-    // });
     return Scaffold(
       key: _scaffoldKey,
       drawer: Drawer(
@@ -241,29 +245,30 @@ class _HomeState extends State<Home> {
         children: <Widget>[
           //map
           FlutterMap(
-              mapController: controller,
+              mapController: _controller,
               options: MapOptions(
                   maxZoom: 18.45,
                   onPositionChanged: (position, hasGesture) async {
-                    if (!loadingMarkers &&
-                        controller.zoom > 16.5 &&
-                        selectedFilters.isEmpty)
-                      updateMarkers();
-                    else if (!loadingMarkers &&
-                        controller.zoom > 15 &&
-                        selectedFilters.isNotEmpty) updateMarkers();
+                    if (!_loadingMarkers &&
+                        _controller.zoom > 16.5 &&
+                        _selectedFilters.isEmpty)
+                      _updateMarkers();
+                    else if (!_loadingMarkers &&
+                        _controller.zoom > 15 &&
+                        _selectedFilters.isNotEmpty) _updateMarkers();
                   },
                   zoom: 18.45,
-                  center: mapCenter),
+                  center: _mapCenter),
               layers: [
                 TileLayerOptions(
                     urlTemplate:
-                        "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                        "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                     additionalOptions: {
                       'subscriptionKey':
-                          '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
+                          '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
+                      'theme': darkModeOn ? 'dark' : 'main'
                     }),
-                MarkerLayerOptions(markers: vendorMarkers)
+                MarkerLayerOptions(markers: _vendorMarkers)
               ]),
           //search bar
           Positioned(
@@ -300,7 +305,8 @@ class _HomeState extends State<Home> {
             left: 10,
             child: Row(children: [
               SizedBox(
-                  width: MediaQuery.of(context).size.width, child: filterBar()),
+                  width: MediaQuery.of(context).size.width,
+                  child: _filterBar()),
             ]),
             height: 60.0,
             width: MediaQuery.of(context).size.width,
@@ -316,13 +322,7 @@ class _HomeState extends State<Home> {
             child: FloatingActionButton(
               heroTag: null,
               child: Icon(Icons.location_searching),
-              onPressed: () async {
-                userLoc = await locSer.getLocation();
-                if (userLoc != null)
-                  setState(() =>
-                      mapCenter = LatLng(userLoc.latitude, userLoc.longitude));
-                controller.move(mapCenter, 18.45);
-              },
+              onPressed: _moveMapToUserLocation,
             ),
           ),
           //add vendor
@@ -354,9 +354,9 @@ class _HomeState extends State<Home> {
                 // }
                 else {
                   Vendor vendor = Vendor();
-                  if (userLoc != null)
+                  if (_userLoc != null)
                     vendor.coordinates =
-                        LatLng(userLoc.latitude, userLoc.longitude);
+                        LatLng(_userLoc.latitude, _userLoc.longitude);
                   Navigator.of(context).push(MaterialPageRoute(
                       builder: (_) =>
                           AddVendorNameDescription(vendor: vendor)));

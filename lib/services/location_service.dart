@@ -69,7 +69,7 @@ class HardcoreMath {
   }
 
   static LatLngBounds toBounds(LatLng center) {
-    double distanceFromCenterToCorner = 5000 * sqrt(2.0);
+    double distanceFromCenterToCorner = 1000 * sqrt(2.0);
     LatLng southwestCorner =
         computeOffset(center, distanceFromCenterToCorner, 225.0);
     LatLng northeastCorner =

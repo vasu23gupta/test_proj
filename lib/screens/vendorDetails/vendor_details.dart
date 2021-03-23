@@ -89,7 +89,6 @@ class _VendorDetailsState extends State<VendorDetails> {
     setState(() {
       this.vendor = v;
       loading = false;
-      print('reviewed: ' + v.reviewed.toString());
     });
   }
 

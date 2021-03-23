@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +16,8 @@ import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 
 class EditVendor extends StatefulWidget {
-  final LatLng userLoc;
   final Vendor vendor;
-  EditVendor({this.userLoc, this.vendor});
+  EditVendor({this.vendor});
   @override
   _EditVendorState createState() => _EditVendorState();
 }
@@ -30,10 +28,10 @@ class _EditVendorState extends State<EditVendor> {
   String address = '';
   List<Asset> images = []; // when creating new vendor
   List<NetworkImage> netImages = [];
-  MapController controller = new MapController();
+  MapController controller = MapController();
   List<String> imageIds = [];
   final _formKey = GlobalKey<FormState>();
-  bool loading = false;
+  bool loading = true;
   List<Marker> markers = [];
   LatLng vendorLatLng;
   String error = '';
@@ -49,6 +47,9 @@ class _EditVendorState extends State<EditVendor> {
   Widget tagsSuggestionsOverlay;
   Container emptyContainer = Container();
   final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
+  LocationService _locSer = LocationService();
+  String loadingText;
+  LatLngBounds _mapBounds;
 
   Future<void> loadAssets() async {
     List<Asset> resultList = [];
@@ -59,7 +60,6 @@ class _EditVendorState extends State<EditVendor> {
         selectedAssets: images,
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
-          //actionBarColor: "#abcdef",
           actionBarTitle: "Example App",
           allViewTitle: "All Photos",
           useDetailsView: false,
@@ -88,59 +88,71 @@ class _EditVendorState extends State<EditVendor> {
       editing = true;
       vendor = widget.vendor;
       name = vendor.name;
-      userLoc = vendor.coordinates;
       tags = vendor.tags;
       description = vendor.description;
-      imageIds = new List<String>.from(vendor.imageIds);
-      netImages = new List<NetworkImage>.from(vendor.images);
+      imageIds = List<String>.from(vendor.imageIds);
+      netImages = List<NetworkImage>.from(vendor.images);
       _putMarkerOnMap(vendor.coordinates);
-    } else
-      userLoc = widget.userLoc;
+    }
+    getLocation();
   }
 
-  Future<void> addImages(List<Asset> images, String vendorId) async {
-    for (var imgAsset in images) {
-      String path =
-          await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
-      //Response imgResponse = await VendorDBService.addImage(path, vendorId);
-      //print(imgResponse.statusCode);
-      //imageIds.add(await MultipartFile.fromFile(path));
+  Future getLocation() async {
+    var ld = await _locSer.getLocation();
+    userLoc = LatLng(ld.latitude, ld.longitude);
+    if (userLoc == null) {
+      print('1');
+      setState(() =>
+          loadingText = "You need to enable your location to add a vendor.");
+    } else {
+      _mapBounds = HardcoreMath.toBounds(userLoc);
+      if (vendor.coordinates.longitude < _mapBounds.east &&
+          vendor.coordinates.longitude > _mapBounds.west &&
+          vendor.coordinates.latitude < _mapBounds.north &&
+          vendor.coordinates.latitude > _mapBounds.south) {
+        setState(() => loading = false);
+      } else {
+        print(vendor.coordinates.longitude < _mapBounds.east);
+        print(vendor.coordinates.longitude > _mapBounds.west);
+        print(vendor.coordinates.latitude < _mapBounds.north);
+        print(vendor.coordinates.latitude > _mapBounds.south);
+        setState(
+            () => loadingText = "You must be close to the vendor to edit it.");
+      }
     }
   }
 
   void _putMarkerOnMap(LatLng point) {
-    setState(
-      () {
-        markers = [];
-        vendorLatLng = point;
-        http
-            .get(
-          "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
-        )
-            .then((value) {
-          var json = jsonDecode(value.body);
-          if ((json['responseCode']) == 200) {
-            address = json['results'][0]['formatted_address'];
-            addressController.text = address;
-          } else
-            print(json['responseCode']);
-        });
-        markers.add(
-          Marker(
-            width: 45.0,
-            height: 45.0,
-            point: point,
-            builder: (context) => new Container(
-              child: IconButton(
-                icon: Icon(Icons.location_on),
-                iconSize: 80.0,
-                onPressed: () {},
-              ),
+    setState(() {
+      markers = [];
+      vendorLatLng = point;
+      http
+          .get(
+        "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
+      )
+          .then((value) {
+        var json = jsonDecode(value.body);
+        if ((json['responseCode']) == 200) {
+          address = json['results'][0]['formatted_address'];
+          addressController.text = address;
+        } else
+          print(json['responseCode']);
+      });
+      markers.add(
+        Marker(
+          width: 45.0,
+          height: 45.0,
+          point: point,
+          builder: (context) => Container(
+            child: IconButton(
+              icon: Icon(Icons.location_on),
+              iconSize: 80.0,
+              onPressed: () {},
             ),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
   }
 
   Widget previewImages() {
@@ -203,9 +215,6 @@ class _EditVendorState extends State<EditVendor> {
                 ),
               ],
             );
-            // String path;
-            // FlutterAbsolutePath.getAbsolutePath(images[index].identifier)
-            //     .then((value) => path = value);
           },
           scrollDirection: Axis.horizontal,
         ),
@@ -260,13 +269,8 @@ class _EditVendorState extends State<EditVendor> {
         padding: const EdgeInsets.all(4.0),
         child: InputChip(
           label: Text(tag),
-          onDeleted: () {
-            setState(() {
-              tags.removeWhere((String entry) {
-                return entry == tag;
-              });
-            });
-          },
+          onDeleted: () =>
+              setState(() => tags.removeWhere((String entry) => entry == tag)),
         ),
       );
     }
@@ -276,7 +280,7 @@ class _EditVendorState extends State<EditVendor> {
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
     return loading
-        ? Loading()
+        ? Loading(data: loadingText)
         : Scaffold(
             //backgroundColor: Colors.brown[50],
             appBar: AppBar(title: Text('Add Vendor'), elevation: 0.0),
@@ -295,34 +299,30 @@ class _EditVendorState extends State<EditVendor> {
                               hintText: 'Vendor Name'),
                           validator: (val) =>
                               val.isEmpty ? 'Enter a name' : null,
-                          onChanged: (val) {
-                            setState(() => name = val);
-                          }),
+                          onChanged: (val) => setState(() => name = val)),
                       //map:
                       SizedBox(
                         height: 300.0,
                         width: 350.0,
-                        child: new FlutterMap(
+                        child: FlutterMap(
                           mapController: controller,
-                          options: new MapOptions(
-                            nePanBoundary:
-                                HardcoreMath.toBounds(userLoc).northEast,
-                            swPanBoundary:
-                                HardcoreMath.toBounds(userLoc).southWest,
+                          options: MapOptions(
+                            nePanBoundary: _mapBounds.northEast,
+                            swPanBoundary: _mapBounds.southWest,
                             //bounds: HardcoreMath.toBounds(userLoc),
-                            zoom: 18.45, center: userLoc,
+                            zoom: 18.45, center: vendor.coordinates,
                             onTap: _putMarkerOnMap,
                             //center: new LatLng(userLoc.latitude, userLoc.longitude),
                           ),
                           layers: [
-                            new TileLayerOptions(
-                              urlTemplate:
-                                  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                              subdomains: ['a', 'b', 'c'],
-                            ),
-                            new MarkerLayerOptions(
-                              markers: markers,
-                            ),
+                            TileLayerOptions(
+                                urlTemplate:
+                                    "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=dark&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                                additionalOptions: {
+                                  'subscriptionKey':
+                                      '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
+                                }),
+                            MarkerLayerOptions(markers: markers),
                           ],
                         ),
                       ),
@@ -335,9 +335,7 @@ class _EditVendorState extends State<EditVendor> {
                               textInputDecoration.copyWith(hintText: 'Address'),
                           validator: (val) =>
                               val.isEmpty ? 'Enter address' : null,
-                          onChanged: (val) {
-                            setState(() => address = val);
-                          }),
+                          onChanged: (val) => setState(() => address = val)),
                       //add images
                       SizedBox(height: 20.0),
                       RaisedButton(
@@ -357,9 +355,8 @@ class _EditVendorState extends State<EditVendor> {
                               hintText: 'Vendor description'),
                           validator: (val) =>
                               val.isEmpty ? 'Enter description' : null,
-                          onChanged: (val) {
-                            setState(() => description = val);
-                          }),
+                          onChanged: (val) =>
+                              setState(() => description = val)),
                       //tags:
                       SizedBox(height: 20.0),
                       TextFormField(
@@ -390,13 +387,9 @@ class _EditVendorState extends State<EditVendor> {
                         },
                       ),
                       //show tags
-                      Wrap(
-                        children: tagWidgets.toList(),
-                      ),
+                      Wrap(children: tagWidgets.toList()),
                       //submit button:
-                      SizedBox(
-                        height: 20.0,
-                      ),
+                      SizedBox(height: 20.0),
                       RaisedButton(
                         color: Colors.pink[400],
                         child: Text(
@@ -417,7 +410,7 @@ class _EditVendorState extends State<EditVendor> {
                             description = filter.censor(description);
                             address = filter.censor(address);
                             http.Response result;
-                            if (editing) {
+                            if (editing)
                               result = await VendorDBService.updateVendor(
                                 widget.vendor.id,
                                 name,
@@ -429,7 +422,7 @@ class _EditVendorState extends State<EditVendor> {
                                 description,
                                 address,
                               );
-                            } else {
+                            else
                               result = await VendorDBService.addVendor(
                                 name,
                                 vendorLatLng,
@@ -439,32 +432,26 @@ class _EditVendorState extends State<EditVendor> {
                                 await user.getIdToken(),
                                 address,
                               );
-                            }
+
                             setState(() => loading = false);
 
-                            if (result.statusCode != 200) {
+                            if (result.statusCode != 200)
                               setState(() {
                                 print(result.statusCode);
                                 error = 'could not add vendor';
                               });
-                            } else {
+                            else {
                               Vendor vendor =
                                   Vendor.fromJson(jsonDecode(result.body));
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
+                              Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) =>
-                                      VendorDetails(vendor: vendor),
-                                ),
-                              );
+                                      VendorDetails(vendor: vendor)));
                             }
                           }
                         },
                       ),
                       //error text:
-                      SizedBox(
-                        height: 12.0,
-                      ),
+                      SizedBox(height: 12.0),
                       Text(
                         error,
                         style: TextStyle(color: Colors.red, fontSize: 14.0),

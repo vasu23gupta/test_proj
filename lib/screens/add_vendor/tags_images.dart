@@ -63,18 +63,16 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
 
     setState(() => loading = false);
 
-    if (result.statusCode != 200) {
+    if (result.statusCode != 200)
       setState(() {
         print(result.statusCode);
         errorText = 'Could not add vendor, please try again later.';
       });
-    } else {
+    else {
       Vendor vendor = Vendor.fromJson(jsonDecode(result.body));
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => VendorDetails(vendor: vendor),
-        ),
+        MaterialPageRoute(builder: (context) => VendorDetails(vendor: vendor)),
       );
     }
   }
@@ -151,10 +149,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() {
-      images = resultList;
-      //print(images.length);
-    });
+    setState(() => images = resultList);
   }
 
   Iterable<Widget> get tagWidgets sync* {
@@ -180,15 +175,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     if (query.isNotEmpty) {
       query = query.toLowerCase();
       for (var item in allTags) {
-        //print(item);
-        if (item.toLowerCase().contains(query)) {
-          suggestions.add(item);
-          // print('item $item');
-          // print('query $query');
-        }
-      }
-      for (var item in suggestions) {
-        print('item $item');
+        if (item.toLowerCase().contains(query)) suggestions.add(item);
       }
     }
 

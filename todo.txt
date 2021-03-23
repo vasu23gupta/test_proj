@@ -4,7 +4,6 @@ user points, quotas.
 show name everywhere.
 provide userloc everywhere.
 snackbars.
-capcha.
 store api keys in backend.
 mediaquery.
 categories, subcategories.
