@@ -40,7 +40,7 @@ class _EditVendorState extends State<EditVendor> {
   TextEditingController addressController = TextEditingController();
   LatLng userLoc;
   List<String> imageIdsToBeRemoved = [];
-  bool editing = false;
+  final bool editing = true;
   Vendor vendor;
   List<String> suggestions = [];
   List<String> allTags = [];
@@ -85,7 +85,7 @@ class _EditVendorState extends State<EditVendor> {
     addressController.text = address;
     tagsSuggestionsOverlay = emptyContainer;
     if (widget.vendor != null) {
-      editing = true;
+      //editing = true;
       vendor = widget.vendor;
       name = vendor.name;
       tags = vendor.tags;
@@ -101,7 +101,6 @@ class _EditVendorState extends State<EditVendor> {
     var ld = await _locSer.getLocation();
     userLoc = LatLng(ld.latitude, ld.longitude);
     if (userLoc == null) {
-      print('1');
       setState(() =>
           loadingText = "You need to enable your location to add a vendor.");
     } else {

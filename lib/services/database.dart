@@ -67,14 +67,14 @@ class VendorDBService {
     return response;
   }
 
-  static Future<void> addImages(List<Asset> images, String vendorId) async {
-    if (images.isNotEmpty) {
-      for (var imgAsset in images) {
-        String path =
-            await FlutterAbsolutePath.getAbsolutePath(imgAsset.identifier);
-        await VendorDBService.addImage(path, vendorId);
+  static Future addImages(List<Asset> images, String vendorId) async {
+    List<Future> _futures = [];
+    if (images.isNotEmpty)
+      for (var img in images) {
+        String path = await FlutterAbsolutePath.getAbsolutePath(img.identifier);
+        _futures.add(VendorDBService.addImage(path, vendorId));
       }
-    }
+    return Future.wait(_futures);
   }
 
   static Future<http.Response> updateVendor(
@@ -88,6 +88,8 @@ class VendorDBService {
     String description,
     String address,
   ) async {
+    List<Future> _futures = [];
+
     var body = jsonEncode({
       'name': name,
       'lat': coordinates.latitude.toString(),
@@ -97,16 +99,21 @@ class VendorDBService {
       'description': description,
       'address': address,
     });
-    final response = await http.patch(
+
+    final resFut = http.patch(
       vendorsUrl + "edit/" + id,
       headers: {'content-type': 'application/json'},
       body: body,
     );
+    _futures.add(resFut);
+
     var body2 = jsonEncode({'imageIds': removedImageIds});
-    await addImages(newImages, id);
-    await http.patch(imagesUrl + 'deleteImages',
-        headers: {'content-type': 'application/json'}, body: body2);
-    return response;
+
+    _futures.add(addImages(newImages, id));
+    _futures.add(http.patch(imagesUrl + 'deleteImages',
+        headers: {'content-type': 'application/json'}, body: body2));
+
+    return (await Future.wait(_futures))[0];
   }
 
   static Future<http.Response> addVendorReview(
@@ -122,36 +129,18 @@ class VendorDBService {
       headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
-    //String reviewId = jsonDecode(reviewResponse.body)['_id'];
-
-    // final response = await http.patch(
-    //   vendorsUrl + "review/" + vendor.id,
-    //   headers: {'content-type': 'application/json'},
-    //   body: jsonEncode({'reviewId': reviewId, 'stars': review.stars}),
-    // );
     return reviewResponse;
   }
 
   static Future<http.Response> reportVendor(
       String report, Vendor vendor, String jwt) async {
     var body = jsonEncode({'report': report, 'vendorId': vendor.id});
-
     final reportResponse = await http.post(
       reportsUrl,
       headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
-    //String reportId = jsonDecode(reportResponse.body)['_id'];
 
-    // final response = await http.patch(
-    //   vendorsUrl + "report/" + vendor.id,
-    //   headers: {'content-type': 'application/json'},
-    //   body: jsonEncode({'reportId': reportId}),
-    // );
-
-    //adds report to user's database too,
-    //cant add to anon users cuz they cant report
-    //await UserDatabaseService(uid: userId).addReportToProfile(reportId);
     return reportResponse;
   }
 
@@ -169,16 +158,13 @@ class VendorDBService {
   }
 
   static Future<Vendor> getVendor(String id, String jwt) async {
-    final response = await http.get(
-      vendorsUrl + id,
-      headers: {'authorisation': jwt},
-    );
+    final response =
+        await http.get(vendorsUrl + id, headers: {'authorisation': jwt});
     return Vendor.fromJson(jsonDecode(response.body));
   }
 
   static Future<Review> getReviewByReviewId(String id) async {
     final response = await http.get(reviewsUrl + id);
-
     return Review.fromJson(jsonDecode(response.body));
   }
 
@@ -225,15 +211,11 @@ class VendorDBService {
     String neLng = bounds.northEast.longitude.toString();
     String swLat = bounds.southWest.latitude.toString();
     String swLng = bounds.southWest.longitude.toString();
+
     final response = await http.get(
         vendorsUrl + neLat + '/' + neLng + '/' + swLat + '/' + swLng,
-        headers: {
-          'content-type': 'application/json',
-        });
+        headers: {'content-type': 'application/json'});
 
-    // Iterable jsonList = json.decode(response.body);
-    // List<Vendor> vendors =
-    //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
     List<Vendor> vendors = (json.decode(response.body) as List)
         .map((i) => Vendor.fromJsonCoords(i))
         .toList();
@@ -258,9 +240,6 @@ class VendorDBService {
             swLng,
         queryParameters: {'query': filters});
 
-    // Iterable jsonList = json.decode(response.body);
-    // List<Vendor> vendors =
-    //     List<Vendor>.from(jsonList.map((i) => Vendor.fromJson(i)));
     List<Vendor> vendors =
         ((response.data) as List).map((i) => Vendor.fromJsonCoords(i)).toList();
     return vendors;
@@ -269,7 +248,6 @@ class VendorDBService {
   static Future<http.Response> deleteReview(String reviewId, String jwt) async {
     var res = await http
         .delete(reviewsUrl + reviewId, headers: {'authorisation': jwt});
-    print(res.body);
     return res;
   }
 

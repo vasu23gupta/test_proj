@@ -359,8 +359,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                       ),
                       FloatingActionButton(
                         onPressed: () async {
-                          //final availableMaps = await MapLauncher.installedMaps;
-
                           await MapLauncher.showDirections(
                               mapType: MapType.google,
                               destination: Coords(vendor.coordinates.latitude,

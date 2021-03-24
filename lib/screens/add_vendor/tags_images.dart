@@ -279,11 +279,9 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                         vendor.tags = tags;
                         vendor.assetImages = images;
                         await addVendor();
-                      } else {
-                        setState(() {
-                          errorText = "Please select atleast one tag and image";
-                        });
-                      }
+                      } else
+                        setState(() => errorText =
+                            "Please select atleast one tag and image");
                     },
                   ),
                 ],

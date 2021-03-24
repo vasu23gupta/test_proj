@@ -36,9 +36,8 @@ class AuthService {
     }
   }
 
-  Future forgotPassword(String email) async {
-    await _auth.sendPasswordResetEmail(email: email);
-  }
+  Future forgotPassword(String email) async =>
+      await _auth.sendPasswordResetEmail(email: email);
 
   //sign in with email and password
   Future signInWithEmailAndPassword(String email, String password) async {
