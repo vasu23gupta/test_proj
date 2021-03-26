@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 import 'package:test_proj/screens/Search/Filter.dart';
 import 'package:test_proj/screens/Search/SearchResults.dart';
 import 'package:test_proj/services/database.dart';
@@ -361,15 +361,15 @@ class _SearchState extends State<Search> {
                           builder: (_) => Filter(
                                 searchResults: this.searchResults,
                               )));
-                    else
-                      Fluttertoast.showToast(
-                          msg: "Search Results are empty",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
+                    // else
+                    //   Fluttertoast.showToast(
+                    //       msg: "Search Results are empty",
+                    //       toastLength: Toast.LENGTH_SHORT,
+                    //       gravity: ToastGravity.CENTER,
+                    //       timeInSecForIosWeb: 1,
+                    //       backgroundColor: Colors.red,
+                    //       textColor: Colors.white,
+                    //       fontSize: 16.0);
                   },
                   child: Row(
                     children: [
@@ -382,14 +382,14 @@ class _SearchState extends State<Search> {
                   onPressed: () {
                     if (this.searchResults != null &&
                         this.searchResults.isEmpty) {
-                      Fluttertoast.showToast(
-                          msg: "Search Results are empty",
-                          toastLength: Toast.LENGTH_SHORT,
-                          gravity: ToastGravity.CENTER,
-                          timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.red,
-                          textColor: Colors.white,
-                          fontSize: 16.0);
+                      // Fluttertoast.showToast(
+                      //     msg: "Search Results are empty",
+                      //     toastLength: Toast.LENGTH_SHORT,
+                      //     gravity: ToastGravity.CENTER,
+                      //     timeInSecForIosWeb: 1,
+                      //     backgroundColor: Colors.red,
+                      //     textColor: Colors.white,
+                      //     fontSize: 16.0);
                     } else
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => SearchResults(
