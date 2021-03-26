@@ -41,6 +41,7 @@ dependencies:
   flutter_rating_bar: ^3.2.0+1
   profanity_filter: ^1.0.4
   google_sign_in: 
+  font_awesome_flutter: ^8.8.1
   cached_network_image:
 
 

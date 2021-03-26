@@ -3,6 +3,9 @@ import 'package:test_proj/screens/authenticate/forgot_password.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import 'color.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
@@ -22,57 +25,251 @@ class _SignInState extends State<SignIn> {
   String password = '';
   String error = '';
 
-  @override
-  Widget build(BuildContext context) {
-    return loading
-        ? Loading()
-        : Scaffold(
-            appBar: AppBar(
-              elevation: 0.0,
-              title: Text('Sign in'),
-              actions: <Widget>[
-                FlatButton.icon(
-                  icon: Icon(Icons.person),
-                  label: Text('Register'),
-                  onPressed: () {
-                    widget.toggleView();
-                  },
-                )
+  Widget _buildLogo() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 70),
+          child: Text(
+            'LOCALPEDIA',
+            style: TextStyle(
+              fontSize: MediaQuery.of(context).size.height / 25,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildEmailRow() {
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: TextFormField(
+          style: TextStyle(color: Colors.green),
+          decoration: InputDecoration(
+              prefixIcon: Icon(
+                Icons.email,
+                color: mainColor,
+              ),
+              hintText: 'Enter E-mail',
+              hintStyle: TextStyle(color: Colors.green),
+              labelText: 'E-mail'),
+          validator: (val) => val.isEmpty ? 'Enter an email' : null,
+          onChanged: (val) {
+            setState(() => email = val);
+          }),
+    );
+  }
+
+  Widget _buildPasswordRow() {
+    return Padding(
+      padding: EdgeInsets.all(8),
+      child: TextFormField(
+        style: TextStyle(color: Colors.green),
+        keyboardType: TextInputType.text,
+        obscureText: true,
+        validator: (val) =>
+            val.length < 6 ? 'Enter a password 6+ characters long' : null,
+        onChanged: (val) {
+          setState(() => password = val);
+        },
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            Icons.lock,
+            color: mainColor,
+          ),
+          hintText: 'Enter Password',
+          hintStyle: TextStyle(color: Colors.green),
+          labelText: 'Password',
+        ),
+      ),
+    );
+  }
+
+  Widget _buildForgetPasswordButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        FlatButton(
+          onPressed: () {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => ForgotPassword()));
+          },
+          child: Text("Forgot Password"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          height: 1.4 * (MediaQuery.of(context).size.height / 20),
+          width: 5 * (MediaQuery.of(context).size.width / 10),
+          margin: EdgeInsets.only(bottom: 20),
+          child: RaisedButton(
+            elevation: 5.0,
+            color: mainColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30.0),
+            ),
+            onPressed: () async {
+              if (_formKey.currentState.validate()) {
+                setState(() => loading = true);
+                dynamic result =
+                    await _auth.signInWithEmailAndPassword(email, password);
+                if (result == null)
+                  setState(() {
+                    loading = false;
+                    error = 'could not sign in with those credentials';
+                  });
+              }
+            },
+            child: Text(
+              "Login",
+              style: TextStyle(
+                color: Colors.white,
+                letterSpacing: 1.5,
+                fontSize: MediaQuery.of(context).size.height / 40,
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildOrRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(bottom: 20),
+          child: Text(
+            '- OR -',
+            style: TextStyle(
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildSocialBtnRow() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        GestureDetector(
+          onTap: () async {
+            dynamic result = await _auth.signInWithGoogle();
+            if (result == null) {
+              print('error signing in');
+            } else {
+              print('signed in');
+            }
+          },
+          child: Container(
+            height: 60,
+            width: 60,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: mainColor,
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 2),
+                    blurRadius: 6.0)
               ],
             ),
-            body: Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+            child: Icon(
+              FontAwesomeIcons.google,
+              color: Colors.white,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildContainer() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        ClipRRect(
+          borderRadius: BorderRadius.all(
+            Radius.circular(20),
+          ),
+          child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: 20.0),
-                    TextFormField(
-                        decoration:
-                            textInputDecoration.copyWith(hintText: 'E-mail'),
-                        validator: (val) =>
-                            val.isEmpty ? 'Enter an email' : null,
-                        onChanged: (val) {
-                          setState(() => email = val);
-                        }),
-                    SizedBox(height: 20.0),
-                    TextFormField(
-                      decoration:
-                          textInputDecoration.copyWith(hintText: 'Password'),
-                      obscureText: true,
-                      validator: (val) => val.length < 6
-                          ? 'Enter a password 6+ characters long'
-                          : null,
-                      onChanged: (val) {
-                        setState(() => password = val);
-                      },
+                    SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: TextFormField(
+                            style: TextStyle(color: Colors.green),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.email,
+                                  color: mainColor,
+                                ),
+                                hintText: 'Enter E-mail',
+                                hintStyle: TextStyle(color: Colors.green),
+                                labelText: 'E-mail'),
+                            validator: (val) =>
+                                val.isEmpty ? 'Enter an email' : null,
+                            onChanged: (val) {
+                              setState(() => email = val);
+                            }),
+                      ),
                     ),
-                    SizedBox(height: 20.0),
-                    RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text(
-                          'Sign in',
-                          style: TextStyle(color: Colors.white),
+                    SizedBox(
+                        child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: TextFormField(
+                        style: TextStyle(color: Colors.green),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (val) => val.length < 6
+                            ? 'Enter a password 6+ characters long'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => password = val);
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: mainColor,
+                          ),
+                          hintText: 'Enter Password',
+                          hintStyle: TextStyle(color: Colors.green),
+                          labelText: 'Password',
+                        ),
+                      ),
+                    )),
+                    SizedBox(
+                      height: 1.4 * (MediaQuery.of(context).size.height / 20),
+                      width: 5 * (MediaQuery.of(context).size.width / 10),
+                      child: RaisedButton(
+                        elevation: 5.0,
+                        color: mainColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
                         ),
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
@@ -86,7 +283,17 @@ class _SignInState extends State<SignIn> {
                                     'could not sign in with those credentials';
                               });
                           }
-                        }),
+                        },
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                            color: Colors.white,
+                            letterSpacing: 1.5,
+                            fontSize: MediaQuery.of(context).size.height / 40,
+                          ),
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 12.0),
                     Text(error,
                         style: TextStyle(color: Colors.red, fontSize: 14.0)),
@@ -98,26 +305,173 @@ class _SignInState extends State<SignIn> {
                         if (result == null) print('error signing in');
                       },
                     ),
-                    RaisedButton(
-                      child: Text('Sign in with google'),
-                      onPressed: () async {
-                        dynamic result = await _auth.signInWithGoogle();
-                        if (result == null) {
-                          print('error signing in');
-                        } else {
-                          print('signed in');
-                        }
-                      },
+                    SizedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              '- OR -',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                    TextButton(
-                        onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) => ForgotPassword())),
-                        child: Text('Forgot Password')),
+                    SizedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () async {
+                              dynamic result = await _auth.signInWithGoogle();
+                              if (result == null) {
+                                print('error signing in');
+                              } else {
+                                print('signed in');
+                              }
+                            },
+                            child: Container(
+                              height: 60,
+                              width: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: mainColor,
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black26,
+                                      offset: Offset(0, 2),
+                                      blurRadius: 6.0)
+                                ],
+                              ),
+                              child: Icon(
+                                FontAwesomeIcons.google,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
                   ],
+                ),
+              )
+              /* Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+               
+                _buildRegisterButton(),
+              ],
+            ),*/
+              ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildforgotpassword() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          height: 1.4 * (MediaQuery.of(context).size.height / 35),
+          width: 5 * (MediaQuery.of(context).size.width / 10),
+          margin: EdgeInsets.only(bottom: 20),
+          child: RaisedButton(
+            elevation: 5.0,
+            color: mainColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            onPressed: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => ForgotPassword())),
+            child: Text(
+              "Forgot password",
+              style: TextStyle(
+                color: Colors.white,
+                letterSpacing: 1.5,
+                fontSize: MediaQuery.of(context).size.height / 100,
+              ),
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildSignUpBtn() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.only(top: 40),
+          child: FlatButton(
+            onPressed: () {
+              widget.toggleView();
+            },
+            child: RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: 'Dont have an account? ',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: MediaQuery.of(context).size.height / 40,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                TextSpan(
+                  text: 'Sign Up',
+                  style: TextStyle(
+                    color: mainColor,
+                    fontSize: MediaQuery.of(context).size.height / 40,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              ]),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Color(0xfff2f3f7),
+        body: Stack(
+          children: <Widget>[
+            Container(
+              height: MediaQuery.of(context).size.height * 0.7,
+              width: MediaQuery.of(context).size.width,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: mainColor,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: const Radius.circular(70),
+                    bottomRight: const Radius.circular(70),
+                  ),
                 ),
               ),
             ),
-          );
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                _buildLogo(),
+                _buildContainer(),
+                _buildforgotpassword(),
+                _buildSignUpBtn(),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
