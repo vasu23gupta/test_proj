@@ -32,7 +32,14 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   List<String> allTags = [];
   Widget tagsSuggestionsOverlay;
   Container emptyContainer = Container();
-  List temp = ['dgssdg', 'rwr', 'vtvb'];
+
+  String capitaliseFirstLetter(String string) {
+    return string
+        .toLowerCase()
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
 
   Future<void> addVendor() async {
     setState(() => loading = true);
@@ -56,18 +63,16 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
 
     setState(() => loading = false);
 
-    if (result.statusCode != 200) {
+    if (result.statusCode != 200)
       setState(() {
         print(result.statusCode);
         errorText = 'Could not add vendor, please try again later.';
       });
-    } else {
+    else {
       Vendor vendor = Vendor.fromJson(jsonDecode(result.body));
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => VendorDetails(vendor: vendor),
-        ),
+        MaterialPageRoute(builder: (context) => VendorDetails(vendor: vendor)),
       );
     }
   }
@@ -144,10 +149,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() {
-      images = resultList;
-      //print(images.length);
-    });
+    setState(() => images = resultList);
   }
 
   Iterable<Widget> get tagWidgets sync* {
@@ -173,15 +175,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     if (query.isNotEmpty) {
       query = query.toLowerCase();
       for (var item in allTags) {
-        //print(item);
-        if (item.toLowerCase().contains(query)) {
-          suggestions.add(item);
-          // print('item $item');
-          // print('query $query');
-        }
-      }
-      for (var item in suggestions) {
-        print('item $item');
+        if (item.toLowerCase().contains(query)) suggestions.add(item);
       }
     }
 
@@ -191,19 +185,19 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
       // width: 500,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: suggestions.map((e) {
-          return ListTile(
-            title: Center(child: Text(e)),
-            onTap: () {
-              if (!tags.contains(e)) tags.add(e);
-              setState(() {
-                addTagController.clear();
-                suggestions.clear();
-                tagsSuggestionsOverlay = emptyContainer;
-              });
-            },
-          );
-        }).toList(),
+        children: suggestions
+            .map((e) => ListTile(
+                  title: Center(child: Text(e)),
+                  onTap: () {
+                    if (!tags.contains(e)) tags.add(e);
+                    setState(() {
+                      addTagController.clear();
+                      suggestions.clear();
+                      tagsSuggestionsOverlay = emptyContainer;
+                    });
+                  },
+                ))
+            .toList(),
       ),
     );
   }
@@ -257,12 +251,10 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                       style: TextStyle(color: Colors.white),
                     ),
                     onPressed: () {
-                      if (addTagController.text.isNotEmpty) {
-                        tags.add(addTagController.text);
-                        setState(() {
-                          addTagController.clear();
-                        });
-                      }
+                      String tag = capitaliseFirstLetter(addTagController.text);
+                      if (tag.isNotEmpty && !tags.contains(tag)) tags.add(tag);
+
+                      setState(() => addTagController.clear());
                     },
                   ),
                   //show tags
@@ -287,11 +279,9 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                         vendor.tags = tags;
                         vendor.assetImages = images;
                         await addVendor();
-                      } else {
-                        setState(() {
-                          errorText = "Please select atleast one tag and image";
-                        });
-                      }
+                      } else
+                        setState(() => errorText =
+                            "Please select atleast one tag and image");
                     },
                   ),
                 ],

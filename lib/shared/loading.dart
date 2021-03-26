@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 
 class Loading extends StatelessWidget {
+  final String data;
+  Loading({this.data});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.brown[100],
-      child: Center(
-        child: CircularProgressIndicator(),
-      ),
+    return Scaffold(
+      body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        data == null
+            ? Text('')
+            : Text(
+                data,
+                style: TextStyle(
+                    color: Colors.red,
+                    decoration: TextDecoration.none,
+                    fontSize: 30),
+              ),
+        if (data == null) Center(child: CircularProgressIndicator()),
+      ]),
     );
   }
 }

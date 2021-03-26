@@ -1,13 +1,14 @@
 APP:
-better map provider.
-auth: verify email, forgot password.
-firebase ios.
-ios testing.
-markers for categories.
+ui.
 user points, quotas.
+show name everywhere.
+provide userloc everywhere.
+snackbars.
+store api keys in backend.
+mediaquery.
+categories, subcategories.
+smooth home loading.
+
 
 RELEASE:
-name.
 graphics.
-privacy policy, terms of service.
-online server.

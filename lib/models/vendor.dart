@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
@@ -39,13 +40,11 @@ class Vendor {
   }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
-    List<String> temp = new List<String>();
-    for (var item in json['tags']) {
-      temp.add(item.toString());
-    }
+    List<String> temp = [];
+    for (var item in json['tags']) temp.add(item.toString());
     this.tags = temp;
     this.id = json['_id'];
-    this.coordinates = new LatLng(json['location']['coordinates'][1].toDouble(),
+    this.coordinates = LatLng(json['location']['coordinates'][1].toDouble(),
         json['location']['coordinates'][0].toDouble());
   }
 
@@ -94,33 +93,12 @@ class Vendor {
     );
   }
 
-  NetworkImage getImage(int index) {
-    if (images[index] == null) {
-      images[index] = VendorDBService.getVendorImage(imageIds[index]);
-    }
-    return images[index];
-  }
+  CachedNetworkImageProvider getImageFomId(String imageId) =>
+      VendorDBService.getVendorImage(imageId);
 
-  NetworkImage getImageFomId(String imageId) {
-    return VendorDBService.getVendorImage(imageId);
-  }
+  @override
+  bool operator ==(other) => (other is Vendor && other.id == id);
 
-  // bool operator ==(other) {
-  //   return (other is Vendor &&
-  //           other.id == id &&
-  //           other.name == name &&
-  //           other.coordinates == coordinates &&
-  //           listEquals(other.tags, tags)
-  //       //other.dataId == dataId,
-  //       );
-  // }
-
-  // bool contains(String string) {
-  //   if (tags.contains(string) || name.startsWith(string)) return true;
-  //   return false;
-  // }
-
-  // @override
-  // int get hashCode => hashValues(
-  //     name.hashCode, id.hashCode, coordinates.hashCode, tags.hashCode);
+  @override
+  int get hashCode => id.hashCode;
 }

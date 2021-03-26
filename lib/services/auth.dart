@@ -36,9 +36,8 @@ class AuthService {
     }
   }
 
-  Future forgotPassword(String email) async {
-    await _auth.sendPasswordResetEmail(email: email);
-  }
+  Future forgotPassword(String email) async =>
+      await _auth.sendPasswordResetEmail(email: email);
 
   //sign in with email and password
   Future signInWithEmailAndPassword(String email, String password) async {
@@ -61,11 +60,12 @@ class AuthService {
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
       final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+          accessToken: googleAuth.accessToken, idToken: googleAuth.idToken);
       UserCredential result = await _auth.signInWithCredential(credential);
-      return result.user;
+      User user = result.user;
+      await UserDBService(jwt: await user.getIdToken())
+          .googleLogin(user.displayName);
+      return user;
     } catch (e) {
       print(e.toString());
       return null;

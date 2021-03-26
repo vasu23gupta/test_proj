@@ -52,12 +52,9 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
           width: 45.0,
           height: 45.0,
           point: point,
-          builder: (context) => new Container(
-            child: IconButton(
-              icon: Icon(Icons.location_on),
-              iconSize: 80.0,
-              onPressed: () {},
-            ),
+          builder: (context) => Icon(
+            Icons.location_on,
+            size: 40,
           ),
         );
       },
@@ -86,10 +83,12 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
               ),
               layers: [
                 TileLayerOptions(
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
-                ),
+                    urlTemplate:
+                        "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                    additionalOptions: {
+                      'subscriptionKey':
+                          '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
+                    }),
                 MarkerLayerOptions(
                   markers: [marker],
                 ),
@@ -102,17 +101,11 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
             decoration: textInputDecoration.copyWith(hintText: 'Address'),
           ),
           //errortext
-          Text(
-            errorText,
-            style: TextStyle(color: Colors.red),
-          ),
+          Text(errorText, style: TextStyle(color: Colors.red)),
           //next button
           RaisedButton(
             color: Colors.pink[400],
-            child: Text(
-              'Next >',
-              style: TextStyle(color: Colors.white),
-            ),
+            child: Text('Next >', style: TextStyle(color: Colors.white)),
             onPressed: () {
               if (_addressController.text.isNotEmpty &&
                   vendor.coordinates != null) {

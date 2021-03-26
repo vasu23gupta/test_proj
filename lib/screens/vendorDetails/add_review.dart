@@ -12,7 +12,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:test_proj/shared/hindi_profanity.dart';
 
 class AddReview extends StatefulWidget {
-  //final VendorData vendorData;
   final Vendor vendor;
   AddReview({this.vendor});
   @override
@@ -46,22 +45,14 @@ class _AddReviewState extends State<AddReview> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => VendorDetails(
-                        vendor: widget.vendor,
-                      ),
-                    ),
+                        builder: (context) =>
+                            VendorDetails(vendor: widget.vendor)),
                   );
-                } else {
-                  setState(() {
-                    alertText = "Could not add review";
-                  });
-                }
-                //print(response.body.toString());
-              } else {
-                setState(() {
-                  alertText = "Please make sure that rating is selected";
-                });
-              }
+                } else
+                  setState(() => alertText = "Could not add review");
+              } else
+                setState(() =>
+                    alertText = "Please make sure that rating is selected");
             },
           )
         ],
@@ -80,21 +71,13 @@ class _AddReviewState extends State<AddReview> {
               Icons.star,
               color: Colors.amber,
             ),
-            onRatingUpdate: (rating) {
-              setState(() => review.stars = rating);
-            },
+            onRatingUpdate: (rating) => setState(() => review.stars = rating),
           ),
-          SizedBox(
-            height: 20,
-          ),
+          SizedBox(height: 20),
           TextFormField(
             controller: mycontroller,
-            decoration: textInputDecoration.copyWith(
-              hintText: "review",
-            ),
-            onChanged: (val) {
-              setState(() => review.review = val);
-            },
+            decoration: textInputDecoration.copyWith(hintText: "review"),
+            onChanged: (val) => setState(() => review.review = val),
           ),
           Text(
             alertText,

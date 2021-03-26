@@ -294,6 +294,17 @@ class _SignInState extends State<SignIn> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 12.0),
+                    Text(error,
+                        style: TextStyle(color: Colors.red, fontSize: 14.0)),
+                    RaisedButton(
+                      child: Text(
+                          '(Continue without signing in) Sign in anonimously'),
+                      onPressed: () async {
+                        dynamic result = await _auth.signInAnon();
+                        if (result == null) print('error signing in');
+                      },
+                    ),
                     SizedBox(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
