@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/add_vendor/tags_images.dart';
@@ -23,6 +24,8 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
   Marker marker = Marker();
   Vendor vendor;
   String errorText = '';
+  var _brightness;
+  bool _darkModeOn;
 
   @override
   void initState() {
@@ -30,6 +33,8 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
     vendor = widget.vendor;
     userLoc = vendor.coordinates;
     vendor.coordinates = null;
+    _brightness = SchedulerBinding.instance.window.platformBrightness;
+    _darkModeOn = _brightness == Brightness.dark;
   }
 
   void _putMarkerOnMap(LatLng point) {
@@ -84,10 +89,11 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
               layers: [
                 TileLayerOptions(
                     urlTemplate:
-                        "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                        "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                     additionalOptions: {
                       'subscriptionKey':
-                          '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
+                          '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
+                      'theme': _darkModeOn ? 'dark' : 'main'
                     }),
                 MarkerLayerOptions(
                   markers: [marker],

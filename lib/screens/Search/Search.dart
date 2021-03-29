@@ -361,15 +361,9 @@ class _SearchState extends State<Search> {
                           builder: (_) => Filter(
                                 searchResults: this.searchResults,
                               )));
-                    // else
-                    //   Fluttertoast.showToast(
-                    //       msg: "Search Results are empty",
-                    //       toastLength: Toast.LENGTH_SHORT,
-                    //       gravity: ToastGravity.CENTER,
-                    //       timeInSecForIosWeb: 1,
-                    //       backgroundColor: Colors.red,
-                    //       textColor: Colors.white,
-                    //       fontSize: 16.0);
+                    else
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Search Results are empty")));
                   },
                   child: Row(
                     children: [
@@ -381,16 +375,10 @@ class _SearchState extends State<Search> {
                 FlatButton(
                   onPressed: () {
                     if (this.searchResults != null &&
-                        this.searchResults.isEmpty) {
-                      // Fluttertoast.showToast(
-                      //     msg: "Search Results are empty",
-                      //     toastLength: Toast.LENGTH_SHORT,
-                      //     gravity: ToastGravity.CENTER,
-                      //     timeInSecForIosWeb: 1,
-                      //     backgroundColor: Colors.red,
-                      //     textColor: Colors.white,
-                      //     fontSize: 16.0);
-                    } else
+                        this.searchResults.isEmpty)
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Search Results are empty")));
+                    else
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => SearchResults(
                               markers: buildMarkers(this.searchResults),
@@ -399,10 +387,7 @@ class _SearchState extends State<Search> {
                   child: Row(
                     children: [
                       Icon(Icons.location_pin),
-                      Text("Show On Map",
-                          style: TextStyle(
-                            fontSize: 15,
-                          )),
+                      Text("Show On Map", style: TextStyle(fontSize: 15)),
                     ],
                   ),
                 ),

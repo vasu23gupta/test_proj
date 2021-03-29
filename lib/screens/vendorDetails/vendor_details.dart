@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
@@ -8,6 +9,7 @@ import 'package:test_proj/screens/vendorDetails/add_review.dart';
 import 'package:test_proj/screens/vendorDetails/full_screen_image.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
+import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 import 'dart:async';
@@ -35,6 +37,10 @@ class _VendorDetailsState extends State<VendorDetails> {
   bool reviewsLoading = false;
   bool getNewReviews = true;
   Review myReview;
+  var _brightness;
+  bool _darkModeOn;
+  ScrollController scrollController = ScrollController();
+  int index;
 
   Future<void> getReviews(String id) async {
     setState(() {
@@ -48,24 +54,11 @@ class _VendorDetailsState extends State<VendorDetails> {
     });
   }
 
-  int index;
-
-  int getCurrentIndexToBeFetched() {
-    return vendorReviewIndexToBeFetched;
-  }
-
   Future<void> getFiveReviews() async {
     for (int i = 0;
-        getCurrentIndexToBeFetched() < vendor.reviewIds.length && i < 5;
-        i++) {
-      /* setState(() {
-        reviewsLoading = true;
-      }); */
-      await getReviews(vendor.reviewIds[getCurrentIndexToBeFetched()]);
-    }
-    setState(() {
-      reviewsLoading = false;
-    });
+        vendorReviewIndexToBeFetched < vendor.reviewIds.length && i < 5;
+        i++) await getReviews(vendor.reviewIds[vendorReviewIndexToBeFetched]);
+    setState(() => reviewsLoading = false);
   }
 
   Future<void> getVendor() async {
@@ -82,58 +75,27 @@ class _VendorDetailsState extends State<VendorDetails> {
     //   coordinates: vendor.coordinates == null,
     //   stars: vendor.stars == null,
     // );
-    if (v.reviewed) {
+    if (v.reviewed)
       myReview = await VendorDBService.getReviewByUserAndVendorId(
           vendor.id, await user.getIdToken());
-    }
+
     setState(() {
       this.vendor = v;
       loading = false;
     });
   }
 
-  ScrollController scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
     this.vendor = widget.vendor;
+    _brightness = SchedulerBinding.instance.window.platformBrightness;
+    _darkModeOn = _brightness == Brightness.dark;
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) {
-        setState(() {
-          getNewReviews = true;
-        });
-      }
+          scrollController.position.maxScrollExtent)
+        setState(() => getNewReviews = true);
     });
-
-    //getFiveReviews(vendorReviewIndexToBeFetched);
-    // WidgetsBinding.instance.addPostFrameCallback((_) => _dbService
-    //     .getVendor(
-    //       id: vendor.id,
-    //       vendor: vendor,
-    //       name: vendor.name == null,
-    //       tags: vendor.tags == null,
-    //       description: vendor.description == null,
-    //       imageIds: vendor.imageIds == null,
-    //       reviewIds: vendor.reviewIds == null,
-    //       coordinates: vendor.coordinates == null,
-    //     )
-    //     .then((value) => setState(() {
-    //           vendor = value;
-    //           loading = false;
-    //         })));
-
-    /* WidgetsBinding.instance.addPostFrameCallback((_) {
-      _dbService
-          .getVendor(
-            vendor.id,
-          )
-          .then((value) => setState(() {
-                vendor = value;
-                loading = false;
-              }));
-    }); */
-
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       user = Provider.of<User>(context, listen: false);
       getVendor();
@@ -146,55 +108,24 @@ class _VendorDetailsState extends State<VendorDetails> {
     super.dispose();
   }
 
-  void deleteReview() {
-    setState(() {
-      vendor.reviewed = false;
-    });
-  }
+  void deleteReviewFromUi() => setState(() => vendor.reviewed = false);
 
   @override
   Widget build(BuildContext context) {
-    //bool changed = false;
     if (!loading) {
       description = vendor.description;
       address = vendor.address;
-      //getFiveReviews();
-      /* if (vendor.reviewIds.isNotEmpty) {
-        List<Review> reviews = new List<Review>();
-        for (var reviewId in vendor.reviewIds) {
-          _dbService
-              .getReview(
-            reviewId,
-          )
-              .then((value) {
-            reviews.add(value);
-            changed = true;
-          });
-        }
-        if (changed) {
-          setState(() {
-            vendorReviews = reviews;
-            changed = false;
-          });
-        }
-      } */
     }
-    if (!reviewsLoading && !loading && getNewReviews) {
-      getFiveReviews();
-    }
-
+    if (!reviewsLoading && !loading && getNewReviews) getFiveReviews();
     LatLng vendorLoc = widget.vendor.coordinates;
-    MapController controller = new MapController();
-
-    Marker vendorMarker = new Marker(
+    MapController controller = MapController();
+    Marker vendorMarker = Marker(
       width: 45.0,
       height: 45.0,
       point: vendorLoc,
-      builder: (context) => IconButton(
-        //alignment: Alignment.bottomRight,
-        icon: Icon(Icons.circle),
-        iconSize: 40.0,
-        onPressed: () {},
+      builder: (context) => Icon(
+        Icons.circle,
+        size: 40,
       ),
     );
 
@@ -210,26 +141,21 @@ class _VendorDetailsState extends State<VendorDetails> {
                       height: 300.0,
                       child: PhotoViewGallery.builder(
                         scrollPhysics: const BouncingScrollPhysics(),
-                        builder: (BuildContext context, int index) {
-                          return PhotoViewGalleryPageOptions(
-                            onTapDown: (context, details, controllerValue) =>
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (_) => FullScreenImage(
-                                          imageIDs: vendor.imageIds,
-                                          index: index,
-                                        ))),
-                            maxScale: PhotoViewComputedScale.contained * 2.0,
-                            minScale: PhotoViewComputedScale.contained * 0.8,
-                            imageProvider: VendorDBService.getVendorImage(
-                                vendor.imageIds[index]),
-                            heroAttributes: PhotoViewHeroAttributes(
-                                tag: vendor.imageIds[index]),
-                          );
-                          /* decoration: BoxDecoration(
-                          image: DecorationImage(
-                              image: AssetImage(vendor.imageIds[index]),
-                              fit: BoxFit.cover)),*/
-                        },
+                        builder: (BuildContext context, int index) =>
+                            PhotoViewGalleryPageOptions(
+                          onTapDown: (context, details, controllerValue) =>
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) => FullScreenImage(
+                                        imageIDs: vendor.imageIds,
+                                        index: index,
+                                      ))),
+                          maxScale: PhotoViewComputedScale.contained * 2.0,
+                          minScale: PhotoViewComputedScale.contained * 0.8,
+                          imageProvider: VendorDBService.getVendorImage(
+                              vendor.imageIds[index]),
+                          heroAttributes: PhotoViewHeroAttributes(
+                              tag: vendor.imageIds[index]),
+                        ),
                         itemCount: vendor.imageIds.length,
                         loadingBuilder: (context, event) => Center(
                           child: Container(
@@ -243,9 +169,8 @@ class _VendorDetailsState extends State<VendorDetails> {
                             ),
                           ),
                         ),
-                        backgroundDecoration: BoxDecoration(
-                          color: Theme.of(context).canvasColor,
-                        ),
+                        backgroundDecoration:
+                            BoxDecoration(color: Theme.of(context).canvasColor),
 
                         //pageController: widget.pageController,
                         //onPageChanged: onPageChanged,
@@ -264,12 +189,13 @@ class _VendorDetailsState extends State<VendorDetails> {
                     ),
                   ],
                 ),
-
+                //name description address rating tags
                 Container(
                   padding: EdgeInsets.only(left: 20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      //name
                       Text(
                         (vendor.name),
                         style: TextStyle(
@@ -278,36 +204,24 @@ class _VendorDetailsState extends State<VendorDetails> {
                             fontSize: 50,
                             fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 10.0),
-                      Row(
-                        children: <Widget>[
-                          Flexible(
-                            child: Text(
-                              description,
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 38),
-                            ),
-                          ),
-                        ],
+                      //description
+                      Text(
+                        description,
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontFamily: 'Montserrat',
+                            fontSize: 38),
                       ),
-                      SizedBox(height: 10.0),
-                      Row(
-                        children: <Widget>[
-                          Flexible(
-                            child: Text(
-                              address,
-                              style: TextStyle(
-                                  color: Colors.green[200],
-                                  fontFamily: 'Montserrat',
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                          Icon(Icons.location_on),
-                        ],
+                      //address
+                      Text(
+                        address,
+                        style: TextStyle(
+                            color: Colors.green[200],
+                            fontFamily: 'Montserrat',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
                       ),
+                      //rating
                       Row(
                         children: <Widget>[
                           Text(
@@ -321,50 +235,64 @@ class _VendorDetailsState extends State<VendorDetails> {
                           StarRating(rating: vendor.stars),
                         ],
                       ),
-                      /*  Row(
-                          children: vendor.tags
-                              .map((tag) => Text(
-                                    tag + " ",
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.blue),
-                                  ))
-                              .toList(),
-                          textDirection: TextDirection.ltr,
-                        ),*/
+                      //tags
+                      Row(
+                        children: vendor.tags
+                            .map(
+                              (tag) => Chip(
+                                backgroundColor:
+                                    Theme.of(context).chipTheme.backgroundColor,
+                                label: Text(
+                                  tag,
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        textDirection: TextDirection.ltr,
+                      ),
                     ],
                   ),
                 ),
-
+                //map
                 SizedBox(
                   height: 300.0,
-                  //width: 350.0,
                   child: Stack(
                     children: <Widget>[
-                      new FlutterMap(
+                      FlutterMap(
                         mapController: controller,
-                        options: new MapOptions(
+                        options: MapOptions(
+                          nePanBoundary:
+                              HardcoreMath.toBounds(vendorLoc).northEast,
+                          swPanBoundary:
+                              HardcoreMath.toBounds(vendorLoc).southWest,
                           zoom: 18.45,
                           center: vendorLoc,
                         ),
                         layers: [
-                          new TileLayerOptions(
-                            urlTemplate:
-                                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            subdomains: ['a', 'b', 'c'],
-                          ),
-                          new MarkerLayerOptions(
-                            markers: [vendorMarker],
-                          ),
+                          TileLayerOptions(
+                              urlTemplate:
+                                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                              additionalOptions: {
+                                'subscriptionKey':
+                                    '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
+                                'theme': _darkModeOn ? 'dark' : 'main'
+                              }),
+                          MarkerLayerOptions(markers: [vendorMarker]),
                         ],
                       ),
-                      FloatingActionButton(
-                        onPressed: () async {
-                          await MapLauncher.showDirections(
-                              mapType: MapType.google,
-                              destination: Coords(vendor.coordinates.latitude,
-                                  vendor.coordinates.longitude));
-                        },
-                        child: Icon(Icons.navigation),
+                      Positioned(
+                        bottom: 20,
+                        right: 20,
+                        child: FloatingActionButton(
+                          onPressed: () async =>
+                              await MapLauncher.showDirections(
+                                  mapType: MapType.google,
+                                  destination: Coords(
+                                      vendor.coordinates.latitude,
+                                      vendor.coordinates.longitude)),
+                          child: Icon(Icons.navigation),
+                        ),
                       ),
                     ],
                   ),
@@ -372,7 +300,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                 vendor.reviewed
                     ? MyReview(
                         myReview: myReview,
-                        deleteReviewFromUi: deleteReview,
+                        deleteReviewFromUi: deleteReviewFromUi,
                       )
                     : Container(),
                 Text(
@@ -383,31 +311,18 @@ class _VendorDetailsState extends State<VendorDetails> {
                       fontWeight: FontWeight.bold,
                       color: Colors.grey),
                 ),
-                //vendor.reviewIds.length>0? RatingBarIndicator(itemBuilder: null): Container(),
-                //reviews
-                //reviewsLoading
-                //    ? Loading()
-                /* : */ Container(
+                Container(
                   padding: EdgeInsets.only(left: 20),
                   height: 280,
                   child: ListView.builder(
                       controller: scrollController,
                       itemCount: vendorReviews.length,
-                      itemBuilder: (context, index) {
-                        if (vendorReviews[index].review.isNotEmpty)
-                          return ReviewTile(review: vendorReviews[index]);
-                      }),
+                      itemBuilder: (context, index) =>
+                          vendorReviews[index].review.isNotEmpty
+                              ? ReviewTile(review: vendorReviews[index])
+                              : Container()),
                 ),
-                /*  */
-                //Padding(
-                //       padding: const EdgeInsets.all(2.0),
-                //       child: vData.reviews[index].widget,
-                //     );
-                //   },
-                // ),
-                SizedBox(
-                  height: 20,
-                ),
+                SizedBox(height: 20),
                 //add review button
                 Row(children: <Widget>[
                   RaisedButton(
@@ -484,7 +399,7 @@ class ReviewTile extends StatelessWidget {
               children: <Widget>[
                 StarRating(rating: review.stars),
                 Text(
-                  review.review,
+                  review.review == null ? "" : review.review,
                   style: TextStyle(
                     fontSize: 24,
                     fontFamily: 'Montserrat',
@@ -541,15 +456,14 @@ class MyReview extends StatelessWidget {
                     var res = await VendorDBService.deleteReview(
                         myReview.id, await user.getIdToken());
                     if (res.statusCode == 200) deleteReviewFromUi();
-
                     break;
                 }
               },
               itemBuilder: (BuildContext context) {
-                return {'Edit', 'Delete'}.map((String choice) {
-                  return PopupMenuItem<String>(
-                      value: choice, child: Text(choice));
-                }).toList();
+                return {'Edit', 'Delete'}
+                    .map((String choice) => PopupMenuItem<String>(
+                        value: choice, child: Text(choice)))
+                    .toList();
               },
             ),
           ],
@@ -572,9 +486,7 @@ class EditReviewDialogue extends StatelessWidget {
             right: -40.0,
             top: -40.0,
             child: InkResponse(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
+              onTap: () => Navigator.of(context).pop(),
               child: CircleAvatar(
                 child: Icon(Icons.close),
                 backgroundColor: Colors.red,

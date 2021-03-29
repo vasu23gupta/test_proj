@@ -102,9 +102,7 @@ class _ReportState extends State<Report> {
             right: -40.0,
             top: -40.0,
             child: InkResponse(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
+              onTap: () => Navigator.of(context).pop(),
               child: CircleAvatar(
                 child: Icon(Icons.close),
                 backgroundColor: Colors.red,
@@ -125,9 +123,7 @@ class _ReportState extends State<Report> {
                         value: reasons[0],
                         groupValue: selectedReport,
                         title: Text(reasons[0]),
-                        onChanged: (report) {
-                          updateReport(report);
-                        },
+                        onChanged: (report) => updateReport(report),
                         selected: true,
                       ),
                       //2
@@ -135,9 +131,7 @@ class _ReportState extends State<Report> {
                         value: reasons[1],
                         groupValue: selectedReport,
                         title: Text(reasons[1]),
-                        onChanged: (report) {
-                          updateReport(report);
-                        },
+                        onChanged: (report) => updateReport(report),
                         selected: true,
                       ),
                       //3
@@ -145,9 +139,7 @@ class _ReportState extends State<Report> {
                         value: reasons[2],
                         groupValue: selectedReport,
                         title: Text(reasons[2]),
-                        onChanged: (report) {
-                          updateReport(report);
-                        },
+                        onChanged: (report) => updateReport(report),
                         selected: true,
                       ),
                       //other
@@ -157,18 +149,13 @@ class _ReportState extends State<Report> {
                             value: reasons[3],
                             groupValue: selectedReport,
                             title: Text(reasons[3]),
-                            onChanged: (report) {
-                              updateReport(report);
-                            },
+                            onChanged: (report) => updateReport(report),
                             selected: true,
                           ),
                           if (selectedReport == reasons[3])
                             TextFormField(
-                                onChanged: (val) {
-                                  setState(() {
-                                    otherReportString = val;
-                                  });
-                                },
+                                onChanged: (val) =>
+                                    setState(() => otherReportString = val),
                                 decoration: textInputDecoration.copyWith(
                                     hintText: "Please enter your issue here"))
                         ],
@@ -180,22 +167,22 @@ class _ReportState extends State<Report> {
                         onPressed: () async {
                           if (selectedReport == reasons[3])
                             selectedReport += " " + otherReportString;
-
                           if (selectedReport.isNotEmpty) {
                             final response = await VendorDBService.reportVendor(
                                 selectedReport,
                                 widget.vendor,
                                 await user.getIdToken());
                             if (response.statusCode == 200) {
-                              setState(() {
-                                alertText = "Reported successfully";
-                                widget.vendor.reported = true;
-                              });
-                            } else {
-                              setState(() {
-                                alertText = "Could not report vendor";
-                              });
-                            }
+                              setState(() => widget.vendor.reported = true);
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text('Reported successfully!'),
+                                duration: Duration(seconds: 3),
+                              ));
+                            } else
+                              setState(
+                                  () => alertText = "Could not report vendor");
                           }
                         },
                       ),

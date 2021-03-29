@@ -36,8 +36,8 @@ class _HomeState extends State<Home> {
   List<Vendor> _vendors = [];
   List<Marker> _vendorMarkers = [];
   LocationService _locSer = LocationService();
-  var brightness;
-  bool darkModeOn;
+  var _brightness;
+  bool _darkModeOn;
 
   ListView _filterBar() {
     if (_mainSelectedFilter.isEmpty) {
@@ -150,8 +150,8 @@ class _HomeState extends State<Home> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => _updateMarkers().whenComplete(() => setState(() {})));
-    brightness = SchedulerBinding.instance.window.platformBrightness;
-    darkModeOn = brightness == Brightness.dark;
+    _brightness = SchedulerBinding.instance.window.platformBrightness;
+    _darkModeOn = _brightness == Brightness.dark;
     _moveMapToUserLocation();
   }
 
@@ -264,7 +264,7 @@ class _HomeState extends State<Home> {
                     additionalOptions: {
                       'subscriptionKey':
                           '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
-                      'theme': darkModeOn ? 'dark' : 'main'
+                      'theme': _darkModeOn ? 'dark' : 'main'
                     }),
                 MarkerLayerOptions(markers: _vendorMarkers)
               ]),

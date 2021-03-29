@@ -13,9 +13,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _emailController = TextEditingController();
 
-  String password = '';
   String error = '';
-  String repassword = '';
 
   Widget _buildLogo() {
     return Row(
@@ -39,19 +37,22 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget _sendemaillinkRow() {
     return Padding(
       padding: EdgeInsets.all(8),
-      child: TextFormField(
-        style: TextStyle(color: Colors.green),
-        keyboardType: TextInputType.text,
-        decoration: textInputDecoration.copyWith(
-          hintText: 'E-mail',
-          prefixIcon: Icon(
-            Icons.lock,
-            color: AUTH_MAIN_COLOR,
+      child: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _emailController,
+          style: TextStyle(color: Colors.green),
+          keyboardType: TextInputType.text,
+          decoration: textInputDecoration.copyWith(
+            hintText: 'E-mail',
+            prefixIcon: Icon(
+              Icons.lock,
+              color: AUTH_MAIN_COLOR,
+            ),
+            labelText: 'Enter Email',
           ),
-          labelText: 'Enter Email',
+          validator: (val) => val.isEmpty ? 'Enter an email' : null,
         ),
-        obscureText: true,
-        validator: (val) => val.isEmpty ? 'Enter an email' : null,
       ),
     );
   }
@@ -66,6 +67,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             if (_formKey.currentState.validate()) {
               await _auth.forgotPassword(_emailController.text);
               Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Password recovery email sent!'),
+                duration: Duration(seconds: 3),
+              ));
             }
           },
           child: Text("Send password reset email"),
@@ -79,15 +84,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         ClipRRect(
-          borderRadius: BorderRadius.all(
-            Radius.circular(20),
-          ),
+          borderRadius: BorderRadius.all(Radius.circular(20)),
           child: Container(
             height: MediaQuery.of(context).size.height * 0.6,
             width: MediaQuery.of(context).size.width * 0.8,
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
+            decoration: BoxDecoration(color: Colors.white),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

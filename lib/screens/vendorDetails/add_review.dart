@@ -22,7 +22,7 @@ class _AddReviewState extends State<AddReview> {
   String alertText = "";
   Review review = Review();
   final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
-  TextEditingController mycontroller = new TextEditingController();
+  TextEditingController _reviewController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
@@ -33,21 +33,23 @@ class _AddReviewState extends State<AddReview> {
             icon: Icon(Icons.check),
             onPressed: () async {
               if (review.stars != 0) {
-                review.review = filter.censor(review.review);
+                if (_reviewController.text.isNotEmpty)
+                  review.review = filter.censor(_reviewController.text);
                 final response = await VendorDBService.addVendorReview(
                     review, widget.vendor, await user.getIdToken());
                 if (response.statusCode == 200) {
-                  mycontroller.clear();
-                  setState(() {
-                    alertText = "Successfully added";
-                    widget.vendor.reviewed = true;
-                  });
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            VendorDetails(vendor: widget.vendor)),
-                  );
+                  setState(() => widget.vendor.reviewed = true);
+                  int count = 0;
+                  Navigator.popUntil(context, (route) => count++ == 2);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) =>
+                              VendorDetails(vendor: widget.vendor)));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Review added successfully!'),
+                    duration: Duration(seconds: 3),
+                  ));
                 } else
                   setState(() => alertText = "Could not add review");
               } else
@@ -75,9 +77,8 @@ class _AddReviewState extends State<AddReview> {
           ),
           SizedBox(height: 20),
           TextFormField(
-            controller: mycontroller,
+            controller: _reviewController,
             decoration: textInputDecoration.copyWith(hintText: "review"),
-            onChanged: (val) => setState(() => review.review = val),
           ),
           Text(
             alertText,
