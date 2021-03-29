@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:test_proj/screens/authenticate/forgot_password.dart';
 import 'package:test_proj/services/auth.dart';
-import 'package:test_proj/shared/constants.dart';
-import 'package:test_proj/shared/loading.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-import 'color.dart';
+import 'package:test_proj/shared/constants.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
   SignIn({this.toggleView});
-
   @override
   _SignInState createState() => _SignInState();
 }
@@ -52,7 +48,7 @@ class _SignInState extends State<SignIn> {
           decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.email,
-                color: mainColor,
+                color: AUTH_MAIN_COLOR,
               ),
               hintText: 'Enter E-mail',
               hintStyle: TextStyle(color: Colors.green),
@@ -79,7 +75,7 @@ class _SignInState extends State<SignIn> {
         decoration: InputDecoration(
           prefixIcon: Icon(
             Icons.lock,
-            color: mainColor,
+            color: AUTH_MAIN_COLOR,
           ),
           hintText: 'Enter Password',
           hintStyle: TextStyle(color: Colors.green),
@@ -115,7 +111,7 @@ class _SignInState extends State<SignIn> {
           margin: EdgeInsets.only(bottom: 20),
           child: RaisedButton(
             elevation: 5.0,
-            color: mainColor,
+            color: AUTH_MAIN_COLOR,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
@@ -180,7 +176,7 @@ class _SignInState extends State<SignIn> {
             width: 60,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: mainColor,
+              color: AUTH_MAIN_COLOR,
               boxShadow: [
                 BoxShadow(
                     color: Colors.black26,
@@ -226,7 +222,7 @@ class _SignInState extends State<SignIn> {
                             decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   Icons.email,
-                                  color: mainColor,
+                                  color: AUTH_MAIN_COLOR,
                                 ),
                                 hintText: 'Enter E-mail',
                                 hintStyle: TextStyle(color: Colors.green),
@@ -254,7 +250,7 @@ class _SignInState extends State<SignIn> {
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.lock,
-                            color: mainColor,
+                            color: AUTH_MAIN_COLOR,
                           ),
                           hintText: 'Enter Password',
                           hintStyle: TextStyle(color: Colors.green),
@@ -267,7 +263,7 @@ class _SignInState extends State<SignIn> {
                       width: 5 * (MediaQuery.of(context).size.width / 10),
                       child: RaisedButton(
                         elevation: 5.0,
-                        color: mainColor,
+                        color: AUTH_MAIN_COLOR,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
@@ -305,22 +301,7 @@ class _SignInState extends State<SignIn> {
                         if (result == null) print('error signing in');
                       },
                     ),
-                    SizedBox(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Container(
-                            margin: EdgeInsets.only(bottom: 20),
-                            child: Text(
-                              '- OR -',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                    SizedBox(child: _buildOrRow()),
                     SizedBox(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -339,7 +320,7 @@ class _SignInState extends State<SignIn> {
                               width: 60,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: mainColor,
+                                color: AUTH_MAIN_COLOR,
                                 boxShadow: [
                                   BoxShadow(
                                       color: Colors.black26,
@@ -383,7 +364,7 @@ class _SignInState extends State<SignIn> {
           margin: EdgeInsets.only(bottom: 20),
           child: RaisedButton(
             elevation: 5.0,
-            color: mainColor,
+            color: AUTH_MAIN_COLOR,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
             ),
@@ -426,7 +407,7 @@ class _SignInState extends State<SignIn> {
                 TextSpan(
                   text: 'Sign Up',
                   style: TextStyle(
-                    color: mainColor,
+                    color: AUTH_MAIN_COLOR,
                     fontSize: MediaQuery.of(context).size.height / 40,
                     fontWeight: FontWeight.bold,
                   ),
@@ -452,7 +433,7 @@ class _SignInState extends State<SignIn> {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: mainColor,
+                  color: AUTH_MAIN_COLOR,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(70),
                     bottomRight: const Radius.circular(70),

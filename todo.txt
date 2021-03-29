@@ -1,8 +1,6 @@
 APP:
 ui.
 user points, quotas.
-show name everywhere.
-provide userloc everywhere.
 snackbars.
 store api keys in backend.
 mediaquery.

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
-import 'color.dart';
 
 class Register extends StatefulWidget {
   final Function toggleView;
@@ -51,7 +50,7 @@ class _RegisterState extends State<Register> {
           decoration: InputDecoration(
               prefixIcon: Icon(
                 Icons.email,
-                color: mainColor,
+                color: AUTH_MAIN_COLOR,
               ),
               hintText: 'Enter E-mail',
               hintStyle: TextStyle(color: Colors.green),
@@ -72,7 +71,7 @@ class _RegisterState extends State<Register> {
         decoration: InputDecoration(
             prefixIcon: Icon(
               Icons.email,
-              color: mainColor,
+              color: AUTH_MAIN_COLOR,
             ),
             hintText: 'Enter Username',
             hintStyle: TextStyle(color: Colors.green),
@@ -103,7 +102,7 @@ class _RegisterState extends State<Register> {
         decoration: InputDecoration(
           prefixIcon: Icon(
             Icons.lock,
-            color: mainColor,
+            color: AUTH_MAIN_COLOR,
           ),
           hintText: 'Enter Password',
           hintStyle: TextStyle(color: Colors.green),
@@ -123,7 +122,7 @@ class _RegisterState extends State<Register> {
           margin: EdgeInsets.only(bottom: 20),
           child: RaisedButton(
             elevation: 5.0,
-            color: mainColor,
+            color: AUTH_MAIN_COLOR,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
@@ -185,7 +184,7 @@ class _RegisterState extends State<Register> {
                             decoration: InputDecoration(
                                 prefixIcon: Icon(
                                   Icons.email,
-                                  color: mainColor,
+                                  color: AUTH_MAIN_COLOR,
                                 ),
                                 hintText: 'Enter E-mail',
                                 hintStyle: TextStyle(color: Colors.green),
@@ -206,7 +205,7 @@ class _RegisterState extends State<Register> {
                           decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.email,
-                                color: mainColor,
+                                color: AUTH_MAIN_COLOR,
                               ),
                               hintText: 'Enter Username',
                               hintStyle: TextStyle(color: Colors.green),
@@ -238,7 +237,7 @@ class _RegisterState extends State<Register> {
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.lock,
-                            color: mainColor,
+                            color: AUTH_MAIN_COLOR,
                           ),
                           hintText: 'Enter Password',
                           hintStyle: TextStyle(color: Colors.green),
@@ -263,7 +262,7 @@ class _RegisterState extends State<Register> {
                         decoration: InputDecoration(
                           prefixIcon: Icon(
                             Icons.lock,
-                            color: mainColor,
+                            color: AUTH_MAIN_COLOR,
                           ),
                           hintText: 'Enter Password',
                           hintStyle: TextStyle(color: Colors.green),
@@ -276,7 +275,7 @@ class _RegisterState extends State<Register> {
                       width: 5 * (MediaQuery.of(context).size.width / 10),
                       child: RaisedButton(
                         elevation: 5.0,
-                        color: mainColor,
+                        color: AUTH_MAIN_COLOR,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
@@ -346,7 +345,7 @@ class _RegisterState extends State<Register> {
                 TextSpan(
                   text: 'Sign In',
                   style: TextStyle(
-                    color: mainColor,
+                    color: AUTH_MAIN_COLOR,
                     fontSize: MediaQuery.of(context).size.height / 40,
                     fontWeight: FontWeight.bold,
                   ),
@@ -372,7 +371,7 @@ class _RegisterState extends State<Register> {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: mainColor,
+                  color: AUTH_MAIN_COLOR,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(70),
                     bottomRight: const Radius.circular(70),

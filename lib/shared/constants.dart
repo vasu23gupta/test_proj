@@ -18,24 +18,29 @@ const textInputDecoration = InputDecoration(
   ),
 );
 
+const AUTH_MAIN_COLOR = Color(0xff2470c7);
+
 // ignore: non_constant_identifier_names
 HashMap<String, List<String>> FILTERS = HashMap.from({
-  "Food": ["North Indian", "Chinese", "South Indian"],
-  "Repair": ["Car", "Bike", "Cycle"],
-  "yvyvu": ["yrvr", "45y95"],
-  "251125v": ["wyye4y"],
+  "Food": [
+    "Tea Stall",
+    "Paan",
+    "Fast Food",
+    "North Indian",
+    "South Indian",
+    "Chinese",
+    "Other"
+  ],
+  "Repair": ["Tailor", "Cobbler", "Car", "Bike", "Cycle", "Other"],
+  "Shops": ["Toys", "Crafts", "Clothing", "Grocery", "Other"],
 });
 HashMap<String, List<bool>> areSelected = HashMap.from({
-  "Food": [false, false, false],
-  "Repair": [false, false, false],
-  "yvyvu": [false, false],
-  "251125v": [false],
-  "vb845yb": [false],
+  "Food": [false, false, false, false, false, false, false],
+  "Repair": [false, false, false, false, false, false],
+  "Shops": [false, false, false, false, false],
 });
 HashMap<String, bool> isSelected = HashMap.from({
   "Food": false,
   "Repair": false,
-  "yvyvu": false,
-  "251125v": false,
-  "vb845yb": false,
+  "Shops": false,
 });

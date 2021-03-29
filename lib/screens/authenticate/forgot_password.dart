@@ -3,8 +3,6 @@ import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
 
-import 'color.dart';
-
 class ForgotPassword extends StatefulWidget {
   @override
   _ForgotPasswordState createState() => _ForgotPasswordState();
@@ -48,7 +46,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           hintText: 'E-mail',
           prefixIcon: Icon(
             Icons.lock,
-            color: mainColor,
+            color: AUTH_MAIN_COLOR,
           ),
           labelText: 'Enter Email',
         ),
@@ -128,7 +126,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               width: MediaQuery.of(context).size.width,
               child: Container(
                 decoration: BoxDecoration(
-                  color: mainColor,
+                  color: AUTH_MAIN_COLOR,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(70),
                     bottomRight: const Radius.circular(70),

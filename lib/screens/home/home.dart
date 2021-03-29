@@ -235,9 +235,7 @@ class _HomeState extends State<Home> {
                     .push(MaterialPageRoute(builder: (_) => SettingsPage()))),
             ListTile(
                 title: Text(user.isAnonymous ? 'Sign In' : 'Logout'),
-                onTap: () async {
-                  await _auth.signOut();
-                }),
+                onTap: () async => await _auth.signOut()),
           ],
         ),
       ),
