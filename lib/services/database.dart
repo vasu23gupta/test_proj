@@ -35,10 +35,12 @@ class UserDBService {
 
 class VendorDBService {
   static String url = "https://localpediabackend.herokuapp.com/";
+  //static String url = "http://10.0.2.2:3000/";
   static String vendorsUrl = url + "vendors/";
   static String reportsUrl = url + "reports/";
   static String imagesUrl = url + "images/";
   static String reviewsUrl = url + "reviews/";
+  static String utilsUrl = url + "utils/";
   static Dio dio = Dio();
 
   static Future<http.Response> addVendor(
@@ -249,6 +251,12 @@ class VendorDBService {
     var res = await http
         .delete(reviewsUrl + reviewId, headers: {'authorisation': jwt});
     return res;
+  }
+
+  static Future<String> getAddress(double lat, double lng) async {
+    var res = await http
+        .get(utilsUrl + 'address/' + lat.toString() + '/' + lng.toString());
+    return jsonDecode(res.body)['address'];
   }
 
   //dont delete

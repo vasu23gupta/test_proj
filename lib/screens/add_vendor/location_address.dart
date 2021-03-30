@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/add_vendor/tags_images.dart';
+import 'package:test_proj/services/database.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
-import 'package:http/http.dart' as http;
 import 'package:test_proj/shared/constants.dart';
 
 class AddVendorLocationAddress extends StatefulWidget {
@@ -37,22 +36,14 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
     _darkModeOn = _brightness == Brightness.dark;
   }
 
-  void _putMarkerOnMap(LatLng point) {
+  Future<void> _putMarkerOnMap(LatLng point) async {
+    String address =
+        await VendorDBService.getAddress(point.latitude, point.longitude);
+    print(address);
     setState(
       () {
         vendor.coordinates = point;
-        http
-            .get(
-          "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
-        )
-            .then((value) {
-          var json = jsonDecode(value.body);
-          if ((json['responseCode']) == 200) {
-            //address = json['results'][0]['formatted_address'];
-            _addressController.text = json['results'][0]['formatted_address'];
-          } else
-            print(json['responseCode']);
-        });
+        _addressController.text = address;
         marker = Marker(
           width: 45.0,
           height: 45.0,
@@ -83,7 +74,7 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                 swPanBoundary: HardcoreMath.toBounds(userLoc).southWest,
                 //bounds: HardcoreMath.toBounds(userLoc),
                 zoom: 18.45, center: userLoc,
-                onTap: _putMarkerOnMap,
+                onTap: (val) async => await _putMarkerOnMap(val),
                 //center: new LatLng(userLoc.latitude, userLoc.longitude),
               ),
               layers: [
