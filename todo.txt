@@ -1,7 +1,6 @@
 APP:
 ui.
 user points, quotas.
-store api keys in backend.
 mediaquery.
 categories, subcategories.
 smooth home loading.

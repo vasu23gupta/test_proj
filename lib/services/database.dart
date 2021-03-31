@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart' as http;
@@ -34,8 +35,8 @@ class UserDBService {
 }
 
 class VendorDBService {
-  static String url = "https://localpediabackend.herokuapp.com/";
-  //static String url = "http://10.0.2.2:3000/";
+  //static String url = "https://localpediabackend.herokuapp.com/";
+  static String url = "http://10.0.2.2:3000/";
   static String vendorsUrl = url + "vendors/";
   static String reportsUrl = url + "reports/";
   static String imagesUrl = url + "images/";
@@ -257,6 +258,18 @@ class VendorDBService {
     var res = await http
         .get(utilsUrl + 'address/' + lat.toString() + '/' + lng.toString());
     return jsonDecode(res.body)['address'];
+  }
+
+  static Future<String> getMapApiKey(User user) async {
+    var res = await http.get(
+      utilsUrl + 'mapApiKey/',
+      headers: {
+        'content-type': 'application/json',
+        'authorisation': await user.getIdToken()
+      },
+    );
+    String key = jsonDecode(res.body)['key'];
+    return key;
   }
 
   //dont delete
