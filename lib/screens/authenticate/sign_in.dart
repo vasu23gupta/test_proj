@@ -5,6 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
 
+import 'color.dart';
+
 class SignIn extends StatefulWidget {
   final Function toggleView;
   SignIn({this.toggleView});
@@ -19,6 +21,12 @@ class _SignInState extends State<SignIn> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   String _error = '';
+   bool loading = false;
+
+  //text field state
+  String email = '';
+  String password = '';
+  String error = '';
 
   Widget _buildLogo() {
     return Row(
@@ -169,37 +177,176 @@ class _SignInState extends State<SignIn> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.5,
-            width: MediaQuery.of(context).size.width * 0.8,
-            decoration: BoxDecoration(color: Colors.white),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(child: _buildEmailRow()),
-                  SizedBox(child: _buildPasswordRow()),
-                  _buildLoginButton(),
-                  SizedBox(height: 12.0),
-                  Text(_error,
-                      style: TextStyle(color: Colors.red, fontSize: 14.0)),
-                  RaisedButton(
-                    child: Text(
-                        '(Continue without signing in) Sign in anonimously'),
-                    onPressed: () async {
-                      dynamic result = await _auth.signInAnon();
-                      if (result == null) print('error signing in');
-                    },
-                  ),
-                  SizedBox(child: _buildOrRow()),
-                  SizedBox(child: _buildSocialBtnRow()),
-                ],
-              ),
-            ),
+          borderRadius: BorderRadius.all(
+            Radius.circular(20),
           ),
+          child: Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: TextFormField(
+                            style: TextStyle(color: Colors.green),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.email,
+                                  color: mainColor,
+                                ),
+                                hintText: 'Enter E-mail',
+                                hintStyle: TextStyle(color: Colors.green),
+                                labelText: 'E-mail',
+                                labelStyle: TextStyle(color: Colors.grey),),
+                                
+                            validator: (val) =>
+                                val.isEmpty ? 'Enter an email' : null,
+                            onChanged: (val) {
+                              setState(() => email = val);
+                            }),
+                      ),
+                    ),
+                    SizedBox(
+                        child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: TextFormField(
+                        style: TextStyle(color: Colors.green),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (val) => val.length < 6
+                            ? 'Enter a password 6+ characters long'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => password = val);
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: mainColor,
+                          ),
+                          hintText: 'Enter Password',
+                          hintStyle: TextStyle(color: Colors.green),
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )),
+                    SizedBox(
+                      height: 1.4 * (MediaQuery.of(context).size.height / 20),
+                      width: 5 * (MediaQuery.of(context).size.width / 10),
+                      child: RaisedButton(
+                        elevation: 5.0,
+                        color: mainColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            setState(() => loading = true);
+                            dynamic result = await _auth
+                                .signInWithEmailAndPassword(email, password);
+                            if (result == null)
+                              setState(() {
+                                loading = false;
+                                error =
+                                    'could not sign in with those credentials';
+                              });
+                          }
+                        },
+                        child: Text(
+                          "Login",
+                          style: TextStyle(
+                            color: Colors.white,
+                            letterSpacing: 1.5,
+                            fontSize: MediaQuery.of(context).size.height / 40,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12.0),
+                    RaisedButton(
+                      child: Text(
+                          '(Continue without signing in) Sign in anonimously'),
+                      onPressed: () async {
+                        dynamic result = await _auth.signInAnon();
+                        if (result == null) {
+                          print('error signing in');
+                        } else {
+                          print('signed in');
+                        }
+                      },
+                    ),
+                    SizedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              '- OR -',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () async {
+                              dynamic result = await _auth.signInWithGoogle();
+                              if (result == null) {
+                                print('error signing in');
+                              } else {
+                                print('signed in');
+                              }
+                            },
+                            child: Container(
+                              height: 60,
+                              width: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: mainColor,
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.black26,
+                                      offset: Offset(0, 2),
+                                      blurRadius: 6.0)
+                                ],
+                              ),
+                              child: Icon(
+                                FontAwesomeIcons.google,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              /* Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+               
+                _buildRegisterButton(),
+              ],
+            ),*/
+              ),
         ),
       ],
     );

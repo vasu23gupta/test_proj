@@ -349,7 +349,7 @@ class _HomeState extends State<Home> {
                     heroTag: null,
                     child: Icon(Icons.add),
                     onPressed: () async {
-                      if (user.isAnonymous)
+                    /*  if (user.isAnonymous)
                         showDialog<void>(
                             context: context,
                             builder: (_) => LoginPopup(to: "add a vendor"));
@@ -369,7 +369,7 @@ class _HomeState extends State<Home> {
                       //             AddVendorNameDescription(vendor: vendor)));
                       //   }
                       // }
-                      else {
+                      else {*/
                         Vendor vendor = Vendor();
                         if (_userLoc != null)
                           vendor.coordinates =
@@ -377,7 +377,7 @@ class _HomeState extends State<Home> {
                         Navigator.of(context).push(MaterialPageRoute(
                             builder: (_) =>
                                 AddVendorNameDescription(vendor: vendor)));
-                      }
+                      //}
                     },
                   ),
                 ),
