@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class StarRating extends StatelessWidget {
-  final int starCount;
   final double rating;
-  final Color color;
 
-  StarRating({this.starCount = 5, this.rating = .0, this.color});
+  StarRating({this.rating = .0});
 
   Widget buildStar(BuildContext context, int index) {
     Icon icon;
@@ -32,6 +30,6 @@ class StarRating extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Row(
-      children: List.generate(starCount, (index) => buildStar(context, index)));
+  Widget build(BuildContext context) =>
+      Row(children: List.generate(5, (index) => buildStar(context, index)));
 }
