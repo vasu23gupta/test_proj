@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
+import 'color.dart';
 
 class Register extends StatefulWidget {
   final Function toggleView;
@@ -19,6 +20,9 @@ class _RegisterState extends State<Register> {
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _reenterController = TextEditingController();
   String _error = '';
+   String error = '';
+  bool checkboxvalue= false;
+   bool loading = false;
 
   Widget _buildLogo() {
     return Row(
@@ -139,7 +143,7 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  Widget _buildContainer() {
+ Widget _buildContainer() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -148,52 +152,276 @@ class _RegisterState extends State<Register> {
             Radius.circular(20),
           ),
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            width: MediaQuery.of(context).size.width * 0.8,
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(child: _buildEmailRow()),
-                  SizedBox(child: _buildUsernameRow()),
-                  SizedBox(child: _buildPasswordRow()),
-                  SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                     SizedBox(
                       child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: TextFormField(
-                      controller: _reenterController,
-                      style: TextStyle(color: Colors.green),
-                      keyboardType: TextInputType.text,
-                      obscureText: true,
-                      validator: (val) => _passwordController.text != val
-                          ? 'Passwords do not match'
-                          : null,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: AUTH_MAIN_COLOR,
-                        ),
-                        hintText: 'Enter Password',
-                        hintStyle: TextStyle(color: Colors.green),
-                        labelText: 'Password',
+                        padding: EdgeInsets.all(8),
+                        child: TextFormField(
+                            style: TextStyle(color: Colors.green),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.email,
+                                  color: mainColor,
+                                ),
+                                hintText: 'Enter E-mail',
+                                hintStyle: TextStyle(color: Colors.green),
+                                labelText: 'E-mail',
+                                labelStyle: TextStyle(color: Colors.grey),),
+                            validator: (val) =>
+                                val.isEmpty ? 'Enter an email' : null,
+                            onChanged: (val) {
+                              setState(() => _emailController.text = val);
+                            }),
                       ),
                     ),
-                  )),
-                  _buildRegisterButton(),
-                ],
+                     SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: TextFormField(
+                            style: TextStyle(color: Colors.green),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.email,
+                                  color: mainColor,
+                                ),
+                                hintText: 'Enter Username',
+                                hintStyle: TextStyle(color: Colors.green),
+                                labelText: 'Username',
+                                labelStyle: TextStyle(color: Colors.grey),),
+                            validator: (val) =>
+                               (val.length > 20 && val.length < 1)
+                                  ? 'Username should be less than 20 char'
+                                  : null,
+                          onChanged: (val) {
+                            setState(() => _usernameController.text = val);
+                          },
+                        ),),
+                      ),
+                    SizedBox(
+                        child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: TextFormField(
+                        style: TextStyle(color: Colors.green),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (val) => val.length < 6
+                            ? 'Enter a password 6+ characters long'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => _passwordController.text = val);
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: mainColor,
+                          ),
+                          hintText: 'Enter Password',
+                          hintStyle: TextStyle(color: Colors.green),
+                          labelText: 'Password',
+                          labelStyle: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )),
+                    SizedBox(
+                        child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: TextFormField(
+                        style: TextStyle(color: Colors.green),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (val) => _passwordController.text != val
+                            ? 'Passwords do not match'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => _reenterController.text = val);
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: mainColor,
+                          ),
+                          hintText: 'Re-Enter Password',
+                          hintStyle: TextStyle(color: Colors.green),
+                          labelText: 'Password',
+                        ),
+                      ),
+                    )),
+                   /* SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: TextFormField(
+                            controller: _emailController,
+                            style: TextStyle(color: Colors.green),
+                            decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.email,
+                                  color: mainColor,
+                                ),
+                                hintText: 'Enter E-mail',
+                                hintStyle: TextStyle(color: Colors.green),
+                                labelText: 'E-mail'),
+                            validator: (val) =>
+                                val.isEmpty ? 'Enter an email' : null,
+                            onChanged: (val) {
+                              setState(() => _emailController.text = val);
+                            }),
+                      ),
+                    ),
+                    SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: TextFormField(
+                          controller: _usernameController,
+                          style: TextStyle(color: Colors.green),
+                          decoration: InputDecoration(
+                              prefixIcon: Icon(
+                                Icons.email,
+                                color: mainColor,
+                              ),
+                              hintText: 'Enter Username',
+                              hintStyle: TextStyle(color: Colors.green),
+                              labelText: 'Username'),
+                          validator: (val) =>
+                              (val.length > 20 && val.length < 1)
+                                  ? 'Username should be less than 20 char'
+                                  : null,
+                          onChanged: (val) {
+                            setState(() => _usernameController.text = val);
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                        child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: TextFormField(
+                        controller: _passwordController,
+                        style: TextStyle(color: Colors.green),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (val) => val.length < 6
+                            ? 'Enter a password 6+ characters long'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => _passwordController.text = val);
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: mainColor,
+                          ),
+                          hintText: 'Enter Password',
+                          hintStyle: TextStyle(color: Colors.green),
+                          labelText: 'Password',
+                        ),
+                      ),
+                    )),
+                    SizedBox(
+                        child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: TextFormField(
+                        controller: _reenterController,
+                        style: TextStyle(color: Colors.green),
+                        keyboardType: TextInputType.text,
+                        obscureText: true,
+                        validator: (val) => _passwordController.text != val
+                            ? 'Passwords do not match'
+                            : null,
+                        onChanged: (val) {
+                          setState(() => _reenterController.text = val);
+                        },
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.lock,
+                            color: mainColor,
+                          ),
+                          hintText: 'Enter Password',
+                          hintStyle: TextStyle(color: Colors.green),
+                          labelText: 'Password',
+                        ),
+                      ),
+                    )),*/
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          Checkbox(
+                        value: false,
+                        onChanged: (bool value){
+                          setState(() {
+                            checkboxvalue=value;
+                          });
+                        },
+                      ),
+                      Text('Agree to Privacy Policy', style: TextStyle(
+                            color: Colors.black,
+                            letterSpacing: 1.5,
+                            fontSize: MediaQuery.of(context).size.height / 80,),
+                      ),
+                        ],
+                      )
+                    ),
+                    SizedBox(
+                      height: 1.4 * (MediaQuery.of(context).size.height / 20),
+                      width: 5 * (MediaQuery.of(context).size.width / 10),
+                      child: RaisedButton(
+                        elevation: 5.0,
+                        color: mainColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            setState(() => loading = true);
+                            dynamic result =
+                                await _auth.registerWithEmailAndPassword(
+                                    _emailController.text,
+                                    _passwordController.text,
+                                    _usernameController.text);
+                            if (result == null) {
+                              setState(() {
+                                error = 'please supply a valid email';
+                                loading = false;
+                              });
+                            }
+                          }
+                        },
+                        child: Text(
+                          "Register",
+                          style: TextStyle(
+                            color: Colors.white,
+                            letterSpacing: 1.5,
+                            fontSize: MediaQuery.of(context).size.height / 40,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              /* Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+               
+                _buildRegisterButton(),
+              ],
+            ),*/
               ),
-            ),
-          ),
         ),
       ],
     );
   }
-
+  
   Widget _buildSigninBtn() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

@@ -348,6 +348,7 @@ class _HomeState extends State<Home> {
                     heroTag: null,
                     child: Icon(Icons.add),
                     onPressed: () async {
+                      /*  if (user.isAnonymous)
                       if (_user.isAnonymous)
                         showDialog<void>(
                             context: context,
@@ -368,15 +369,15 @@ class _HomeState extends State<Home> {
                       //             AddVendorNameDescription(vendor: vendor)));
                       //   }
                       // }
-                      else {
-                        Vendor vendor = Vendor();
-                        if (_userLoc != null)
-                          vendor.coordinates =
-                              LatLng(_userLoc.latitude, _userLoc.longitude);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                AddVendorNameDescription(vendor: vendor)));
-                      }
+                      else {*/
+                      Vendor vendor = Vendor();
+                      if (_userLoc != null)
+                        vendor.coordinates =
+                            LatLng(_userLoc.latitude, _userLoc.longitude);
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) =>
+                              AddVendorNameDescription(vendor: vendor)));
+                      //}
                     },
                   ),
                 ),

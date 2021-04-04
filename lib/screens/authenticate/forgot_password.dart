@@ -84,11 +84,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.all(
+            Radius.circular(20),
+          ),
           child: Container(
             height: MediaQuery.of(context).size.height * 0.6,
             width: MediaQuery.of(context).size.width * 0.8,
-            decoration: BoxDecoration(color: Colors.white),
+            decoration: BoxDecoration(
+              color: Colors.white,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -113,6 +117,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       ],
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
