@@ -42,7 +42,7 @@ class UserDBService {
 
 class VendorDBService {
   //static String url = "https://localpediabackend.herokuapp.com/";
-  static String url = "http://10.0.2.2:3000/";
+  static String url = "https://localpediabackend.herokuapp.com/";
   static String vendorsUrl = url + "vendors/";
   static String reportsUrl = url + "reports/";
   static String imagesUrl = url + "images/";
