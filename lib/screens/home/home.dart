@@ -9,7 +9,6 @@ import 'package:location/location.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
 import 'package:test_proj/shared/loading.dart';
-import 'package:test_proj/shared/my_flutter_app_icons.dart';
 import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
@@ -46,16 +45,16 @@ class _HomeState extends State<Home> {
   bool _loading = true;
   String _mapApiKey = '';
   bool _isSnackbarActive = false;
-  User user;
+  User _user;
 
   @override
   void initState() {
     super.initState();
     _brightness = SchedulerBinding.instance.window.platformBrightness;
     _darkModeOn = _brightness == Brightness.dark;
-    user = Provider.of<User>(context, listen: false);
+    _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _mapApiKey = await VendorDBService.getMapApiKey(user);
+      _mapApiKey = await VendorDBService.getMapApiKey(_user);
       setState(() => _loading = false);
       _moveMapToUserLocation();
     });
@@ -212,9 +211,9 @@ class _HomeState extends State<Home> {
         builder: (_) => IconButton(
           color: Theme.of(context).iconTheme.color,
           icon: vendor.tags.contains('Food')
-              ? Icon(Cusicon.food)
+              ? Icon(Icons.restaurant_rounded)
               : vendor.tags.contains('repair')
-                  ? Icon(Cusicon.repair)
+                  ? Icon(Icons.home_repair_service_rounded)
                   : Icon(Icons.location_on),
           iconSize: 40.0,
           onPressed: () => Navigator.of(context).push(
@@ -252,26 +251,29 @@ class _HomeState extends State<Home> {
                 padding: EdgeInsets.zero,
                 children: <Widget>[
                   DrawerHeader(
-                      child: Text(user.isAnonymous
+                      child: Text(_user.isAnonymous
                           ? "Guest"
-                          : user.displayName != null
-                              ? user.displayName
-                              : user.uid),
+                          : _user.displayName != null
+                              ? _user.displayName
+                              : _user.uid),
                       decoration: BoxDecoration(color: Colors.blue)),
                   ListTile(
                       title: Text('Settings'),
                       onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => SettingsPage()))),
                   ListTile(
-                      title: Text('Profile'),
-                      onTap: () async {
-                        Response response = await UserDBService(jwt: await user.getIdToken()).getUserByJWT();
-                        AppUser us = AppUser(jsonDecode(response.body));
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => ProfilePage(user: us)));
-                          },),        
+                    title: Text('Profile'),
+                    onTap: () async {
+                      Response response =
+                          await UserDBService(jwt: await _user.getIdToken())
+                              .getUserByJWT();
+                      AppUser us = AppUser(jsonDecode(response.body));
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => ProfilePage(user: us)));
+                    },
+                  ),
                   ListTile(
-                      title: Text(user.isAnonymous ? 'Sign In' : 'Logout'),
+                      title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
                       onTap: () async => await _auth.signOut()),
                 ],
               ),
@@ -361,7 +363,7 @@ class _HomeState extends State<Home> {
                     heroTag: null,
                     child: Icon(Icons.add),
                     onPressed: () async {
-                      if (user.isAnonymous)
+                      if (_user.isAnonymous)
                         showDialog<void>(
                             context: context,
                             builder: (_) => LoginPopup(to: "add a vendor"));

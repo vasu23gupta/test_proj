@@ -5,6 +5,7 @@ mediaquery.
 categories, subcategories.
 smooth home loading.
 report reasons.
+dark theme.
 
 
 RELEASE:

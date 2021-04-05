@@ -212,18 +212,159 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
       allTags.addAll(list);
     }
   }
-
+/*
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     user = Provider.of<User>(context);
     return loading
         ? Loading()
         : Scaffold(
-            appBar: AppBar(),
             body: SingleChildScrollView(
               child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RaisedButton(
+                   Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                "Tags & Images",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2661FA),
+                  fontSize: 36
+                ),
+                textAlign: TextAlign.left,
+              ),
+            ),
+              Container(
+              alignment: Alignment.centerRight,
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+              padding: EdgeInsets.all(10),
+              child: RaisedButton(
+                onPressed: loadAssets,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                textColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.0,
+                  width: size.width * 0.5,
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(80.0),
+                    gradient: new LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 255, 136, 34),
+                        Color.fromARGB(255, 255, 177, 41)
+                      ]
+                    )
+                  ),
+                  padding: const EdgeInsets.all(0),
+                  child: Text(
+                     'Upload Images',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ),
+             SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child:   TextField(
+                    controller: addTagController,
+                    decoration:
+                        textInputDecoration.copyWith(hintText: 'Enter tags'),
+                    onChanged: (val) async {
+                      tagsSuggestionsOverlay = await tagsSuggestions(val);
+                      setState(() {});
+                    },
+                  ),
+                      ),
+                    ),
+                    Container(
+              alignment: Alignment.centerRight,
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+               padding: EdgeInsets.all(10),
+              child: RaisedButton(
+                onPressed: () {
+                      String tag = capitaliseFirstLetter(addTagController.text);
+                      if (tag.isNotEmpty && !tags.contains(tag)) tags.add(tag);
+
+                      setState(() => addTagController.clear());
+                    },
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                textColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.0,
+                  width: size.width * 0.5,
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(80.0),
+                    gradient: new LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 255, 136, 34),
+                        Color.fromARGB(255, 255, 177, 41)
+                      ]
+                    )
+                  ),
+                  padding: const EdgeInsets.all(0),
+                  child: Text(
+                     'Add Tag',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ),
+             Container(
+              alignment: Alignment.centerRight,
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+               padding: EdgeInsets.all(10),
+              child: RaisedButton(
+                onPressed:() async {
+                      if (images.length > 0 && tags.length > 0) {
+                        errorText = '';
+                        vendor.tags = tags;
+                        vendor.assetImages = images;
+                        await addVendor();
+                      } else
+                        setState(() => errorText =
+                            "Please select atleast one tag and image");
+                    },
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                textColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.0,
+                  width: size.width * 0.5,
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(80.0),
+                    gradient: new LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 255, 136, 34),
+                        Color.fromARGB(255, 255, 177, 41)
+                      ]
+                    )
+                  ),
+                  padding: const EdgeInsets.all(0),
+                  child: Text(
+                     'Submit',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ),
+               /*   RaisedButton(
                     color: Colors.pink[400],
                     child: Text(
                       'Upload Images',
@@ -283,10 +424,225 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                         setState(() => errorText =
                             "Please select atleast one tag and image");
                     },
-                  ),
+                  ),*/
                 ],
               ),
             ),
           );
+  }*/
+  @override
+  Widget build(BuildContext context) {
+     Size size = MediaQuery.of(context).size;
+    user = Provider.of<User>(context);
+    return loading
+        ? Loading()
+        : Scaffold(
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+               Container(
+              alignment: Alignment.centerLeft,
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: Text(
+                "Tags & Images",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2661FA),
+                  fontSize: 36
+                ),
+                textAlign: TextAlign.left,
+              ),
+            ),
+              Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+              padding: EdgeInsets.all(10),
+              child: RaisedButton(
+                onPressed: loadAssets,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                textColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.0,
+                  width: size.width * 0.5,
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(80.0),
+                    gradient: new LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 255, 136, 34),
+                        Color.fromARGB(255, 255, 177, 41)
+                      ]
+                    )
+                  ),
+                  padding: const EdgeInsets.all(0),
+                  child: Text(
+                     'Upload Images',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ),
+             SizedBox(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child:   TextField(
+                    controller: addTagController,
+                    decoration:
+                        textInputDecoration.copyWith(hintText: 'Enter tags'),
+                    onChanged: (val) async {
+                      tagsSuggestionsOverlay = await tagsSuggestions(val);
+                      setState(() {});
+                    },
+                  ),
+                      ),
+                    ),
+                    Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+               padding: EdgeInsets.all(10),
+              child: RaisedButton(
+                onPressed: () {
+                      String tag = capitaliseFirstLetter(addTagController.text);
+                      if (tag.isNotEmpty && !tags.contains(tag)) tags.add(tag);
+
+                      setState(() => addTagController.clear());
+                    },
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                textColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.0,
+                  width: size.width * 0.5,
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(80.0),
+                    gradient: new LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 255, 136, 34),
+                        Color.fromARGB(255, 255, 177, 41)
+                      ]
+                    )
+                  ),
+                  padding: const EdgeInsets.all(0),
+                  child: Text(
+                     'Add Tag',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ),
+             Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+               padding: EdgeInsets.all(10),
+              child: RaisedButton(
+                onPressed:() async {
+                      if (images.length > 0 && tags.length > 0) {
+                        errorText = '';
+                        vendor.tags = tags;
+                        vendor.assetImages = images;
+                        await addVendor();
+                      } else
+                        setState(() => errorText =
+                            "Please select atleast one tag and image");
+                    },
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+                textColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                child: Container(
+                  alignment: Alignment.center,
+                  height: 50.0,
+                  width: size.width * 0.5,
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.circular(80.0),
+                    gradient: new LinearGradient(
+                      colors: [
+                        Color.fromARGB(255, 255, 136, 34),
+                        Color.fromARGB(255, 255, 177, 41)
+                      ]
+                    )
+                  ),
+                  padding: const EdgeInsets.all(0),
+                  child: Text(
+                     'Submit',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ),
+               /*   RaisedButton(
+                    color: Colors.pink[400],
+                    child: Text(
+                      'Upload Images',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: loadAssets,
+                  ),
+                  previewImages(),
+                  //add tags
+                  TextField(
+                    controller: addTagController,
+                    decoration:
+                        textInputDecoration.copyWith(hintText: 'Enter tags'),
+                    onChanged: (val) async {
+                      tagsSuggestionsOverlay = await tagsSuggestions(val);
+                      setState(() {});
+                    },
+                  ),
+                  tagsSuggestionsOverlay,
+                  //add tag button:
+                  RaisedButton(
+                    color: Colors.pink[400],
+                    child: Text(
+                      'Add tag',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () {
+                      String tag = capitaliseFirstLetter(addTagController.text);
+                      if (tag.isNotEmpty && !tags.contains(tag)) tags.add(tag);
+
+                      setState(() => addTagController.clear());
+                    },
+                  ),
+                  //show tags
+                  Wrap(
+                    children: tagWidgets.toList(),
+                  ),
+                  //error text
+                  Text(
+                    errorText,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  //submit button
+                  RaisedButton(
+                    color: Colors.pink[400],
+                    child: Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      if (images.length > 0 && tags.length > 0) {
+                        errorText = '';
+                        vendor.tags = tags;
+                        vendor.assetImages = images;
+                        await addVendor();
+                      } else
+                        setState(() => errorText =
+                            "Please select atleast one tag and image");
+                    },
+                  ),*/
+            ],
+          )
+        );
   }
 }

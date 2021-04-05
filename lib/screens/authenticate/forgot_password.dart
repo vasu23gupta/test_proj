@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
-import 'package:test_proj/shared/loading.dart';
 
 class ForgotPassword extends StatefulWidget {
   @override
@@ -10,72 +9,49 @@ class ForgotPassword extends StatefulWidget {
 
 class _ForgotPasswordState extends State<ForgotPassword> {
   final AuthService _auth = AuthService();
-  final _formKey = GlobalKey<FormState>();
   TextEditingController _emailController = TextEditingController();
+  double _h = 0;
+  double _w = 0;
+  String _error = '';
 
-  String error = '';
-
-  Widget _buildLogo() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 70),
-          child: Text(
-            'LOCALPEDIA',
-            style: TextStyle(
-              fontSize: MediaQuery.of(context).size.height / 25,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        )
-      ],
-    );
-  }
-
-  Widget _sendemaillinkRow() {
+  Padding _buildErrorText() {
     return Padding(
-      padding: EdgeInsets.all(8),
-      child: Form(
-        key: _formKey,
-        child: TextFormField(
-          controller: _emailController,
-          style: TextStyle(color: Colors.green),
-          keyboardType: TextInputType.text,
-          decoration: textInputDecoration.copyWith(
-            hintText: 'E-mail',
-            prefixIcon: Icon(
-              Icons.lock,
-              color: AUTH_MAIN_COLOR,
-            ),
-            labelText: 'Enter Email',
-          ),
-          validator: (val) => val.isEmpty ? 'Enter an email' : null,
-        ),
-      ),
-    );
+        padding: const EdgeInsets.all(16.0),
+        child: Text(_error,
+            style: TextStyle(color: Colors.red, fontSize: _w * 0.042)));
   }
 
   Widget _buildsendemailButton() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        FlatButton(
-          onPressed: () async {
-            if (_formKey.currentState.validate()) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          minimumSize:
+              MaterialStateProperty.all<Size>(Size(_w * 0.4, _h * 0.06)),
+          backgroundColor: MaterialStateProperty.all<Color>(TEXT_COLOR),
+          shape: MaterialStateProperty.all<OutlinedBorder>(
+              RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0))),
+        ),
+        onPressed: () async {
+          if (_emailController.text.isNotEmpty) {
+            try {
               await _auth.forgotPassword(_emailController.text);
+              setState(() => _error = "");
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text('Password recovery email sent!'),
                 duration: Duration(seconds: 3),
               ));
+            } catch (err) {
+              print(err);
+              setState(() => _error = "Please enter a valid email address");
             }
-          },
-          child: Text("Send password reset email"),
-        ),
-      ],
+          } else
+            setState(() => _error = "Please enter a valid email address");
+        },
+        child: Text("Send password reset email"),
+      ),
     );
   }
 
@@ -86,26 +62,14 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(20)),
           child: Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: _w * 0.8,
             decoration: BoxDecoration(color: Colors.white),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "Forgot Password",
-                      style: TextStyle(
-                        fontSize: MediaQuery.of(context).size.height / 30,
-                      ),
-                    ),
-                  ],
-                ),
-                _sendemaillinkRow(),
+                buildEmailRow(_emailController),
                 _buildsendemailButton(),
+                _error.isNotEmpty ? _buildErrorText() : Container()
               ],
             ),
           ),
@@ -116,18 +80,19 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   @override
   Widget build(BuildContext context) {
+    _h = MediaQuery.of(context).size.height;
+    _w = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: Color(0xfff2f3f7),
         body: Stack(
           children: <Widget>[
             Container(
-              height: MediaQuery.of(context).size.height * 0.7,
-              width: MediaQuery.of(context).size.width,
+              height: _h * 0.7,
+              width: _w,
               child: Container(
                 decoration: BoxDecoration(
-                  color: AUTH_MAIN_COLOR,
+                  color: BACKGROUND_COLOR,
                   borderRadius: BorderRadius.only(
                     bottomLeft: const Radius.circular(70),
                     bottomRight: const Radius.circular(70),
@@ -136,9 +101,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               ),
             ),
             Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                _buildLogo(),
+                buildLogo(_h),
+                SizedBox(height: _h * 0.13),
                 _buildContainer(),
               ],
             )
