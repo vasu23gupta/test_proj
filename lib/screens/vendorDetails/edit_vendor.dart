@@ -411,6 +411,7 @@ class _EditVendorState extends State<EditVendor> {
                             http.Response result;
                             if (editing)
                               result = await VendorDBService.updateVendor(
+                                await  user.getIdToken(),
                                 widget.vendor.id,
                                 name,
                                 vendorLatLng,

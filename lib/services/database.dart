@@ -32,6 +32,12 @@ class UserDBService {
         body: body);
     return response;
   }
+
+  Future<http.Response> getUserByJWT() async {
+    final response = await http.get(usersUrl+"getUserByJWT/",
+        headers: {'content-type': 'application/json', 'authorisation': jwt},);
+    return response;
+  }
 }
 
 class VendorDBService {
@@ -81,6 +87,7 @@ class VendorDBService {
   }
 
   static Future<http.Response> updateVendor(
+    String jwt,
     String id,
     String name,
     LatLng coordinates,
@@ -105,7 +112,7 @@ class VendorDBService {
 
     final resFut = http.patch(
       vendorsUrl + "edit/" + id,
-      headers: {'content-type': 'application/json'},
+      headers: {'content-type': 'application/json','authorisation': jwt},
       body: body,
     );
     _futures.add(resFut);
