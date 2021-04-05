@@ -5,6 +5,8 @@ mediaquery.
 categories, subcategories.
 smooth home loading.
 report reasons.
+dark theme.
+pp, tnc in app.
 
 
 RELEASE:

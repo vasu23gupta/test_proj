@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_proj/screens/authenticate/authenticate.dart';
+import 'package:test_proj/screens/authenticate/sign_in.dart';
 
 class LoginPopup extends StatelessWidget {
   final String to;
@@ -49,7 +49,7 @@ class LoginPopup extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Authenticate(),
+                          builder: (context) => SignIn(),
                         ),
                       );
                     },
