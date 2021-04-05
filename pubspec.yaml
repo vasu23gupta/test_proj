@@ -42,6 +42,7 @@ dependencies:
   profanity_filter: 
   google_sign_in: 
   cached_network_image:
+  webview_flutter: 
 
 
 dev_dependencies:

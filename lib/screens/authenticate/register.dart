@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:test_proj/screens/authenticate/tnc_pp.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
@@ -128,9 +129,12 @@ class _RegisterState extends State<Register> {
       fontSize: _h * 0.019,
       fontWeight: FontWeight.bold,
     );
-    // void goToPP(){
-    //   Navigator.of(context).push(MaterialPageRoute(builder: (_)=>));
-    // }
+    void goToPP() =>
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => PP()));
+
+    void goToTnC() =>
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => TnC()));
+
     return Wrap(
       runSpacing: -20,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -144,24 +148,24 @@ class _RegisterState extends State<Register> {
           style: TextStyle(fontSize: _h / 53),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: goToPP,
           child: Text('Privacy', style: _ts),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: goToPP,
           child: Text('Policy', style: _ts),
         ),
         Text('and', style: TextStyle(fontSize: _h / 53)),
         TextButton(
-          onPressed: () {},
+          onPressed: goToTnC,
           child: Text('Terms', style: _ts),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: goToTnC,
           child: Text('and', style: _ts),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: goToTnC,
           child: Text('Conditions.', style: _ts),
         ),
       ],
