@@ -69,11 +69,20 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
         errorText = 'Could not add vendor, please try again later.';
       });
     else {
-      Vendor vendor = Vendor.fromJson(jsonDecode(result.body));
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => VendorDetails(vendor: vendor)),
-      );
+      Map<String,dynamic> object=jsonDecode(result.body);
+      if(object.containsKey("limitExceeded"))
+      {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(object['limitExceeded'])));
+      }
+      else
+      {
+        Vendor vendor = Vendor.fromJson(jsonDecode(result.body));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => VendorDetails(vendor: vendor)),
+        );
+      }
     }
   }
 

@@ -9,6 +9,8 @@ class ProfilePage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+    print(user.addsRemainig);
+    print(user.editsRemaing);
     return Scaffold(
       appBar: AppBar(
         title: Text('Profile'),
@@ -41,6 +43,24 @@ class ProfilePage extends StatelessWidget{
               Text(user.nextLevelAt.toString(), style:TextStyle(fontSize: 20,color: Colors.yellow)),
               SizedBox(width: 10,),
               Text('points',style: TextStyle(fontSize: 20),)
+            ],
+          ),
+          Row(
+            children: [
+              Text('Remaining Additions: ', style:TextStyle(fontSize: 20,color: Colors.green)),
+              SizedBox(width: 10,),
+              Text(user.addsRemainig.toString(), style:TextStyle(fontSize: 20,color: Colors.yellow)),
+              SizedBox(width: 10,),
+              Text(' this month',style: TextStyle(fontSize: 20),)
+            ],
+          ),
+          Row(
+            children: [
+              Text('Remaining Edits: ', style:TextStyle(fontSize: 20,color: Colors.green)),
+              SizedBox(width: 10,),
+              Text(user.editsRemaing.toString(), style:TextStyle(fontSize: 20,color: Colors.yellow)),
+              SizedBox(width: 10,),
+              Text(' this month',style: TextStyle(fontSize: 20),)
             ],
           ),
         ],),

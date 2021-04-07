@@ -267,6 +267,7 @@ class _HomeState extends State<Home> {
                       Response response =
                           await UserDBService(jwt: await _user.getIdToken())
                               .getUserByJWT();
+                      print(jsonDecode(response.body));        
                       AppUser us = AppUser(jsonDecode(response.body));
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => ProfilePage(user: us)));
@@ -384,13 +385,25 @@ class _HomeState extends State<Home> {
                       //   }
                       // }
                       else {
-                        Vendor vendor = Vendor();
-                        if (_userLoc != null)
-                          vendor.coordinates =
-                              LatLng(_userLoc.latitude, _userLoc.longitude);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                AddVendorNameDescription(vendor: vendor)));
+                        Response response =await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
+                        var month = DateTime.now().month;
+                        var year = DateTime.now().year;
+                        var json=jsonDecode(response.body);
+                        print(json);
+                        if(json['addsRemaining']>0)
+                        {
+                          Vendor vendor = Vendor();
+                          if (_userLoc != null)
+                            vendor.coordinates =
+                                LatLng(_userLoc.latitude, _userLoc.longitude);
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) =>
+                                  AddVendorNameDescription(vendor: vendor)));
+                        }
+                        else{
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("You cannot add more vendors this month")));
+                        }
                       }
                     },
                   ),

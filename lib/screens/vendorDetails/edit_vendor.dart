@@ -441,11 +441,20 @@ class _EditVendorState extends State<EditVendor> {
                                 error = 'could not add vendor';
                               });
                             else {
-                              Vendor vendor =
+                              Map<String,dynamic> object=jsonDecode(result.body);
+                              if(object.containsKey("limitExceeded"))
+                              {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(object['limitExceeded'])));
+                              }
+                              else
+                              {
+                                Vendor vendor =
                                   Vendor.fromJson(jsonDecode(result.body));
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      VendorDetails(vendor: vendor)));
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        VendorDetails(vendor: vendor)));
+                              }
                             }
                           }
                         },
