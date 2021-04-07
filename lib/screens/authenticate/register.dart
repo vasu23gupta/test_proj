@@ -62,14 +62,7 @@ class _RegisterState extends State<Register> {
   Widget _buildRegisterButton() => Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
         child: ElevatedButton(
-          style: ButtonStyle(
-            minimumSize:
-                MaterialStateProperty.all<Size>(Size(_w * 0.4, _h * 0.06)),
-            backgroundColor: MaterialStateProperty.all<Color>(TEXT_COLOR),
-            shape: MaterialStateProperty.all<OutlinedBorder>(
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0))),
-          ),
+          style: BS(_w * 0.4, _h * 0.06),
           onPressed: () async {
             if (_checkboxvalue) {
               setState(() => _error = "");
