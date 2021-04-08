@@ -53,7 +53,7 @@ class _AddVendorNameDescriptionState extends State<AddVendorNameDescription> {
               child: Padding(
                 padding: EdgeInsets.all(8),
                 child: TextField(
-                    maxLength: 500,
+                    maxLength: 1000,
                     maxLines: 10,
                     keyboardType: TextInputType.multiline,
                     onChanged: (value) =>
@@ -65,32 +65,6 @@ class _AddVendorNameDescriptionState extends State<AddVendorNameDescription> {
             ),
             SizedBox(
                 child: Text(_errorText, style: TextStyle(color: Colors.red))),
-            Container(
-              alignment: Alignment.centerRight,
-              margin: EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-              child: RaisedButton(
-                onPressed: () {
-                  // if (_nameController.text.isNotEmpty &&
-                  //     _descriptionController.text.isNotEmpty) {
-                  //   _errorText = '';
-                  //   _vendor.name = _nameController.text;
-                  //   _vendor.description = _descriptionController.text;
-                  //   Navigator.of(context).push(MaterialPageRoute(
-                  //       builder: (_) =>
-                  //           AddVendorLocationAddress(vendor: _vendor)));
-                  // } else
-                  //   setState(() =>
-                  //       _errorText = "Name and description cannot be empty");
-                },
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(80.0)),
-                child: Text(
-                  "Next",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
             /* TextField(
                       controller: _nameController,
                       decoration:

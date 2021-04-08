@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
-import 'package:test_proj/screens/add_vendor/tags_images.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
@@ -106,7 +104,7 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                 padding: EdgeInsets.all(16),
                 child: TextField(
                     maxLines: 3,
-                    maxLength: 200,
+                    maxLength: 300,
                     controller: _addressController,
                     onChanged: (value) =>
                         setState(() => _vendor.address = value),
@@ -115,31 +113,6 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                             'Just tap on the map to enter vendor\'s location, its address will be updated automatically. You can still update the address.')),
               ),
               Text(_errorText, style: TextStyle(color: Colors.red)),
-              Container(
-                child: RaisedButton(
-                  onPressed: () {
-                    // if (_addressController.text.isNotEmpty &&
-                    //     _vendor.coordinates != null) {
-                    //   _errorText = '';
-                    //   _vendor.address = _addressController.text;
-                    //   Navigator.of(context).push(MaterialPageRoute(
-                    //       builder: (_) => AddVendorTagsImages(vendor: _vendor)));
-                    // } else {
-                    //   setState(() => _errorText =
-                    //       "Please make sure address is not empty and location is selected.");
-                    // }
-                  },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(80.0)),
-                  textColor: Colors.white,
-                  padding: const EdgeInsets.all(0),
-                  child: Text(
-                    "Next",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
               /*  SizedBox(
                           child: Padding(
                             padding: EdgeInsets.all(8),

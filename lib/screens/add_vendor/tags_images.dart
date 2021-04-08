@@ -159,13 +159,12 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     List<Asset> resultList = [];
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: 300,
+        maxImages: 10,
         enableCamera: true,
         selectedAssets: _vendor.assetImages,
-        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
-          //actionBarColor: "#abcdef",
-          actionBarTitle: "Example App",
+          actionBarColor: "#ff73DCE2",
+          actionBarTitle: "Select Images",
           allViewTitle: "All Photos",
           useDetailsView: false,
           selectCircleStrokeColor: "#000000",
@@ -215,7 +214,8 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
             .map((e) => ListTile(
                   title: Center(child: Text(e)),
                   onTap: () {
-                    if (!_vendor.tags.contains(e)) _vendor.tags.add(e);
+                    if (!_vendor.tags.contains(e) && _vendor.tags.length < 20)
+                      _vendor.tags.add(e);
                     setState(() {
                       _addTagController.clear();
                       _suggestions.clear();
@@ -273,11 +273,20 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                   Padding(
                     padding: EdgeInsets.all(8),
                     child: TextField(
+                      maxLength: 40,
                       controller: _addTagController,
                       decoration:
                           textInputDecoration.copyWith(hintText: 'Enter tags'),
                       onChanged: (val) async {
-                        _tagsSuggestionsOverlay = await _tagsSuggestions(val);
+                        if (_vendor.tags.length < 20)
+                          _tagsSuggestionsOverlay = await _tagsSuggestions(val);
+                        else
+                          _tagsSuggestionsOverlay = Text(
+                            "Cannot add more than 20 tags",
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontSize: _size.width * 0.042),
+                          );
                         setState(() {});
                       },
                     ),
@@ -287,10 +296,13 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                     padding: EdgeInsets.all(10),
                     child: ElevatedButton(
                       onPressed: () {
-                        String tag =
-                            _capitaliseFirstLetter(_addTagController.text);
-                        if (tag.isNotEmpty && !_vendor.tags.contains(tag))
+                        String tag = _addTagController.text;
+                        if (tag.isNotEmpty &&
+                            !_vendor.tags.contains(tag) &&
+                            _vendor.tags.length < 20) {
+                          tag = _capitaliseFirstLetter(_addTagController.text);
                           _vendor.tags.add(tag);
+                        }
                         setState(() => _addTagController.clear());
                       },
                       style: BS(_size.width * 0.4, _size.height * 0.065),

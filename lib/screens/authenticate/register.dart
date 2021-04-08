@@ -26,8 +26,10 @@ class _RegisterState extends State<Register> {
   Widget _buildUsernameRow() => Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: TextFormField(
+          maxLength: 50,
           controller: _usernameController,
           decoration: InputDecoration(
+            counterText: "",
             prefixIcon: Icon(
               Icons.account_box,
               color: TEXT_COLOR,
