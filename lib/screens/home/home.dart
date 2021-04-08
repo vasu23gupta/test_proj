@@ -6,10 +6,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:http/http.dart';
 import 'package:location/location.dart';
-import 'package:test_proj/models/appUser.dart';
+import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
 import 'package:test_proj/shared/loading.dart';
-import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
@@ -212,7 +211,7 @@ class _HomeState extends State<Home> {
           color: Theme.of(context).iconTheme.color,
           icon: vendor.tags.contains('Food')
               ? Icon(Icons.restaurant_rounded)
-              : vendor.tags.contains('repair')
+              : vendor.tags.contains('Repair')
                   ? Icon(Icons.home_repair_service_rounded)
                   : Icon(Icons.location_on),
           iconSize: 40.0,
@@ -255,7 +254,7 @@ class _HomeState extends State<Home> {
                           ? "Guest"
                           : _user.displayName != null
                               ? _user.displayName
-                              : _user.uid),
+                              : "Welcome"),
                       decoration: BoxDecoration(color: Colors.blue)),
                   ListTile(
                       title: Text('Settings'),
@@ -264,13 +263,8 @@ class _HomeState extends State<Home> {
                   ListTile(
                     title: Text('Profile'),
                     onTap: () async {
-                      Response response =
-                          await UserDBService(jwt: await _user.getIdToken())
-                              .getUserByJWT();
-                      print(jsonDecode(response.body));        
-                      AppUser us = AppUser(jsonDecode(response.body));
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => ProfilePage(user: us)));
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => ProfilePage()));
                     },
                   ),
                   ListTile(
@@ -385,25 +379,25 @@ class _HomeState extends State<Home> {
                       //   }
                       // }
                       else {
-                        Response response =await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
-                        var month = DateTime.now().month;
-                        var year = DateTime.now().year;
-                        var json=jsonDecode(response.body);
+                        Response response =
+                            await UserDBService(jwt: await _user.getIdToken())
+                                .getUserByJWT();
+                        var json = jsonDecode(response.body);
                         print(json);
-                        if(json['addsRemaining']>0)
-                        {
+                        if (json['addsRemaining'] > 0) {
                           Vendor vendor = Vendor();
                           if (_userLoc != null)
                             vendor.coordinates =
                                 LatLng(_userLoc.latitude, _userLoc.longitude);
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) =>
-                                  AddVendorNameDescription(vendor: vendor)));
-                        }
-                        else{
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("You cannot add more vendors this month")));
-                        }
+                              builder: (_) => AddVendor(
+                                  vendor: vendor,
+                                  userLoc: _userLoc,
+                                  mapApiKey: _mapApiKey)));
+                        } else
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  "You cannot add more vendors this month")));
                       }
                     },
                   ),

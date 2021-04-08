@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 const textInputDecoration = InputDecoration(
+  counterText: "",
   //fillColor: Colors.white,
   filled: true,
   enabledBorder: OutlineInputBorder(
@@ -17,6 +18,13 @@ const textInputDecoration = InputDecoration(
     ),
   ),
 );
+
+// ignore: non_constant_identifier_names
+ButtonStyle BS(double w, double h) => ButtonStyle(
+    minimumSize: MaterialStateProperty.all<Size>(Size(w, h)),
+    backgroundColor: MaterialStateProperty.all<Color>(TEXT_COLOR),
+    shape: MaterialStateProperty.all<OutlinedBorder>(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0))));
 
 const BACKGROUND_COLOR = Color(0xff73DCE2);
 const TEXT_COLOR = Color(0xff5C73FF);
@@ -56,16 +64,15 @@ HashMap<String, List<String>> FILTERS = HashMap.from({
     "Fast Food",
     "North Indian",
     "South Indian",
-    "Chinese",
-    "Other"
+    "Chinese"
   ],
-  "Repair": ["Tailor", "Cobbler", "Car", "Bike", "Cycle", "Other"],
-  "Shops": ["Toys", "Crafts", "Clothing", "Grocery", "Other"],
+  "Repair": ["Tailor", "Cobbler", "Car", "Bike", "Cycle"],
+  "Shops": ["Toys", "Crafts", "Clothing", "Grocery"],
 });
 HashMap<String, List<bool>> areSelected = HashMap.from({
-  "Food": [false, false, false, false, false, false, false],
-  "Repair": [false, false, false, false, false, false],
-  "Shops": [false, false, false, false, false],
+  "Food": [false, false, false, false, false, false],
+  "Repair": [false, false, false, false, false],
+  "Shops": [false, false, false, false],
 });
 HashMap<String, bool> isSelected = HashMap.from({
   "Food": false,

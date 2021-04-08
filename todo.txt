@@ -1,11 +1,12 @@
 APP:
 ui.
-user points, quotas.
+user quotas.
 mediaquery.
 categories, subcategories.
 smooth home loading.
 report reasons.
 dark theme.
+about screen.
 
 
 RELEASE:

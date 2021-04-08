@@ -39,13 +39,7 @@ class _SignInState extends State<SignIn> {
       );
 
   ElevatedButton _buildLoginButton() => ElevatedButton(
-        style: ButtonStyle(
-            minimumSize:
-                MaterialStateProperty.all<Size>(Size(_w * 0.3, _h * 0.065)),
-            backgroundColor: MaterialStateProperty.all<Color>(TEXT_COLOR),
-            shape: MaterialStateProperty.all<OutlinedBorder>(
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0)))),
+        style: BS(_w * 0.3, _h * 0.065),
         onPressed: () async {
           if (_formKey.currentState.validate()) {
             setState(() => _loading = true);

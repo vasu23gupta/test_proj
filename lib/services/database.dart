@@ -14,7 +14,8 @@ class UserDBService {
   final String jwt;
   UserDBService({this.jwt});
 
-  static String url = "http://10.0.2.2:3000/";
+  static String url = "https://localpediabackend.herokuapp.com/";
+  //static String url = "http://10.0.2.2:3000/";
   static String usersUrl = url + "users/";
 
   Future<http.Response> addUser(String username) async {
@@ -34,15 +35,17 @@ class UserDBService {
   }
 
   Future<http.Response> getUserByJWT() async {
-    final response = await http.get(usersUrl+"getUserByJWT/",
-        headers: {'content-type': 'application/json', 'authorisation': jwt},);
+    final response = await http.get(
+      usersUrl + "getUserByJWT/",
+      headers: {'content-type': 'application/json', 'authorisation': jwt},
+    );
     return response;
   }
 }
 
 class VendorDBService {
-  //static String url = "https://localpediabackend.herokuapp.com/";
-  static String url = "http://10.0.2.2:3000/";
+  static String url = "https://localpediabackend.herokuapp.com/";
+  //static String url = "http://10.0.2.2:3000/";
   static String vendorsUrl = url + "vendors/";
   static String reportsUrl = url + "reports/";
   static String imagesUrl = url + "images/";
@@ -112,7 +115,7 @@ class VendorDBService {
 
     final resFut = http.patch(
       vendorsUrl + "edit/" + id,
-      headers: {'content-type': 'application/json','authorisation': jwt},
+      headers: {'content-type': 'application/json', 'authorisation': jwt},
       body: body,
     );
     _futures.add(resFut);

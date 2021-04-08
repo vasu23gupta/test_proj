@@ -68,6 +68,7 @@ class Vendor {
     List<String> temp = [];
     List<String> temp2 = [];
     List<String> temp3 = [];
+    print(json);
     for (var item in json['tags']) {
       temp.add(item.toString());
     }

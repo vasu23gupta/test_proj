@@ -8,7 +8,7 @@ class LocationService {
   // LatLng _currentLocation;
 
   // Location location = Location();
-  Location location = new Location();
+  Location location = Location();
 
   bool _serviceEnabled;
   PermissionStatus _permissionGranted;

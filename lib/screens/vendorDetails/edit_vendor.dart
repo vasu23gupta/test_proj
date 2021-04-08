@@ -121,37 +121,21 @@ class _EditVendorState extends State<EditVendor> {
     }
   }
 
-  void _putMarkerOnMap(LatLng point) {
-    setState(() {
-      markers = [];
-      vendorLatLng = point;
-      http
-          .get(
-        "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
-      )
-          .then((value) {
-        var json = jsonDecode(value.body);
-        if ((json['responseCode']) == 200) {
-          address = json['results'][0]['formatted_address'];
-          addressController.text = address;
-        } else
-          print(json['responseCode']);
-      });
-      markers.add(
-        Marker(
+  Future<void> _putMarkerOnMap(LatLng point) async {
+    String address =
+        await VendorDBService.getAddress(point.latitude, point.longitude);
+    setState(
+      () {
+        vendor.coordinates = point;
+        addressController.text = address;
+        markers.add(Marker(
           width: 45.0,
           height: 45.0,
           point: point,
-          builder: (context) => Container(
-            child: IconButton(
-              icon: Icon(Icons.location_on),
-              iconSize: 80.0,
-              onPressed: () {},
-            ),
-          ),
-        ),
-      );
-    });
+          builder: (context) => Icon(Icons.location_on, size: 40),
+        ));
+      },
+    );
   }
 
   Widget previewImages() {
@@ -163,58 +147,56 @@ class _EditVendorState extends State<EditVendor> {
         height: 150,
         child: ListView.builder(
           itemCount: editing ? netImages.length + images.length : images.length,
-          itemBuilder: (context, index) {
-            return Stack(
-              overflow: Overflow.visible,
-              children: <Widget>[
-                if (editing)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: index < netImages.length
-                        ? Image(
-                            image: widget.vendor.getImageFomId(imageIds[index]))
-                        : AssetThumb(
-                            asset: images[index - netImages.length],
-                            width: 150,
-                            height: 150,
-                          ),
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AssetThumb(
-                      asset: images[index],
-                      width: 150,
-                      height: 150,
-                    ),
-                  ),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  height: 30,
-                  width: 30,
-                  child: InkResponse(
-                    onTap: () {
-                      setState(() {
-                        if (index < imageIds.length) {
-                          imageIdsToBeRemoved.add(imageIds[index]);
-                          print(imageIds[index]);
-                          imageIds.removeAt(index);
-                          netImages.removeAt(index);
-                        } else if (index < images.length + imageIds.length) {
-                          images.removeAt(imageIds.length - index);
-                        }
-                      });
-                    },
-                    child: CircleAvatar(
-                      child: Icon(Icons.close),
-                      backgroundColor: Colors.red,
-                    ),
+          itemBuilder: (context, index) => Stack(
+            overflow: Overflow.visible,
+            children: <Widget>[
+              if (editing)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: index < netImages.length
+                      ? Image(
+                          image: widget.vendor.getImageFomId(imageIds[index]))
+                      : AssetThumb(
+                          asset: images[index - netImages.length],
+                          width: 150,
+                          height: 150,
+                        ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: AssetThumb(
+                    asset: images[index],
+                    width: 150,
+                    height: 150,
                   ),
                 ),
-              ],
-            );
-          },
+              Positioned(
+                top: 0,
+                right: 0,
+                height: 30,
+                width: 30,
+                child: InkResponse(
+                  onTap: () {
+                    setState(() {
+                      if (index < imageIds.length) {
+                        imageIdsToBeRemoved.add(imageIds[index]);
+                        print(imageIds[index]);
+                        imageIds.removeAt(index);
+                        netImages.removeAt(index);
+                      } else if (index < images.length + imageIds.length) {
+                        images.removeAt(imageIds.length - index);
+                      }
+                    });
+                  },
+                  child: CircleAvatar(
+                    child: Icon(Icons.close),
+                    backgroundColor: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+          ),
           scrollDirection: Axis.horizontal,
         ),
       );
@@ -411,7 +393,7 @@ class _EditVendorState extends State<EditVendor> {
                             http.Response result;
                             if (editing)
                               result = await VendorDBService.updateVendor(
-                                await  user.getIdToken(),
+                                await user.getIdToken(),
                                 widget.vendor.id,
                                 name,
                                 vendorLatLng,
