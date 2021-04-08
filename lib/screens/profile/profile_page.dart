@@ -34,6 +34,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    print(_appUser.addsRemainig);
+    print(_appUser.editsRemaing);
     return _loading
         ? Loading()
         : Scaffold(
@@ -51,7 +53,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Text('Points : ',
                         style: TextStyle(fontSize: 20, color: Colors.green)),
-                    SizedBox(width: 10),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Text(_appUser.points.toString(),
                         style: TextStyle(fontSize: 20, color: Colors.yellow)),
                   ],
@@ -60,7 +64,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Text('Level : ',
                         style: TextStyle(fontSize: 20, color: Colors.green)),
-                    SizedBox(width: 10),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Text(_appUser.level.toString(),
                         style: TextStyle(fontSize: 20, color: Colors.yellow)),
                   ],
@@ -69,11 +75,54 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Text('NextLevelAt : ',
                         style: TextStyle(fontSize: 20, color: Colors.green)),
-                    SizedBox(width: 10),
+                    SizedBox(
+                      width: 10,
+                    ),
                     Text(_appUser.nextLevelAt.toString(),
                         style: TextStyle(fontSize: 20, color: Colors.yellow)),
-                    SizedBox(width: 10),
-                    Text('points', style: TextStyle(fontSize: 20))
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'points',
+                      style: TextStyle(fontSize: 20),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Remaining Additions: ',
+                        style: TextStyle(fontSize: 20, color: Colors.green)),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(_appUser.addsRemainig.toString(),
+                        style: TextStyle(fontSize: 20, color: Colors.yellow)),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      ' this month',
+                      style: TextStyle(fontSize: 20),
+                    )
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Remaining Edits: ',
+                        style: TextStyle(fontSize: 20, color: Colors.green)),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(_appUser.editsRemaing.toString(),
+                        style: TextStyle(fontSize: 20, color: Colors.yellow)),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      ' this month',
+                      style: TextStyle(fontSize: 20),
+                    )
                   ],
                 ),
               ],

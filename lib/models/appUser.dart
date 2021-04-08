@@ -3,6 +3,8 @@ class AppUser {
   int level;
   int points;
   int nextLevelAt;
+  int editsRemaing;
+  int addsRemainig;
 
   //AppUser({this.name,this.level,this.points,this.nextLevelAt})
 
@@ -11,5 +13,7 @@ class AppUser {
     this.points=json['points'];
     this.nextLevelAt=json['nextLevelAt'];
     this.name=json['username'];
+    this.addsRemainig=json['addsRemaining'];
+    this.editsRemaing=json['editsRemaining'];
   }  
 }

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
@@ -260,8 +262,10 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(builder: (_) => SettingsPage()))),
                   ListTile(
                     title: Text('Profile'),
-                    onTap: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => ProfilePage())),
+                    onTap: () async {
+                      Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => ProfilePage()));
+                    },
                   ),
                   ListTile(
                       title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
@@ -375,16 +379,25 @@ class _HomeState extends State<Home> {
                       //   }
                       // }
                       else {
-                        Vendor vendor = Vendor();
-                        if (_userLoc != null)
-                          vendor.coordinates =
-                              LatLng(_userLoc.latitude, _userLoc.longitude);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) => AddVendor(
+                        Response response =
+                            await UserDBService(jwt: await _user.getIdToken())
+                                .getUserByJWT();
+                        var json = jsonDecode(response.body);
+                        print(json);
+                        if (json['addsRemaining'] > 0) {
+                          Vendor vendor = Vendor();
+                          if (_userLoc != null)
+                            vendor.coordinates =
+                                LatLng(_userLoc.latitude, _userLoc.longitude);
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => AddVendor(
                                   vendor: vendor,
                                   userLoc: _userLoc,
-                                  mapApiKey: _mapApiKey,
-                                )));
+                                  mapApiKey: _mapApiKey)));
+                        } else
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  "You cannot add more vendors this month")));
                       }
                     },
                   ),

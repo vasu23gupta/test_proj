@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/database.dart';
@@ -33,9 +36,22 @@ class VendorOptions extends StatelessWidget {
             //     Navigator.of(context).push(MaterialPageRoute(
             //         builder: (_) => AddVendor(vendor: vendor)));
             //}
-            else
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => EditVendor(vendor: vendor)));
+            else{
+              Response response =await UserDBService(jwt: await user.getIdToken()).getUserByJWT();
+              var month = DateTime.now().month;
+              var year = DateTime.now().year;
+              var json=jsonDecode(response.body);
+              if(json['editsRemaining']>0)
+              {  
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => EditVendor(vendor: vendor)));
+              }
+              else
+              {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("You cannot edit more vendorss this month")));
+              }
+            }
             break;
           case 'Report':
             if (user.isAnonymous)
