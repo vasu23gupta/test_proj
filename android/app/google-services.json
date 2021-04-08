@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "82667693703-ci712iguhoebgjckhps64grlf9piob76.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.VasuGupta.LocalPedia",
+            "certificate_hash": "190f19098426eeba2c5eda3d881f77130aff42a5"
+          }
+        },
+        {
           "client_id": "82667693703-pujcesbbgp9b2t7qokmrmo717h1jonpd.apps.googleusercontent.com",
           "client_type": 3
         }

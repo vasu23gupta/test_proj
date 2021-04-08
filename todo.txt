@@ -1,6 +1,5 @@
 APP:
 ui.
-user quotas.
 mediaquery.
 categories, subcategories.
 smooth home loading.

@@ -124,7 +124,7 @@ class _VendorDetailsState extends State<VendorDetails> {
       height: 45.0,
       point: vendorLoc,
       builder: (context) => Icon(
-        Icons.circle,
+        Icons.location_on,
         size: 40,
       ),
     );
@@ -272,11 +272,11 @@ class _VendorDetailsState extends State<VendorDetails> {
                         layers: [
                           TileLayerOptions(
                               urlTemplate:
-                                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                               additionalOptions: {
                                 'subscriptionKey':
                                     '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
-                                'theme': _darkModeOn ? 'dark' : 'main'
+                                //'theme': _darkModeOn ? 'dark' : 'main'
                               }),
                           MarkerLayerOptions(markers: [vendorMarker]),
                         ],
@@ -324,16 +324,6 @@ class _VendorDetailsState extends State<VendorDetails> {
                 ),
                 SizedBox(height: 20),
                 //add review button
-                Row(children: <Widget>[
-                  RaisedButton(
-                    color: Colors.pink[400],
-                    child: Text(
-                      'All Reviews',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {},
-                  ),
-                ]),
                 vendor.reviewed
                     ? Container()
                     : RaisedButton(

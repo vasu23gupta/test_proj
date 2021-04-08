@@ -91,10 +91,10 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                   layers: [
                     TileLayerOptions(
                         urlTemplate:
-                            "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                            "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                         additionalOptions: {
                           'subscriptionKey': _mapApiKey,
-                          'theme': _darkModeOn ? 'dark' : 'main'
+                          //'theme': _darkModeOn ? 'dark' : 'main'
                         }),
                     MarkerLayerOptions(markers: [_marker]),
                   ],

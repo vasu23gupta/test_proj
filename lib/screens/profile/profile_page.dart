@@ -34,8 +34,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(_appUser.addsRemainig);
-    print(_appUser.editsRemaing);
     return _loading
         ? Loading()
         : Scaffold(

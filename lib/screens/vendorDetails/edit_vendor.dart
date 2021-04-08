@@ -110,14 +110,9 @@ class _EditVendorState extends State<EditVendor> {
           vendor.coordinates.latitude < _mapBounds.north &&
           vendor.coordinates.latitude > _mapBounds.south) {
         setState(() => loading = false);
-      } else {
-        print(vendor.coordinates.longitude < _mapBounds.east);
-        print(vendor.coordinates.longitude > _mapBounds.west);
-        print(vendor.coordinates.latitude < _mapBounds.north);
-        print(vendor.coordinates.latitude > _mapBounds.south);
+      } else
         setState(
             () => loadingText = "You must be close to the vendor to edit it.");
-      }
     }
   }
 
@@ -423,16 +418,16 @@ class _EditVendorState extends State<EditVendor> {
                                 error = 'could not add vendor';
                               });
                             else {
-                              Map<String,dynamic> object=jsonDecode(result.body);
-                              if(object.containsKey("limitExceeded"))
-                              {
+                              Map<String, dynamic> object =
+                                  jsonDecode(result.body);
+                              if (object.containsKey("limitExceeded")) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(object['limitExceeded'])));
-                              }
-                              else
-                              {
+                                    SnackBar(
+                                        content:
+                                            Text(object['limitExceeded'])));
+                              } else {
                                 Vendor vendor =
-                                  Vendor.fromJson(jsonDecode(result.body));
+                                    Vendor.fromJson(jsonDecode(result.body));
                                 Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) =>
                                         VendorDetails(vendor: vendor)));

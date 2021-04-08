@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:test_proj/screens/authenticate/tnc_pp.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
@@ -29,13 +28,13 @@ class _RegisterState extends State<Register> {
           maxLength: 50,
           controller: _usernameController,
           decoration: InputDecoration(
-            counterText: "",
-            prefixIcon: Icon(
-              Icons.account_box,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Username',
-          ),
+              counterText: "",
+              prefixIcon: Icon(
+                Icons.account_box,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Username',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
           validator: (val) => (val.length < 2)
               ? 'Please enter a username greater than 2 characters'
               : (val.length > 30)
@@ -52,12 +51,12 @@ class _RegisterState extends State<Register> {
           validator: (val) =>
               val.length < 6 ? 'Enter a password 6+ characters long' : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.lock,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Password',
-          ),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Password',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
         ),
       );
 
@@ -175,12 +174,12 @@ class _RegisterState extends State<Register> {
           validator: (val) =>
               _passwordController.text != val ? 'Passwords do not match' : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.lock,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Re-Enter Password',
-          ),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Re-Enter Password',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
         ),
       );
 
@@ -234,9 +233,8 @@ class _RegisterState extends State<Register> {
                     decoration: BoxDecoration(
                       color: BACKGROUND_COLOR,
                       borderRadius: BorderRadius.only(
-                        bottomLeft: const Radius.circular(70),
-                        bottomRight: const Radius.circular(70),
-                      ),
+                          bottomLeft: const Radius.circular(70),
+                          bottomRight: const Radius.circular(70)),
                     ),
                   ),
                   Column(

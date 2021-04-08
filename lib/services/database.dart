@@ -195,11 +195,9 @@ class VendorDBService {
       String query, String searchRadius, LatLng userLoc) async {
     if (searchRadius == '10km' || searchRadius == '15km') {
       searchRadius = searchRadius.substring(0, 2);
-      print(searchRadius);
     }
     if (searchRadius == "5km") {
       searchRadius = searchRadius.substring(0, 1);
-      print(searchRadius);
     }
     if (searchRadius == 'no limit: default') {
       searchRadius = "0";
