@@ -20,6 +20,12 @@ class _SignInState extends State<SignIn> {
   double _h = 0;
   double _w = 0;
 
+  Padding _buildErrorText() {
+    return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(_error, style: ERROR_TEXT_STYLE(_w)));
+  }
+
   Padding _buildPasswordRow() => Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
         child: TextFormField(
@@ -29,12 +35,12 @@ class _SignInState extends State<SignIn> {
           validator: (val) =>
               val.length < 6 ? 'Enter a password 6+ characters long' : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.lock,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Password',
-          ),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Password',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
         ),
       );
 
@@ -48,7 +54,7 @@ class _SignInState extends State<SignIn> {
             if (result == null)
               setState(() {
                 _loading = false;
-                _error = 'could not sign in with those credentials';
+                _error = 'Could not sign in with those credentials.';
               });
           }
         },
@@ -65,7 +71,10 @@ class _SignInState extends State<SignIn> {
         padding: const EdgeInsets.all(8.0),
         child: Text(
           'Or',
-          style: TextStyle(fontWeight: FontWeight.w400),
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: ThemeData.light().textTheme.bodyText2.color,
+          ),
         ),
       );
 
@@ -73,11 +82,14 @@ class _SignInState extends State<SignIn> {
         padding: const EdgeInsets.all(12.0),
         child: Text(
           'Or sign in with',
-          style: TextStyle(fontWeight: FontWeight.w400),
+          style: TextStyle(
+            fontWeight: FontWeight.w400,
+            color: ThemeData.light().textTheme.bodyText2.color,
+          ),
         ),
       );
 
-  GestureDetector _buildSocialBtnRow() => GestureDetector(
+  GestureDetector _buildGoogleBtn() => GestureDetector(
         onTap: () async {
           dynamic result = await _auth.signInWithGoogle();
           if (result == null) print('error signing in');
@@ -114,7 +126,7 @@ class _SignInState extends State<SignIn> {
                   ],
                 ),
                 _buildOrGoogleRow(),
-                _buildSocialBtnRow(),
+                _buildGoogleBtn(),
                 _buildOrRow(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
@@ -187,37 +199,41 @@ class _SignInState extends State<SignIn> {
     _w = MediaQuery.of(context).size.width;
     return _loading
         ? Loading()
-        : SafeArea(
-            child: Scaffold(
-              resizeToAvoidBottomInset: false,
-              backgroundColor: Color(0xfff2f3f7),
-              body: Stack(
-                children: <Widget>[
-                  Container(
-                    height: _h * 0.7,
-                    width: _w,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: BACKGROUND_COLOR,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: const Radius.circular(70),
-                          bottomRight: const Radius.circular(70),
+        : Theme(
+            data: ThemeData.light(),
+            child: SafeArea(
+              child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                backgroundColor: Color(0xfff2f3f7),
+                body: Stack(
+                  children: <Widget>[
+                    Container(
+                      height: _h * 0.7,
+                      width: _w,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: BACKGROUND_COLOR,
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: const Radius.circular(70),
+                            bottomRight: const Radius.circular(70),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      buildLogo(_h),
-                      _buildContainer(),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: _buildSignUpBtn(),
-                      ),
-                    ],
-                  )
-                ],
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        buildLogo(_h),
+                        _buildContainer(),
+                        _buildErrorText(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: _buildSignUpBtn(),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
           );

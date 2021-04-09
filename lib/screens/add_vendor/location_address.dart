@@ -23,7 +23,6 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
   LatLng _userLoc;
   Marker _marker = Marker();
   Vendor _vendor;
-  String _errorText = '';
   //bool _darkModeOn;
   String _mapApiKey = '';
 
@@ -114,7 +113,7 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                         hintText:
                             'Just tap on the map to enter vendor\'s location, its address will be updated automatically. You can still update the address.')),
               ),
-              Text(_errorText, style: TextStyle(color: Colors.red)),
+
               /*  SizedBox(
                           child: Padding(
                             padding: EdgeInsets.all(8),

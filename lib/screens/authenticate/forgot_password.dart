@@ -17,8 +17,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Padding _buildErrorText() {
     return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(_error,
-            style: TextStyle(color: Colors.red, fontSize: _w * 0.042)));
+        child: Text(_error, style: ERROR_TEXT_STYLE(_w)));
   }
 
   Widget _buildsendemailButton() {

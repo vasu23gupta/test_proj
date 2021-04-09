@@ -12,7 +12,6 @@ class AddVendorNameDescription extends StatefulWidget {
 
 class _AddVendorNameDescriptionState extends State<AddVendorNameDescription> {
   Vendor _vendor;
-  String _errorText = '';
 
   @override
   void initState() {
@@ -63,8 +62,6 @@ class _AddVendorNameDescriptionState extends State<AddVendorNameDescription> {
                             'Add some description for the vendor. Try to include the product and services available, prices, timings and contact details.')),
               ),
             ),
-            SizedBox(
-                child: Text(_errorText, style: TextStyle(color: Colors.red))),
             /* TextField(
                       controller: _nameController,
                       decoration:

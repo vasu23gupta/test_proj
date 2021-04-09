@@ -29,17 +29,21 @@ ButtonStyle BS(double w, double h) => ButtonStyle(
 const BACKGROUND_COLOR = Color(0xff73DCE2);
 const TEXT_COLOR = Color(0xff5C73FF);
 
+// ignore: non_constant_identifier_names
+TextStyle ERROR_TEXT_STYLE(double _w) =>
+    TextStyle(color: Colors.red, fontSize: _w * 0.042);
+
 Padding buildEmailRow(_emailController) => Padding(
       padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: TextFormField(
         controller: _emailController,
         decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.email,
-            color: TEXT_COLOR,
-          ),
-          hintText: 'E-mail',
-        ),
+            prefixIcon: Icon(
+              Icons.email,
+              color: TEXT_COLOR,
+            ),
+            hintText: 'E-mail',
+            hintStyle: TextStyle(color: ThemeData.light().hintColor)),
         validator: (val) => val.isEmpty ? 'Enter an email' : null,
       ),
     );

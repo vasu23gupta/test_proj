@@ -324,9 +324,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                       child: Text('Submit', style: btnTextStyle(_size)),
                     ),
                   ),
-                  Text(_errorText,
-                      style: TextStyle(
-                          color: Colors.red, fontSize: _size.width * 0.042))
+                  Text(_errorText, style: ERROR_TEXT_STYLE(_size.width))
                 ],
               ),
             ),
