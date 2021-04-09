@@ -39,18 +39,18 @@ class _HomeState extends State<Home> {
   List<Vendor> _vendors = [];
   List<Marker> _vendorMarkers = [];
   LocationService _locSer = LocationService();
-  var _brightness;
-  bool _darkModeOn;
+  // bool _darkModeOn;
   bool _loading = true;
   String _mapApiKey = '';
   bool _isSnackbarActive = false;
   User _user;
+  double _h;
+  double _w;
 
   @override
   void initState() {
     super.initState();
-    _brightness = SchedulerBinding.instance.window.platformBrightness;
-    _darkModeOn = _brightness == Brightness.dark;
+    //_darkModeOn = SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
     _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _mapApiKey = await VendorDBService.getMapApiKey(_user);
@@ -230,6 +230,8 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _h = MediaQuery.of(context).size.height;
+    _w = MediaQuery.of(context).size.width;
     return _loading
         ? Loading()
         : Scaffold(
@@ -252,10 +254,8 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(builder: (_) => SettingsPage()))),
                   ListTile(
                     title: Text('Profile'),
-                    onTap: () async {
-                      Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => ProfilePage()));
-                    },
+                    onTap: () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => ProfilePage())),
                   ),
                   ListTile(
                       title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
@@ -288,44 +288,16 @@ class _HomeState extends State<Home> {
                   top: 60,
                   right: 15,
                   left: 15,
-                  child: Container(
-                    color: Theme.of(context).backgroundColor,
-                    child: Row(
-                      children: <Widget>[
-                        //drawer
-                        IconButton(
-                          icon: Icon(Icons.menu),
-                          onPressed: () =>
-                              _scaffoldKey.currentState.openDrawer(),
-                        ),
-                        //search
-                        Expanded(
-                          child: TextField(
-                            onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context) => Search())),
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 15),
-                                hintText: "Search"),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  child: _buildSearchBar(context),
                 ),
                 //filter bar
                 Positioned(
                   top: 110.0,
                   left: 10,
-                  child: Row(children: [
-                    SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: _filterBar()),
-                  ]),
+                  child:
+                      Row(children: [SizedBox(width: _w, child: _filterBar())]),
                   height: 60.0,
-                  width: MediaQuery.of(context).size.width,
+                  width: _w,
                 ),
               ],
             ),
@@ -344,55 +316,72 @@ class _HomeState extends State<Home> {
                 //add vendor
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    child: Icon(Icons.add),
-                    onPressed: () async {
-                      if (_user.isAnonymous)
-                        showDialog<void>(
-                            context: context,
-                            builder: (_) => LoginPopup(to: "add a vendor"));
-                      //DONT DELETE
-                      // else if (!user.emailVerified) {
-                      //   await user.reload();
-                      //   if (!user.emailVerified)
-                      //     showDialog<void>(
-                      //         context: context,
-                      //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
-                      //   else {
-                      //     Vendor vendor = Vendor();
-                      //      if (userLoc != null) vendor.coordinates =
-                      //         LatLng(userLoc.latitude, userLoc.longitude);
-                      //     Navigator.of(context).push(MaterialPageRoute(
-                      //         builder: (_) =>
-                      //             AddVendorNameDescription(vendor: vendor)));
-                      //   }
-                      // }
-                      else {
-                        Response response =
-                            await UserDBService(jwt: await _user.getIdToken())
-                                .getUserByJWT();
-                        var json = jsonDecode(response.body);
-                        if (json['addsRemaining'] > 0) {
-                          Vendor vendor = Vendor();
-                          if (_userLoc != null)
-                            vendor.coordinates =
-                                LatLng(_userLoc.latitude, _userLoc.longitude);
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => AddVendor(
-                                  vendor: vendor,
-                                  userLoc: _userLoc,
-                                  mapApiKey: _mapApiKey)));
-                        } else
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                  "You cannot add more vendors this month")));
-                      }
-                    },
-                  ),
+                  child: _buildAddVendorFAB(),
                 ),
               ],
             ),
           );
+  }
+
+  FloatingActionButton _buildAddVendorFAB() {
+    return FloatingActionButton(
+      heroTag: null,
+      child: Icon(Icons.add),
+      onPressed: () async {
+        if (_user.isAnonymous)
+          showDialog<void>(
+              context: context, builder: (_) => LoginPopup(to: "add a vendor"));
+        //DONT DELETE
+        // else if (!user.emailVerified) {
+        //   await user.reload();
+        //   if (!user.emailVerified)
+        //     showDialog<void>(
+        //         context: context,
+        //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
+        //   else {
+        //     Vendor vendor = Vendor();
+        //      if (userLoc != null) vendor.coordinates =
+        //         LatLng(userLoc.latitude, userLoc.longitude);
+        //     Navigator.of(context).push(MaterialPageRoute(
+        //         builder: (_) =>
+        //             AddVendorNameDescription(vendor: vendor)));
+        //   }
+        // }
+        else {
+          Vendor vendor = Vendor();
+          if (_userLoc != null)
+            vendor.coordinates = LatLng(_userLoc.latitude, _userLoc.longitude);
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => AddVendor(
+                  vendor: vendor, userLoc: _userLoc, mapApiKey: _mapApiKey)));
+        }
+      },
+    );
+  }
+
+  Container _buildSearchBar(BuildContext context) {
+    return Container(
+      color: Theme.of(context).backgroundColor,
+      child: Row(
+        children: <Widget>[
+          //drawer
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () => _scaffoldKey.currentState.openDrawer(),
+          ),
+          //search
+          Expanded(
+            child: TextField(
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => Search())),
+              decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                  hintText: "Search"),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

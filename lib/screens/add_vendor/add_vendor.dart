@@ -1,10 +1,15 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/add_vendor/location_address.dart';
 import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/screens/add_vendor/tags_images.dart';
+import 'package:test_proj/services/database.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/shared/constants.dart';
@@ -25,19 +30,15 @@ class _AddVendorState extends State<AddVendor>
   bool _loading = true;
   LocationService _locSer = LocationService();
   LocationData _userLoc;
-  String _loadingText;
+  String _loadingText = "";
   double _h = 0;
   double _w = 0;
   int _screen = 0;
-  String _errorText = '';
+  User _user;
 
-  void _nextPage() {
-    if (_screen < 2) setState(() => _screen++);
-  }
+  void _nextPage() => _screen < 2 ? setState(() => _screen++) : null;
 
-  void _previousPage() {
-    if (_screen > 0) setState(() => --_screen);
-  }
+  void _previousPage() => _screen > 0 ? setState(() => --_screen) : null;
 
   Future<bool> _onWillPop() async {
     if (_screen == 0)
@@ -48,15 +49,27 @@ class _AddVendorState extends State<AddVendor>
     }
   }
 
-  Future _getLocation() async {
+  Future<bool> _getLocation() async {
     _userLoc = await _locSer.getLocation();
-    if (_userLoc == null)
+    if (_userLoc == null) {
       setState(() =>
-          _loadingText = "You need to enable your location to add a vendor.");
-    else
-      setState(() {
-        _loading = false;
-      });
+          _loadingText += "You need to enable your location to add a vendor. ");
+      return false;
+    } else
+      return true;
+  }
+
+  Future<bool> getUser() async {
+    Response response =
+        await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
+    var json = jsonDecode(response.body);
+    if (json['addsRemaining'] > 0) {
+      return true;
+    } else {
+      setState(
+          () => _loadingText += "You cannot add more vendors this month. ");
+      return false;
+    }
   }
 
   @override
@@ -64,10 +77,15 @@ class _AddVendorState extends State<AddVendor>
     super.initState();
     _vendor = widget.vendor;
     _userLoc = widget.userLoc;
+    _user = Provider.of<User>(context, listen: false);
+    List<Future> _futures = [];
     if (_userLoc == null)
-      _getLocation();
+      _futures.add(_getLocation());
     else
-      _loading = false;
+      _futures.add(Future.value(true));
+    _futures.add(getUser());
+    Future.wait(_futures).then((value) =>
+        (value[0] && value[1]) ? setState(() => _loading = false) : null);
   }
 
   @override

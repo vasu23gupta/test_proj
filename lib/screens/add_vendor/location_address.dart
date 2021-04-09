@@ -24,7 +24,7 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
   Marker _marker = Marker();
   Vendor _vendor;
   String _errorText = '';
-  bool _darkModeOn;
+  //bool _darkModeOn;
   String _mapApiKey = '';
 
   @override
@@ -33,18 +33,14 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
     _mapApiKey = widget.mapApiKey;
     _vendor = widget.vendor;
     _userLoc = widget.userLoc;
-    _darkModeOn =
-        SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
+    // _darkModeOn =
+    //     SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
   }
 
   Future<void> _putMarkerOnMap(LatLng point) async {
-    String address =
-        await VendorDBService.getAddress(point.latitude, point.longitude);
     setState(
       () {
-        _addressController.text = address;
         _vendor.coordinates = point;
-        _vendor.address = address;
         _marker = Marker(
           width: 45.0,
           height: 45.0,
@@ -53,6 +49,12 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
         );
       },
     );
+    String address =
+        await VendorDBService.getAddress(point.latitude, point.longitude);
+    setState(() {
+      _addressController.text = address;
+      _vendor.address = address;
+    });
   }
 
   @override
