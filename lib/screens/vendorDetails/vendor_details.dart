@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
@@ -10,6 +9,7 @@ import 'package:test_proj/screens/vendorDetails/full_screen_image.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_options.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/services/location_service.dart';
+import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:latlong/latlong.dart';
 import 'dart:async';
@@ -27,340 +27,332 @@ class VendorDetails extends StatefulWidget {
 }
 
 class _VendorDetailsState extends State<VendorDetails> {
-  User user;
-  Vendor vendor;
-  List<Review> vendorReviews = [];
-  var vendorReviewIndexToBeFetched = 0;
-  String description = "";
-  String address = '';
-  bool loading = true;
-  bool reviewsLoading = false;
-  bool getNewReviews = true;
-  Review myReview;
-  var _brightness;
-  bool _darkModeOn;
-  ScrollController scrollController = ScrollController();
-  int index;
+  User _user;
+  Vendor _vendor;
+  List<Review> _vendorReviews = [];
+  int _vendorReviewIndexToBeFetched = 0;
+  bool _loading = true;
+  bool _reviewsLoading = false;
+  bool _getNewReviews = true;
+  Review _myReview;
+  //var _brightness;
+  //bool _darkModeOn;
+  ScrollController _scrollController = ScrollController();
+  double _h;
+  double _w;
+  MapController _controller = MapController();
 
-  Future<void> getReviews(String id) async {
+  Marker _vendorMarker() => Marker(
+      width: 45.0,
+      height: 45.0,
+      point: _vendor.coordinates,
+      builder: (context) => Icon(Icons.location_on, size: 40));
+
+  Future<void> _getReviews(String id) async {
     setState(() {
-      reviewsLoading = true;
-      getNewReviews = false;
+      _reviewsLoading = true;
+      _getNewReviews = false;
     });
     Review review = await VendorDBService.getReviewByReviewId(id);
     setState(() {
-      if (review.review != null) vendorReviews.add(review);
-      vendorReviewIndexToBeFetched += 1;
+      if (review.review != null) _vendorReviews.add(review);
+      _vendorReviewIndexToBeFetched += 1;
     });
   }
 
-  Future<void> getFiveReviews() async {
+  Future<void> _getFiveReviews() async {
     for (int i = 0;
-        vendorReviewIndexToBeFetched < vendor.reviewIds.length && i < 5;
-        i++) await getReviews(vendor.reviewIds[vendorReviewIndexToBeFetched]);
-    setState(() => reviewsLoading = false);
+        _vendorReviewIndexToBeFetched < _vendor.reviewIds.length && i < 5;
+        i++)
+      await _getReviews(_vendor.reviewIds[_vendorReviewIndexToBeFetched]);
+    setState(() => _reviewsLoading = false);
   }
 
-  Future<void> getVendor() async {
+  Future<void> _getVendor() async {
     Vendor v =
-        await VendorDBService.getVendor(vendor.id, await user.getIdToken());
-    // Vendor v = await _dbService.getVendor(
-    //   id: vendor.id,
-    //   vendor: vendor,
-    //   name: vendor.name == null,
-    //   tags: vendor.tags == null,
-    //   description: vendor.description == null,
-    //   imageIds: vendor.imageIds == null,
-    //   reviewIds: vendor.reviewIds == null,
-    //   coordinates: vendor.coordinates == null,
-    //   stars: vendor.stars == null,
-    // );
+        await VendorDBService.getVendor(_vendor.id, await _user.getIdToken());
     if (v.reviewed)
-      myReview = await VendorDBService.getReviewByUserAndVendorId(
-          vendor.id, await user.getIdToken());
-
+      _myReview = await VendorDBService.getReviewByUserAndVendorId(
+          _vendor.id, await _user.getIdToken());
     setState(() {
-      this.vendor = v;
-      loading = false;
+      this._vendor = v;
+      _loading = false;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    this.vendor = widget.vendor;
-    _brightness = SchedulerBinding.instance.window.platformBrightness;
-    _darkModeOn = _brightness == Brightness.dark;
-    scrollController.addListener(() {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent)
-        setState(() => getNewReviews = true);
+    this._vendor = widget.vendor;
+    //_brightness = SchedulerBinding.instance.window.platformBrightness;
+    //_darkModeOn = _brightness == Brightness.dark;
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent)
+        setState(() => _getNewReviews = true);
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      user = Provider.of<User>(context, listen: false);
-      getVendor();
-    });
+    _user = Provider.of<User>(context, listen: false);
+    _getVendor();
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  void deleteReviewFromUi() => setState(() => vendor.reviewed = false);
+  void _deleteReviewFromUi() => setState(() => _vendor.reviewed = false);
 
   @override
   Widget build(BuildContext context) {
-    if (!loading) {
-      description = vendor.description;
-      address = vendor.address;
-    }
-    if (!reviewsLoading && !loading && getNewReviews) getFiveReviews();
-    LatLng vendorLoc = widget.vendor.coordinates;
-    MapController controller = MapController();
-    Marker vendorMarker = Marker(
-      width: 45.0,
-      height: 45.0,
-      point: vendorLoc,
-      builder: (context) => Icon(
-        Icons.location_on,
-        size: 40,
-      ),
-    );
-
-    return loading
+    _h = MediaQuery.of(context).size.height;
+    _w = MediaQuery.of(context).size.width;
+    if (!_reviewsLoading && !_loading && _getNewReviews) _getFiveReviews();
+    return _loading
         ? Loading()
         : Scaffold(
-            body: ListView(
-              shrinkWrap: true,
-              children: <Widget>[
-                Stack(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
                   children: <Widget>[
-                    Container(
-                      height: 300.0,
-                      child: PhotoViewGallery.builder(
-                        scrollPhysics: const BouncingScrollPhysics(),
-                        builder: (BuildContext context, int index) =>
-                            PhotoViewGalleryPageOptions(
-                          onTapDown: (context, details, controllerValue) =>
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => FullScreenImage(
-                                        imageIDs: vendor.imageIds,
-                                        index: index,
-                                      ))),
-                          maxScale: PhotoViewComputedScale.contained * 2.0,
-                          minScale: PhotoViewComputedScale.contained * 0.8,
-                          imageProvider: VendorDBService.getVendorImage(
-                              vendor.imageIds[index]),
-                          heroAttributes: PhotoViewHeroAttributes(
-                              tag: vendor.imageIds[index]),
-                        ),
-                        itemCount: vendor.imageIds.length,
-                        loadingBuilder: (context, event) => Center(
-                          child: Container(
-                            width: 20.0,
-                            height: 20.0,
-                            child: CircularProgressIndicator(
-                              value: event == null
-                                  ? 0
-                                  : event.cumulativeBytesLoaded /
-                                      event.expectedTotalBytes,
-                            ),
-                          ),
-                        ),
-                        backgroundDecoration:
-                            BoxDecoration(color: Theme.of(context).canvasColor),
-
-                        //pageController: widget.pageController,
-                        //onPageChanged: onPageChanged,
-                      ),
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Stack(
                       children: <Widget>[
-                        IconButton(
-                          icon: Icon(Icons.arrow_back_ios),
-                          color: Colors.black,
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                        VendorOptions(vendor: vendor),
+                        _buildGallery(),
+                        _buildTopRow(),
                       ],
                     ),
+                    //name description address rating tags
+                    _buildTextDetails(),
+                    //map
+                    SizedBox(
+                      height: _h * 0.37,
+                      child: Stack(
+                        children: <Widget>[
+                          _buildMap(),
+                          Positioned(
+                            bottom: 20,
+                            right: 20,
+                            child: _buildMapFAB(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _vendor.reviewed
+                        ? MyReview(
+                            myReview: _myReview,
+                            deleteReviewFromUi: _deleteReviewFromUi,
+                            w: _w)
+                        : Container(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        "Reviews:",
+                        style: TextStyle(
+                            fontSize: 25.0,
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey),
+                      ),
+                    ),
+                    _buildReviewsContainer(),
+                    //add review button
+                    _vendor.reviewed ? Container() : _buildAddReviewBtn(),
                   ],
                 ),
-                //name description address rating tags
-                Container(
-                  padding: EdgeInsets.only(left: 20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      //name
-                      Text(
-                        (vendor.name),
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: 'Montserrat',
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      //description
-                      Text(
-                        description,
-                        style: TextStyle(
-                            color: Colors.grey,
-                            fontFamily: 'Montserrat',
-                            fontSize: 38),
-                      ),
-                      //address
-                      Text(
-                        address,
-                        style: TextStyle(
-                            color: Colors.green[200],
-                            fontFamily: 'Montserrat',
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      //rating
-                      Row(
-                        children: <Widget>[
-                          Text(
-                            vendor.stars.toString(),
-                            style: TextStyle(
-                                fontSize: 25,
-                                fontFamily: 'Montserrat',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
-                          ),
-                          StarRating(rating: vendor.stars),
-                        ],
-                      ),
-                      //tags
-                      Row(
-                        children: vendor.tags
-                            .map(
-                              (tag) => Chip(
-                                backgroundColor:
-                                    Theme.of(context).chipTheme.backgroundColor,
-                                label: Text(
-                                  tag,
-                                  style: TextStyle(fontSize: 20),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        textDirection: TextDirection.ltr,
-                      ),
-                    ],
-                  ),
-                ),
-                //map
-                SizedBox(
-                  height: 300.0,
-                  child: Stack(
-                    children: <Widget>[
-                      FlutterMap(
-                        mapController: controller,
-                        options: MapOptions(
-                          nePanBoundary:
-                              HardcoreMath.toBounds(vendorLoc).northEast,
-                          swPanBoundary:
-                              HardcoreMath.toBounds(vendorLoc).southWest,
-                          zoom: 18.45,
-                          center: vendorLoc,
-                        ),
-                        layers: [
-                          TileLayerOptions(
-                              urlTemplate:
-                                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-                              additionalOptions: {
-                                'subscriptionKey':
-                                    '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
-                                //'theme': _darkModeOn ? 'dark' : 'main'
-                              }),
-                          MarkerLayerOptions(markers: [vendorMarker]),
-                        ],
-                      ),
-                      Positioned(
-                        bottom: 20,
-                        right: 20,
-                        child: FloatingActionButton(
-                          onPressed: () async =>
-                              await MapLauncher.showDirections(
-                                  mapType: MapType.google,
-                                  destination: Coords(
-                                      vendor.coordinates.latitude,
-                                      vendor.coordinates.longitude)),
-                          child: Icon(Icons.navigation),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                vendor.reviewed
-                    ? MyReview(
-                        myReview: myReview,
-                        deleteReviewFromUi: deleteReviewFromUi,
-                      )
-                    : Container(),
-                Text(
-                  "Reviews:",
-                  style: TextStyle(
-                      fontSize: 25.0,
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey),
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 20),
-                  height: 280,
-                  child: ListView.builder(
-                      controller: scrollController,
-                      itemCount: vendorReviews.length,
-                      itemBuilder: (context, index) =>
-                          vendorReviews[index].review.isNotEmpty
-                              ? ReviewTile(review: vendorReviews[index])
-                              : Container()),
-                ),
-                SizedBox(height: 20),
-                //add review button
-                vendor.reviewed
-                    ? Container()
-                    : RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text('Add review',
-                            style: TextStyle(color: Colors.white)),
-                        onPressed: () async {
-                          if (user.isAnonymous)
-                            showDialog<void>(
-                                context: context,
-                                builder: (_) => LoginPopup(to: "add a review"));
-                          //DONT DELETE
-                          // else if (!user.emailVerified) {
-                          //   await user.reload();
-                          //   if (!user.emailVerified)
-                          //     showDialog<void>(
-                          //         context: context,
-                          //         builder: (_) =>
-                          //             VerifyEmailPopup(to: "add a review"));
-                          //   else
-                          //     Navigator.of(context).push(MaterialPageRoute(
-                          //         builder: (_) => AddReview(vendor: vendor)));
-                          // }
-                          else
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => AddReview(vendor: vendor)));
-                        },
-                      ),
-              ],
+              ),
             ),
           );
   }
+
+  Container _buildReviewsContainer() => Container(
+        height: _h * 0.37,
+        child: ListView.builder(
+            controller: _scrollController,
+            itemCount: _vendorReviews.length,
+            itemBuilder: (context, index) =>
+                _vendorReviews[index].review.isNotEmpty
+                    ? ReviewTile(review: _vendorReviews[index], w: _w)
+                    : Container()),
+      );
+
+  Padding _buildAddReviewBtn() => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ElevatedButton(
+          style: BS(_w * 0.02, _h * 0.05),
+          child: Text('Add review', style: TextStyle(color: Colors.white)),
+          onPressed: () async {
+            if (_user.isAnonymous)
+              showDialog<void>(
+                  context: context,
+                  builder: (_) => LoginPopup(to: "add a review"));
+            //DONT DELETE
+            // else if (!user.emailVerified) {
+            //   await user.reload();
+            //   if (!user.emailVerified)
+            //     showDialog<void>(
+            //         context: context,
+            //         builder: (_) =>
+            //             VerifyEmailPopup(to: "add a review"));
+            //   else
+            //     Navigator.of(context).push(MaterialPageRoute(
+            //         builder: (_) => AddReview(vendor: vendor)));
+            // }
+            else
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => AddReview(vendor: _vendor)));
+          },
+        ),
+      );
+
+  Container _buildTextDetails() => Container(
+        padding: EdgeInsets.only(left: 15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            //name
+            Text(
+              (_vendor.name),
+              style: TextStyle(
+                  color: Colors.black,
+                  fontFamily: 'Montserrat',
+                  fontSize: _w * 0.13,
+                  fontWeight: FontWeight.bold),
+            ),
+            //description
+            Text(
+              _vendor.description,
+              style: TextStyle(
+                  color: Colors.grey,
+                  fontFamily: 'Montserrat',
+                  fontSize: _w * 0.06),
+            ),
+            //address
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 8, 0, 4),
+              child: Text(
+                _vendor.address,
+                style: TextStyle(
+                    color: Colors.green[200],
+                    fontFamily: 'Montserrat',
+                    fontSize: _w * 0.05,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
+            //rating
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    _vendor.stars.toString(),
+                    style: TextStyle(
+                        fontSize: _w * 0.07,
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 0, 2),
+                    child: StarRating(rating: _vendor.stars, size: _w * 0.07),
+                  ),
+                ],
+              ),
+            ),
+            //tags
+            Row(
+              children: _vendor.tags
+                  .map((tag) => Chip(
+                        backgroundColor:
+                            Theme.of(context).chipTheme.backgroundColor,
+                        label: Text(tag, style: TextStyle(fontSize: 20)),
+                      ))
+                  .toList(),
+              textDirection: TextDirection.ltr,
+            ),
+          ],
+        ),
+      );
+
+  FlutterMap _buildMap() => FlutterMap(
+        mapController: _controller,
+        options: MapOptions(
+          nePanBoundary: HardcoreMath.toBounds(_vendor.coordinates).northEast,
+          swPanBoundary: HardcoreMath.toBounds(_vendor.coordinates).southWest,
+          zoom: 18.45,
+          center: _vendor.coordinates,
+        ),
+        layers: [
+          TileLayerOptions(
+              urlTemplate:
+                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+              additionalOptions: {
+                'subscriptionKey':
+                    '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
+                //'theme': _darkModeOn ? 'dark' : 'main'
+              }),
+          MarkerLayerOptions(markers: [_vendorMarker()]),
+        ],
+      );
+
+  FloatingActionButton _buildMapFAB() => FloatingActionButton(
+        onPressed: () async => await MapLauncher.showDirections(
+            mapType: MapType.google,
+            destination: Coords(
+                _vendor.coordinates.latitude, _vendor.coordinates.longitude)),
+        child: Icon(Icons.navigation),
+      );
+
+  Row _buildTopRow() => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            color: Colors.black,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          VendorOptions(vendor: _vendor),
+        ],
+      );
+
+  Container _buildGallery() => Container(
+        height: _h * 0.37,
+        child: PhotoViewGallery.builder(
+          scrollPhysics: const BouncingScrollPhysics(),
+          builder: (BuildContext context, int index) =>
+              PhotoViewGalleryPageOptions(
+            onTapDown: (context, details, controllerValue) =>
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => FullScreenImage(
+                        imageIDs: _vendor.imageIds, index: index))),
+            maxScale: PhotoViewComputedScale.contained * 2.0,
+            minScale: PhotoViewComputedScale.contained * 0.8,
+            imageProvider:
+                VendorDBService.getVendorImage(_vendor.imageIds[index]),
+            heroAttributes:
+                PhotoViewHeroAttributes(tag: _vendor.imageIds[index]),
+          ),
+          itemCount: _vendor.imageIds.length,
+          loadingBuilder: (context, event) => Center(
+            child: Container(
+              width: 20.0,
+              height: 20.0,
+              child: CircularProgressIndicator(
+                value: event == null
+                    ? 0
+                    : event.cumulativeBytesLoaded / event.expectedTotalBytes,
+              ),
+            ),
+          ),
+          backgroundDecoration:
+              BoxDecoration(color: Theme.of(context).canvasColor),
+        ),
+      );
 }
 
 class ReviewTile extends StatelessWidget {
   final Review review;
-  ReviewTile({this.review});
+  final double w;
+  ReviewTile({this.review, this.w});
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -387,23 +379,24 @@ class ReviewTile extends StatelessWidget {
             padding: EdgeInsets.all(5),
             child: Column(
               children: <Widget>[
-                StarRating(rating: review.stars),
-                Text(
-                  review.review == null ? "" : review.review,
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'Montserrat',
-                    color: Colors.black,
-                  ),
-                ),
-                Text(
-                  review.byUser,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontFamily: 'Montserrat',
-                    color: Colors.grey,
-                  ),
-                )
+                StarRating(rating: review.stars, size: w * 0.06),
+                Text(review.review == null ? "" : review.review,
+                    style: TextStyle(
+                      fontSize: w * 0.06,
+                      fontFamily: 'Montserrat',
+                      color: Colors.black,
+                    )),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Text(review.byUser,
+                        style: TextStyle(
+                          fontSize: w * 0.03,
+                          fontFamily: 'Montserrat',
+                          color: Colors.grey,
+                        )),
+                  )
+                ])
               ],
             ),
           ),
@@ -414,9 +407,10 @@ class ReviewTile extends StatelessWidget {
 }
 
 class MyReview extends StatelessWidget {
+  final double w;
   final Review myReview;
   final Function deleteReviewFromUi;
-  MyReview({this.myReview, this.deleteReviewFromUi});
+  MyReview({this.myReview, this.deleteReviewFromUi, this.w});
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context, listen: false);
@@ -458,7 +452,10 @@ class MyReview extends StatelessWidget {
             ),
           ],
         ),
-        ReviewTile(review: myReview)
+        ReviewTile(
+          review: myReview,
+          w: w,
+        )
       ],
     );
   }
@@ -469,7 +466,7 @@ class EditReviewDialogue extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       content: Stack(
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: <Widget>[
           //close button
           Positioned(

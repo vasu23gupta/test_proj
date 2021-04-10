@@ -143,7 +143,7 @@ class _EditVendorState extends State<EditVendor> {
         child: ListView.builder(
           itemCount: editing ? netImages.length + images.length : images.length,
           itemBuilder: (context, index) => Stack(
-            overflow: Overflow.visible,
+            clipBehavior: Clip.none,
             children: <Widget>[
               if (editing)
                 Padding(

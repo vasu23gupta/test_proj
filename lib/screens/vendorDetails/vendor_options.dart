@@ -36,20 +36,17 @@ class VendorOptions extends StatelessWidget {
             //     Navigator.of(context).push(MaterialPageRoute(
             //         builder: (_) => AddVendor(vendor: vendor)));
             //}
-            else{
-              Response response =await UserDBService(jwt: await user.getIdToken()).getUserByJWT();
-              var month = DateTime.now().month;
-              var year = DateTime.now().year;
-              var json=jsonDecode(response.body);
-              if(json['editsRemaining']>0)
-              {  
+            else {
+              Response response =
+                  await UserDBService(jwt: await user.getIdToken())
+                      .getUserByJWT();
+              var json = jsonDecode(response.body);
+              if (json['editsRemaining'] > 0) {
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => EditVendor(vendor: vendor)));
-              }
-              else
-              {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("You cannot edit more vendorss this month")));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("You cannot edit more vendorss this month")));
               }
             }
             break;
@@ -111,7 +108,7 @@ class _ReportState extends State<Report> {
     final user = Provider.of<User>(context);
     return AlertDialog(
       content: Stack(
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: <Widget>[
           //close button
           Positioned(

@@ -1,2 +1,1 @@
-register, sign in, forgot password screen not scrolling
-error text not visible in signin
+register, sign in, forgot password screen not scrolling.

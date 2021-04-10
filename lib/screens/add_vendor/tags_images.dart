@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -127,7 +126,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
           itemCount: _vendor.assetImages.length,
           itemBuilder: (context, index) {
             return Stack(
-              overflow: Overflow.visible,
+              clipBehavior: Clip.none,
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
