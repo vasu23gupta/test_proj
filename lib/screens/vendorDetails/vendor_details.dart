@@ -259,12 +259,15 @@ class _VendorDetailsState extends State<VendorDetails> {
               ),
             ),
             //tags
-            Row(
+            Wrap(
               children: _vendor.tags
-                  .map((tag) => Chip(
-                        backgroundColor:
-                            Theme.of(context).chipTheme.backgroundColor,
-                        label: Text(tag, style: TextStyle(fontSize: 20)),
+                  .map((tag) => Padding(
+                        padding: const EdgeInsets.only(right: 2.0, left: 2.0),
+                        child: Chip(
+                          backgroundColor:
+                              Theme.of(context).chipTheme.backgroundColor,
+                          label: Text(tag, style: TextStyle(fontSize: 20)),
+                        ),
                       ))
                   .toList(),
               textDirection: TextDirection.ltr,

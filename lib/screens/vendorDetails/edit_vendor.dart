@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -31,14 +32,14 @@ class _EditVendorState extends State<EditVendor> {
   MapController controller = MapController();
   List<String> imageIds = [];
   final _formKey = GlobalKey<FormState>();
-  bool loading = true;
+  bool _loading = true;
   List<Marker> markers = [];
   LatLng vendorLatLng;
   String error = '';
   List<String> tags = [];
   TextEditingController addTagController = TextEditingController();
   TextEditingController addressController = TextEditingController();
-  LatLng userLoc;
+  LatLng _userLoc;
   List<String> imageIdsToBeRemoved = [];
   final bool editing = true;
   Vendor vendor;
@@ -48,8 +49,9 @@ class _EditVendorState extends State<EditVendor> {
   Container emptyContainer = Container();
   final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
   LocationService _locSer = LocationService();
-  String loadingText;
+  String loadingText = "";
   LatLngBounds _mapBounds;
+  User _user;
 
   Future<void> loadAssets() async {
     List<Asset> resultList = [];
@@ -84,6 +86,7 @@ class _EditVendorState extends State<EditVendor> {
     allTags.addAll(FILTERS.keys);
     addressController.text = address;
     tagsSuggestionsOverlay = emptyContainer;
+    _user = Provider.of<User>(context, listen: false);
     if (widget.vendor != null) {
       //editing = true;
       vendor = widget.vendor;
@@ -94,25 +97,45 @@ class _EditVendorState extends State<EditVendor> {
       netImages = List<NetworkImage>.from(vendor.images);
       _putMarkerOnMap(vendor.coordinates);
     }
-    getLocation();
+    List<Future> _futures = [];
+    _futures.add(_getLocation());
+    _futures.add(_getUser());
+    Future.wait(_futures).then((value) =>
+        (value[0] && value[1]) ? setState(() => _loading = false) : null);
   }
 
-  Future getLocation() async {
+  Future<bool> _getLocation() async {
     var ld = await _locSer.getLocation();
-    userLoc = LatLng(ld.latitude, ld.longitude);
-    if (userLoc == null) {
+    _userLoc = LatLng(ld.latitude, ld.longitude);
+    if (_userLoc == null) {
       setState(() =>
-          loadingText = "You need to enable your location to add a vendor.");
+          loadingText += "You need to enable your location to add a vendor.");
+      return false;
     } else {
-      _mapBounds = HardcoreMath.toBounds(userLoc);
+      _mapBounds = HardcoreMath.toBounds(_userLoc);
       if (vendor.coordinates.longitude < _mapBounds.east &&
           vendor.coordinates.longitude > _mapBounds.west &&
           vendor.coordinates.latitude < _mapBounds.north &&
-          vendor.coordinates.latitude > _mapBounds.south) {
-        setState(() => loading = false);
-      } else
+          vendor.coordinates.latitude > _mapBounds.south)
+        return true;
+      else {
         setState(
-            () => loadingText = "You must be close to the vendor to edit it.");
+            () => loadingText += "You must be close to the vendor to edit it.");
+        return false;
+      }
+    }
+  }
+
+  Future<bool> _getUser() async {
+    Response response =
+        await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
+    var json = jsonDecode(response.body);
+    if (json['addsRemaining'] > 0) {
+      return true;
+    } else {
+      setState(
+          () => loadingText += "You cannot edit more vendors this month. ");
+      return false;
     }
   }
 
@@ -254,8 +277,7 @@ class _EditVendorState extends State<EditVendor> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
-    return loading
+    return _loading
         ? Loading(data: loadingText)
         : Scaffold(
             //backgroundColor: Colors.brown[50],
@@ -293,7 +315,7 @@ class _EditVendorState extends State<EditVendor> {
                           layers: [
                             TileLayerOptions(
                                 urlTemplate:
-                                    "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=dark&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                                    "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                                 additionalOptions: {
                                   'subscriptionKey':
                                       '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
@@ -377,7 +399,7 @@ class _EditVendorState extends State<EditVendor> {
                           if (_formKey.currentState.validate() &&
                               vendorLatLng != null &&
                               (images.length != 0 || imageIds.length != 0)) {
-                            setState(() => loading = true);
+                            setState(() => _loading = true);
 
                             for (var tag in tags) {
                               if (filter.hasProfanity(tag)) tags.remove(tag);
@@ -388,7 +410,7 @@ class _EditVendorState extends State<EditVendor> {
                             http.Response result;
                             if (editing)
                               result = await VendorDBService.updateVendor(
-                                await user.getIdToken(),
+                                await _user.getIdToken(),
                                 widget.vendor.id,
                                 name,
                                 vendorLatLng,
@@ -406,11 +428,11 @@ class _EditVendorState extends State<EditVendor> {
                                 tags,
                                 images,
                                 description,
-                                await user.getIdToken(),
+                                await _user.getIdToken(),
                                 address,
                               );
 
-                            setState(() => loading = false);
+                            setState(() => _loading = false);
 
                             if (result.statusCode != 200)
                               setState(() {

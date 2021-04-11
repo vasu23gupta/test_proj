@@ -59,7 +59,7 @@ class _AddVendorState extends State<AddVendor>
       return true;
   }
 
-  Future<bool> getUser() async {
+  Future<bool> _getUser() async {
     Response response =
         await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
     var json = jsonDecode(response.body);
@@ -83,7 +83,7 @@ class _AddVendorState extends State<AddVendor>
       _futures.add(_getLocation());
     else
       _futures.add(Future.value(true));
-    _futures.add(getUser());
+    _futures.add(_getUser());
     Future.wait(_futures).then((value) =>
         (value[0] && value[1]) ? setState(() => _loading = false) : null);
   }
