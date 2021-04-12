@@ -1,14 +1,12 @@
 APP:
-ui.
-mediaquery.
+ui + mediaquery.
 categories, subcategories.
 smooth home loading.
-report reasons.
 dark theme.
 about screen.
-latest version dependencies.
 remove unused apis.
 
 
 RELEASE:
 graphics.
+new keys.

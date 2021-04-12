@@ -9,8 +9,7 @@ import 'package:test_proj/shared/constants.dart';
 class AddVendorLocationAddress extends StatefulWidget {
   final Vendor vendor;
   final LatLng userLoc;
-  final String mapApiKey;
-  AddVendorLocationAddress({this.vendor, this.userLoc, this.mapApiKey});
+  AddVendorLocationAddress({this.vendor, this.userLoc});
   @override
   _AddVendorLocationAddressState createState() =>
       _AddVendorLocationAddressState();
@@ -23,12 +22,10 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
   Marker _marker = Marker();
   Vendor _vendor;
   //bool _darkModeOn;
-  String _mapApiKey = '';
 
   @override
   void initState() {
     super.initState();
-    _mapApiKey = widget.mapApiKey;
     _vendor = widget.vendor;
     _userLoc = widget.userLoc;
     // _darkModeOn =
@@ -93,7 +90,7 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                         urlTemplate:
                             "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                         additionalOptions: {
-                          'subscriptionKey': _mapApiKey,
+                          'subscriptionKey': mapApiKey,
                           //'theme': _darkModeOn ? 'dark' : 'main'
                         }),
                     MarkerLayerOptions(markers: [_marker]),
@@ -104,7 +101,7 @@ class _AddVendorLocationAddressState extends State<AddVendorLocationAddress> {
                 padding: EdgeInsets.all(16),
                 child: TextField(
                     maxLines: 3,
-                    maxLength: 300,
+                    maxLength: 500,
                     controller: _addressController,
                     onChanged: (value) =>
                         setState(() => _vendor.address = value),

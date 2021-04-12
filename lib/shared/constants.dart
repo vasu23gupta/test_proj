@@ -28,6 +28,7 @@ ButtonStyle BS(double w, double h) => ButtonStyle(
 
 const BACKGROUND_COLOR = Color(0xff73DCE2);
 const TEXT_COLOR = Color(0xff5C73FF);
+String mapApiKey = '';
 
 // ignore: non_constant_identifier_names
 TextStyle ERROR_TEXT_STYLE(double _w) =>

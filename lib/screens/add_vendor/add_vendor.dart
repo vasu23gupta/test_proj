@@ -18,8 +18,7 @@ import 'package:test_proj/shared/loading.dart';
 class AddVendor extends StatefulWidget {
   final Vendor vendor;
   final LocationData userLoc;
-  final String mapApiKey;
-  AddVendor({this.vendor, this.userLoc, this.mapApiKey});
+  AddVendor({this.vendor, this.userLoc});
   @override
   _AddVendorState createState() => _AddVendorState();
 }
@@ -106,10 +105,9 @@ class _AddVendorState extends State<AddVendor>
                     offstage: _screen != 1,
                     child: SizedBox(
                         child: AddVendorLocationAddress(
-                      vendor: _vendor,
-                      userLoc: LatLng(_userLoc.latitude, _userLoc.longitude),
-                      mapApiKey: widget.mapApiKey,
-                    ))),
+                            vendor: _vendor,
+                            userLoc: LatLng(
+                                _userLoc.latitude, _userLoc.longitude)))),
                 Offstage(
                     offstage: _screen != 2,
                     child:

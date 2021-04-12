@@ -38,7 +38,6 @@ class _HomeState extends State<Home> {
   LocationService _locSer = LocationService();
   // bool _darkModeOn;
   bool _loading = true;
-  String _mapApiKey = '';
   bool _isSnackbarActive = false;
   User _user;
   double _h;
@@ -50,7 +49,7 @@ class _HomeState extends State<Home> {
     //_darkModeOn = SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
     _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _mapApiKey = await VendorDBService.getMapApiKey(_user);
+      mapApiKey = await VendorDBService.getMapApiKey(_user);
       setState(() => _loading = false);
       _moveMapToUserLocation();
     });
@@ -319,7 +318,7 @@ class _HomeState extends State<Home> {
               urlTemplate:
                   "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
               additionalOptions: {
-                'subscriptionKey': _mapApiKey,
+                'subscriptionKey': mapApiKey,
                 //'theme': _darkModeOn ? 'dark' : 'main'
               }),
           MarkerLayerOptions(markers: _vendorMarkers)
@@ -356,8 +355,7 @@ class _HomeState extends State<Home> {
               vendor.coordinates =
                   LatLng(_userLoc.latitude, _userLoc.longitude);
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => AddVendor(
-                    vendor: vendor, userLoc: _userLoc, mapApiKey: _mapApiKey)));
+                builder: (_) => AddVendor(vendor: vendor, userLoc: _userLoc)));
           }
         },
       );

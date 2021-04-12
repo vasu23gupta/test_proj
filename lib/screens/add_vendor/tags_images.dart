@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/services/database.dart';
+import 'package:test_proj/services/utils.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/hindi_profanity.dart';
 import 'package:test_proj/shared/loading.dart';
@@ -30,15 +31,10 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   List<String> _allTags = [];
   Widget _tagsSuggestionsOverlay;
   Container _emptyContainer = Container();
+  Size _size;
 
-  TextStyle btnTextStyle(Size size) =>
+  TextStyle _btnTextStyle(Size size) =>
       TextStyle(fontWeight: FontWeight.bold, fontSize: size.width * 0.045);
-
-  String _capitaliseFirstLetter(String string) => string
-      .toLowerCase()
-      .split(' ')
-      .map((word) => word[0].toUpperCase() + word.substring(1))
-      .join(' ');
 
   void validateAndAddVendor() {
     if (_vendor.name == null || _vendor.name.isEmpty) {
@@ -68,7 +64,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     _addVendor();
   }
 
-  void censorVendor() {
+  void _censorVendor() {
     for (var tag in _vendor.tags)
       if (_filter.hasProfanity(tag)) _vendor.tags.remove(tag);
 
@@ -79,9 +75,10 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
 
   Future<void> _addVendor() async {
     Response result;
+
     try {
       setState(() => _loading = true);
-      censorVendor();
+      _censorVendor();
       result = await VendorDBService.addVendor(
         _vendor.name,
         _vendor.coordinates,
@@ -93,24 +90,23 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
       );
     } catch (err) {
       setState(() {
-        _loading = false;
         print(err);
-        _errorText = 'Could not add vendor, please try again later.';
+        _errorText =
+            'Could not add vendor, please try again later. Error: $err';
       });
       return;
     }
+
+    setState(() => _loading = false);
+
     if (result.statusCode != 200)
-      setState(() {
-        _loading = false;
-        _errorText = 'Could not add vendor, please try again later.';
-      });
+      setState(() => _errorText =
+          'Could not add vendor, please try again later. Error: ${result.body}');
     else {
       Map<String, dynamic> object = jsonDecode(result.body);
-      if (object.containsKey("limitExceeded")) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(object['limitExceeded'])));
-      } else {
-        setState(() => _loading = false);
+      if (object.containsKey("limitExceeded"))
+        setState(() => _errorText = object['limitExceeded']);
+      else {
         Vendor vendor = Vendor.fromJson(jsonDecode(result.body));
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => VendorDetails(vendor: vendor)));
@@ -161,9 +157,9 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
   }
 
   Future<void> _loadAssets() async {
-    List<Asset> resultList = [];
+    List<Asset> _resultList = [];
     try {
-      resultList = await MultiImagePicker.pickImages(
+      _resultList = await MultiImagePicker.pickImages(
         maxImages: 10,
         enableCamera: true,
         selectedAssets: _vendor.assetImages,
@@ -184,7 +180,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() => _vendor.assetImages = resultList);
+    setState(() => _vendor.assetImages = _resultList);
   }
 
   Iterable<Widget> get _tagWidgets sync* {
@@ -246,7 +242,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
 
   @override
   Widget build(BuildContext context) {
-    Size _size = MediaQuery.of(context).size;
+    _size = MediaQuery.of(context).size;
     _user = Provider.of<User>(context);
     return _loading
         ? Loading()
@@ -272,7 +268,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                     child: ElevatedButton(
                       onPressed: _loadAssets,
                       style: BS(_size.width * 0.4, _size.height * 0.065),
-                      child: Text('Upload Images', style: btnTextStyle(_size)),
+                      child: Text('Upload Images', style: _btnTextStyle(_size)),
                     ),
                   ),
                   Padding(
@@ -305,13 +301,13 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                         if (tag.isNotEmpty &&
                             !_vendor.tags.contains(tag) &&
                             _vendor.tags.length < 20) {
-                          tag = _capitaliseFirstLetter(_addTagController.text);
+                          tag = capitaliseFirstLetter(_addTagController.text);
                           _vendor.tags.add(tag);
                         }
                         setState(() => _addTagController.clear());
                       },
                       style: BS(_size.width * 0.4, _size.height * 0.065),
-                      child: Text('Add Tag', style: btnTextStyle(_size)),
+                      child: Text('Add Tag', style: _btnTextStyle(_size)),
                     ),
                   ),
                   Wrap(children: _tagWidgets.toList()),
@@ -320,7 +316,7 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                     child: ElevatedButton(
                       onPressed: validateAndAddVendor,
                       style: BS(_size.width * 0.4, _size.height * 0.065),
-                      child: Text('Submit', style: btnTextStyle(_size)),
+                      child: Text('Submit', style: _btnTextStyle(_size)),
                     ),
                   ),
                   Text(_errorText, style: ERROR_TEXT_STYLE(_size.width))

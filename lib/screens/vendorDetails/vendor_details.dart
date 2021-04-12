@@ -11,7 +11,6 @@ import 'package:test_proj/services/database.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
-import 'package:latlong/latlong.dart';
 import 'dart:async';
 import 'package:map_launcher/map_launcher.dart';
 import 'package:photo_view/photo_view.dart';

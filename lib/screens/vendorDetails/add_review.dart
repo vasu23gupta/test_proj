@@ -25,7 +25,7 @@ class _AddReviewState extends State<AddReview> {
   final _filter = ProfanityFilter.filterAdditionally(hindiProfanity);
   TextEditingController _reviewController = TextEditingController();
   User _user;
-  double _h;
+  //double _h;
   double _w;
   bool _loading = false;
 
@@ -44,8 +44,8 @@ class _AddReviewState extends State<AddReview> {
           _review, widget.vendor, await _user.getIdToken());
       if (response.statusCode == 200) {
         widget.vendor.reviewed = true;
-        int count = 0;
-        Navigator.popUntil(context, (route) => count++ == 2);
+        int _count = 0;
+        Navigator.popUntil(context, (route) => _count++ == 2);
         Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => VendorDetails(vendor: widget.vendor)));
         ScaffoldMessenger.of(context).showSnackBar(
@@ -61,7 +61,7 @@ class _AddReviewState extends State<AddReview> {
 
   @override
   Widget build(BuildContext context) {
-    _h = MediaQuery.of(context).size.height;
+    //_h = MediaQuery.of(context).size.height;
     _w = MediaQuery.of(context).size.width;
     return _loading
         ? Loading()
