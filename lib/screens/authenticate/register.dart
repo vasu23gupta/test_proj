@@ -100,18 +100,20 @@ class _RegisterState extends State<Register> {
         child: Container(
           width: _w * 0.8,
           decoration: BoxDecoration(color: Colors.white),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                buildEmailRow(_emailController),
-                _buildUsernameRow(),
-                _buildPasswordRow(),
-                _buildReEnterPassword(),
-                _buildCheckboxRow(),
-                _buildRegisterButton(),
-              ],
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  buildEmailRow(_emailController),
+                  _buildUsernameRow(),
+                  _buildPasswordRow(),
+                  _buildReEnterPassword(),
+                  _buildCheckboxRow(),
+                  _buildRegisterButton(),
+                ],
+              ),
             ),
           ),
         ),
