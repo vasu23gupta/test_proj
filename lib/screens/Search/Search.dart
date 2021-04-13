@@ -92,12 +92,12 @@ class _SearchState extends State<Search> {
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => VendorDetails(vendor: resultList))),
                           
-                      title: Card(
+                      title:/*Card(
                         elevation: 3,
                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.all(Radius.circular(5)),
                          ),
-                        child:
+                        child:*/
                       Column(
                         
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +198,7 @@ class _SearchState extends State<Search> {
                               ],),
                                   ]
                                 )
-                             
+                              
                             ],) ,
                           ),  ],),
                     
@@ -206,7 +206,7 @@ class _SearchState extends State<Search> {
                         ],
                       
                       ),
-                    ),
+                  /*  ),*/
                     );
                   },
                 )
