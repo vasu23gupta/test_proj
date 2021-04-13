@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:http/http.dart' as http;
 import 'package:profanity_filter/profanity_filter.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/services/location_service.dart';
+import 'package:test_proj/services/utils.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/hindi_profanity.dart';
@@ -23,253 +24,312 @@ class EditVendor extends StatefulWidget {
 }
 
 class _EditVendorState extends State<EditVendor> {
-  String description = '';
-  String name = '';
-  String address = '';
-  List<Asset> images = []; // when creating new vendor
-  List<NetworkImage> netImages = [];
-  MapController controller = MapController();
-  List<String> imageIds = [];
-  final _formKey = GlobalKey<FormState>();
-  bool loading = true;
-  List<Marker> markers = [];
-  LatLng vendorLatLng;
-  String error = '';
-  List<String> tags = [];
-  TextEditingController addTagController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  LatLng userLoc;
-  List<String> imageIdsToBeRemoved = [];
-  final bool editing = true;
-  Vendor vendor;
-  List<String> suggestions = [];
-  List<String> allTags = [];
-  Widget tagsSuggestionsOverlay;
-  Container emptyContainer = Container();
-  final filter = ProfanityFilter.filterAdditionally(hindiProfanity);
+  MapController _mapController = MapController();
+  bool _loading = true;
+  Marker _marker = Marker();
+  String _error = '';
+  LatLng _userLoc;
+  List<String> _imageIdsToBeRemoved = [];
+  Vendor _vendor;
+  List<String> _suggestions = [];
+  List<String> _allTags = [];
+  Widget _tagsSuggestionsOverlay;
+  Container _emptyContainer = Container();
+  final _filter = ProfanityFilter.filterAdditionally(hindiProfanity);
   LocationService _locSer = LocationService();
-  String loadingText;
+  String _loadingText = "";
   LatLngBounds _mapBounds;
+  User _user;
+  Size _size;
+  TextEditingController _addTagController = TextEditingController();
+  TextEditingController _addressController = TextEditingController();
 
-  Future<void> loadAssets() async {
-    List<Asset> resultList = [];
+  //vendor
+  String _name;
+  String _description;
+  List<String> _tags;
+  List<String> _imageIds;
+  List<Asset> _assetImages;
+  List<NetworkImage> _networkImages;
+  LatLng _vendorLatLng;
+
+  Future<void> _loadAssets() async {
+    List<Asset> _resultList = [];
     try {
-      resultList = await MultiImagePicker.pickImages(
-        maxImages: 300,
+      _resultList = await MultiImagePicker.pickImages(
+        maxImages: 10,
         enableCamera: true,
-        selectedAssets: images,
+        selectedAssets: _assetImages,
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
-          actionBarTitle: "Example App",
+          actionBarColor: "#ff73DCE2",
+          actionBarTitle: "Select Images",
           allViewTitle: "All Photos",
           useDetailsView: false,
           selectCircleStrokeColor: "#000000",
         ),
       );
-      for (int i = 0; i < resultList.length; i++) {}
     } on Exception catch (e) {
-      error = e.toString();
+      _error = e.toString();
     }
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
     if (!mounted) return;
-    setState(() => images = resultList);
+    setState(() => _assetImages = _resultList);
   }
 
   @override
   void initState() {
     super.initState();
-    allTags.addAll(FILTERS.keys);
-    addressController.text = address;
-    tagsSuggestionsOverlay = emptyContainer;
-    if (widget.vendor != null) {
-      //editing = true;
-      vendor = widget.vendor;
-      name = vendor.name;
-      tags = vendor.tags;
-      description = vendor.description;
-      imageIds = List<String>.from(vendor.imageIds);
-      netImages = List<NetworkImage>.from(vendor.images);
-      _putMarkerOnMap(vendor.coordinates);
-    }
-    getLocation();
+    _allTags.addAll(FILTERS.keys);
+    _tagsSuggestionsOverlay = _emptyContainer;
+    for (List<String> list in FILTERS.values) _allTags.addAll(list);
+    _user = Provider.of<User>(context, listen: false);
+    _vendor = widget.vendor;
+    //
+    _name = _vendor.name.toString();
+    _description = _vendor.description.toString();
+    _addressController.text = _vendor.address.toString();
+    _tags = List.from(_vendor.tags);
+    _imageIds = List.from(_vendor.imageIds);
+    _assetImages = List.from(_vendor.assetImages);
+    _networkImages = List.from(_vendor.networkImages);
+    _vendorLatLng =
+        LatLng(_vendor.coordinates.latitude, _vendor.coordinates.longitude);
+    //
+    _putMarkerOnMap(_vendorLatLng);
+    List<Future> _futures = [];
+    _futures.add(_getLocation());
+    _futures.add(_getUser());
+    Future.wait(_futures).then((value) =>
+        (value[0] && value[1]) ? setState(() => _loading = false) : null);
   }
 
-  Future getLocation() async {
-    var ld = await _locSer.getLocation();
-    userLoc = LatLng(ld.latitude, ld.longitude);
-    if (userLoc == null) {
-      setState(() =>
-          loadingText = "You need to enable your location to add a vendor.");
-    } else {
-      _mapBounds = HardcoreMath.toBounds(userLoc);
-      if (vendor.coordinates.longitude < _mapBounds.east &&
-          vendor.coordinates.longitude > _mapBounds.west &&
-          vendor.coordinates.latitude < _mapBounds.north &&
-          vendor.coordinates.latitude > _mapBounds.south) {
-        setState(() => loading = false);
-      } else {
-        print(vendor.coordinates.longitude < _mapBounds.east);
-        print(vendor.coordinates.longitude > _mapBounds.west);
-        print(vendor.coordinates.latitude < _mapBounds.north);
-        print(vendor.coordinates.latitude > _mapBounds.south);
-        setState(
-            () => loadingText = "You must be close to the vendor to edit it.");
+  void _censorVendor() {
+    for (var tag in _tags) if (_filter.hasProfanity(tag)) _tags.remove(tag);
+
+    _name = _filter.censor(_name);
+    _description = _filter.censor(_description);
+    _addressController.text = _filter.censor(_addressController.text);
+  }
+
+  void _validateAndEditVendor() {
+    if (_name == null || _name.isEmpty) {
+      setState(() => _error = "Please add vendor's name.");
+      return;
+    }
+    if (_description == null || _description.isEmpty) {
+      setState(() => _error = "Please add vendor's description.");
+      return;
+    }
+    if (_vendorLatLng == null) {
+      setState(() => _error = "Please add vendor's location.");
+      return;
+    }
+    if (_addressController.text == null || _addressController.text.isEmpty) {
+      setState(() => _error = "Please add vendor's address.");
+      return;
+    }
+    if (_tags == null || _tags.isEmpty) {
+      setState(() => _error = "Please add atleast one tag.");
+      return;
+    }
+    if (_assetImages.length + _imageIds.length < 1) {
+      setState(() => _error = "Please add atleast one image.");
+      return;
+    }
+    _editVendor();
+  }
+
+  Future<void> _editVendor() async {
+    Response result;
+
+    try {
+      setState(() => _loading = true);
+      _censorVendor();
+      result = await VendorDBService.updateVendor(
+        await _user.getIdToken(),
+        widget.vendor.id,
+        _name,
+        _vendorLatLng,
+        _tags,
+        _imageIds,
+        _imageIdsToBeRemoved,
+        _assetImages,
+        _description,
+        _addressController.text,
+      );
+    } catch (err) {
+      setState(() {
+        _loading = false;
+        print(err);
+        _error = 'Could not edit vendor, please try again later. Error: $err';
+      });
+      return;
+    }
+
+    setState(() => _loading = false);
+
+    if (result.statusCode != 200)
+      setState(() {
+        print(result.statusCode);
+        _error =
+            'Could not edit vendor, please try again later. Error: ${result.body}';
+      });
+    else {
+      Map<String, dynamic> object = jsonDecode(result.body);
+      if (object.containsKey("limitExceeded"))
+        setState(() => _error = object['limitExceeded']);
+      else {
+        Vendor vendor = Vendor.fromJson(jsonDecode(result.body));
+        int _count = 0;
+        Navigator.popUntil(context, (route) => _count++ == 2);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => VendorDetails(vendor: vendor)));
       }
     }
   }
 
-  void _putMarkerOnMap(LatLng point) {
-    setState(() {
-      markers = [];
-      vendorLatLng = point;
-      http
-          .get(
-        "http://apis.mapmyindia.com/advancedmaps/v1/6vt1tkshzvlqpibaoyklfn4lxiqpit2n/rev_geocode?lat=${point.latitude}&lng=${point.longitude}",
-      )
-          .then((value) {
-        var json = jsonDecode(value.body);
-        if ((json['responseCode']) == 200) {
-          address = json['results'][0]['formatted_address'];
-          addressController.text = address;
-        } else
-          print(json['responseCode']);
-      });
-      markers.add(
-        Marker(
+  Future<bool> _getLocation() async {
+    var ld = await _locSer.getLocation();
+    _userLoc = LatLng(ld.latitude, ld.longitude);
+    if (_userLoc == null) {
+      setState(() =>
+          _loadingText += "You need to enable your location to add a vendor.");
+      return false;
+    } else {
+      _mapBounds = HardcoreMath.toBounds(_userLoc);
+      if (_vendorLatLng.longitude < _mapBounds.east &&
+          _vendorLatLng.longitude > _mapBounds.west &&
+          _vendorLatLng.latitude < _mapBounds.north &&
+          _vendorLatLng.latitude > _mapBounds.south)
+        return true;
+      else {
+        setState(() =>
+            _loadingText += "You must be close to the vendor to edit it.");
+        return false;
+      }
+    }
+  }
+
+  Future<bool> _getUser() async {
+    Response response =
+        await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
+    var json = jsonDecode(response.body);
+    if (json['addsRemaining'] > 0) {
+      return true;
+    } else {
+      setState(
+          () => _loadingText += "You cannot edit more vendors this month. ");
+      return false;
+    }
+  }
+
+  Future<void> _putMarkerOnMap(LatLng point) async {
+    setState(
+      () {
+        _vendorLatLng = point;
+        _marker = Marker(
           width: 45.0,
           height: 45.0,
           point: point,
-          builder: (context) => Container(
-            child: IconButton(
-              icon: Icon(Icons.location_on),
-              iconSize: 80.0,
-              onPressed: () {},
-            ),
-          ),
-        ),
-      );
-    });
+          builder: (context) => Icon(Icons.location_on, size: 40),
+        );
+      },
+    );
+    String address =
+        await VendorDBService.getAddress(point.latitude, point.longitude);
+    setState(() => _addressController.text = address);
   }
 
-  Widget previewImages() {
-    if (netImages.length == 0 && images.length == 0)
-      return Container();
-    else {
-      //print(netImages.length);
-      return SizedBox(
-        height: 150,
-        child: ListView.builder(
-          itemCount: editing ? netImages.length + images.length : images.length,
-          itemBuilder: (context, index) {
-            return Stack(
-              overflow: Overflow.visible,
+  Widget _previewImages() => (_networkImages.length == 0 &&
+          _assetImages.length == 0)
+      ? Container()
+      : SizedBox(
+          height: 150,
+          child: ListView.builder(
+            itemCount: _networkImages.length + _assetImages.length,
+            itemBuilder: (context, index) => Stack(
+              clipBehavior: Clip.none,
               children: <Widget>[
-                if (editing)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: index < netImages.length
-                        ? Image(
-                            image: widget.vendor.getImageFomId(imageIds[index]))
-                        : AssetThumb(
-                            asset: images[index - netImages.length],
-                            width: 150,
-                            height: 150,
-                          ),
-                  )
-                else
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AssetThumb(
-                      asset: images[index],
-                      width: 150,
-                      height: 150,
-                    ),
-                  ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: index < _networkImages.length
+                      ? Image(
+                          image: widget.vendor.getImageFomId(_imageIds[index]))
+                      : AssetThumb(
+                          asset: _assetImages[index - _networkImages.length],
+                          width: 150,
+                          height: 150,
+                        ),
+                ),
                 Positioned(
                   top: 0,
                   right: 0,
                   height: 30,
                   width: 30,
                   child: InkResponse(
-                    onTap: () {
-                      setState(() {
-                        if (index < imageIds.length) {
-                          imageIdsToBeRemoved.add(imageIds[index]);
-                          print(imageIds[index]);
-                          imageIds.removeAt(index);
-                          netImages.removeAt(index);
-                        } else if (index < images.length + imageIds.length) {
-                          images.removeAt(imageIds.length - index);
-                        }
-                      });
-                    },
+                    onTap: () => setState(() {
+                      if (index < _imageIds.length) {
+                        _imageIdsToBeRemoved.add(_imageIds[index]);
+                        _imageIds.removeAt(index);
+                        _networkImages.removeAt(index);
+                      } else if (index < _assetImages.length + _imageIds.length)
+                        _assetImages.removeAt(_imageIds.length - index);
+                    }),
                     child: CircleAvatar(
-                      child: Icon(Icons.close),
-                      backgroundColor: Colors.red,
-                    ),
+                        child: Icon(Icons.close), backgroundColor: Colors.red),
                   ),
                 ),
               ],
-            );
-          },
-          scrollDirection: Axis.horizontal,
-        ),
-      );
-    }
-  }
+            ),
+            scrollDirection: Axis.horizontal,
+          ),
+        );
 
-  Future<Container> tagsSuggestions(String query) async {
-    suggestions.clear();
+  Future<Container> _tagsSuggestions(String query) async {
+    _suggestions.clear();
     if (query.isNotEmpty) {
       query = query.toLowerCase();
-      for (var item in allTags) {
-        //print(item);
-        if (item.toLowerCase().contains(query)) {
-          suggestions.add(item);
-          // print('item $item');
-          // print('query $query');
-        }
-      }
-      for (var item in suggestions) {
-        print('item $item');
+      for (int i = 0; i < _allTags.length && _suggestions.length < 3; i++) {
+        var item = _allTags[i];
+        if (item.toLowerCase().contains(query)) _suggestions.add(item);
       }
     }
+
     return Container(
       color: Theme.of(context).cardColor,
-      // height: 200,
-      // width: 500,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: suggestions.map((e) {
-          return ListTile(
-            title: Center(child: Text(e)),
-            onTap: () {
-              if (!tags.contains(e)) tags.add(e);
-              setState(() {
-                addTagController.clear();
-                suggestions.clear();
-                tagsSuggestionsOverlay = emptyContainer;
-              });
-            },
-          );
-        }).toList(),
+        children: _suggestions
+            .map((e) => ListTile(
+                  title: Center(child: Text(e)),
+                  onTap: () {
+                    if (!_tags.contains(e) && _tags.length < 20) _tags.add(e);
+                    setState(() {
+                      _addTagController.clear();
+                      _suggestions.clear();
+                      _tagsSuggestionsOverlay = _emptyContainer;
+                    });
+                  },
+                ))
+            .toList(),
       ),
     );
   }
 
 //https://api.flutter.dev/flutter/material/Chip/onDeleted.html
 //https://www.youtube.com/watch?time_continue=413&v=TF-TBsgIErY&feature=emb_logo
-  Iterable<Widget> get tagWidgets sync* {
-    for (final String tag in tags) {
+  Iterable<Widget> get _tagWidgets sync* {
+    for (final String tag in _tags) {
       yield Padding(
         padding: const EdgeInsets.all(4.0),
         child: InputChip(
           label: Text(tag),
           onDeleted: () =>
-              setState(() => tags.removeWhere((String entry) => entry == tag)),
+              setState(() => _tags.removeWhere((String entry) => entry == tag)),
         ),
       );
     }
@@ -277,188 +337,131 @@ class _EditVendorState extends State<EditVendor> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
-    return loading
-        ? Loading(data: loadingText)
+    _size = MediaQuery.of(context).size;
+    return _loading
+        ? Loading(data: _loadingText)
         : Scaffold(
-            //backgroundColor: Colors.brown[50],
-            appBar: AppBar(title: Text('Add Vendor'), elevation: 0.0),
-            body: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
-              child: Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: <Widget>[
-                      //name:
-                      SizedBox(height: 20.0),
-                      TextFormField(
-                          initialValue: name,
-                          decoration: textInputDecoration.copyWith(
-                              hintText: 'Vendor Name'),
-                          validator: (val) =>
-                              val.isEmpty ? 'Enter a name' : null,
-                          onChanged: (val) => setState(() => name = val)),
-                      //map:
-                      SizedBox(
-                        height: 300.0,
-                        width: 350.0,
-                        child: FlutterMap(
-                          mapController: controller,
-                          options: MapOptions(
-                            nePanBoundary: _mapBounds.northEast,
-                            swPanBoundary: _mapBounds.southWest,
-                            //bounds: HardcoreMath.toBounds(userLoc),
-                            zoom: 18.45, center: vendor.coordinates,
-                            onTap: _putMarkerOnMap,
-                            //center: new LatLng(userLoc.latitude, userLoc.longitude),
-                          ),
-                          layers: [
-                            TileLayerOptions(
-                                urlTemplate:
-                                    "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=dark&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-                                additionalOptions: {
-                                  'subscriptionKey':
-                                      '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw'
-                                }),
-                            MarkerLayerOptions(markers: markers),
-                          ],
-                        ),
-                      ),
-                      //address
-                      SizedBox(height: 20.0),
-                      TextFormField(
-                          controller: addressController,
-                          //initialValue: address,
-                          decoration:
-                              textInputDecoration.copyWith(hintText: 'Address'),
-                          validator: (val) =>
-                              val.isEmpty ? 'Enter address' : null,
-                          onChanged: (val) => setState(() => address = val)),
-                      //add images
-                      SizedBox(height: 20.0),
-                      RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text(
-                          'Upload Images',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: loadAssets,
-                      ),
-                      previewImages(),
-                      //description
-                      SizedBox(height: 20.0),
-                      TextFormField(
-                          initialValue: description,
-                          decoration: textInputDecoration.copyWith(
-                              hintText: 'Vendor description'),
-                          validator: (val) =>
-                              val.isEmpty ? 'Enter description' : null,
-                          onChanged: (val) =>
-                              setState(() => description = val)),
-                      //tags:
-                      SizedBox(height: 20.0),
-                      TextFormField(
-                          controller: addTagController,
-                          decoration: textInputDecoration.copyWith(
-                              hintText: 'Enter tags'),
-                          validator: (val) => val.isEmpty && tags.isEmpty
-                              ? 'Enter atleast 1 tag'
-                              : null,
-                          onChanged: (val) async {
-                            tagsSuggestionsOverlay = await tagsSuggestions(val);
-                            setState(() {});
-                          }),
-                      tagsSuggestionsOverlay,
-                      //add tag button:
-                      SizedBox(height: 20.0),
-                      RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text(
-                          'Add tag',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () {
-                          if (addTagController.text.isNotEmpty) {
-                            tags.add(addTagController.text);
-                            setState(() => addTagController.clear());
-                          }
-                        },
-                      ),
-                      //show tags
-                      Wrap(children: tagWidgets.toList()),
-                      //submit button:
-                      SizedBox(height: 20.0),
-                      RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () async {
-                          //validation
-                          if (_formKey.currentState.validate() &&
-                              vendorLatLng != null &&
-                              (images.length != 0 || imageIds.length != 0)) {
-                            setState(() => loading = true);
-
-                            for (var tag in tags) {
-                              if (filter.hasProfanity(tag)) tags.remove(tag);
-                            }
-                            name = filter.censor(name);
-                            description = filter.censor(description);
-                            address = filter.censor(address);
-                            http.Response result;
-                            if (editing)
-                              result = await VendorDBService.updateVendor(
-                                await  user.getIdToken(),
-                                widget.vendor.id,
-                                name,
-                                vendorLatLng,
-                                tags,
-                                imageIds,
-                                imageIdsToBeRemoved,
-                                images,
-                                description,
-                                address,
-                              );
-                            else
-                              result = await VendorDBService.addVendor(
-                                name,
-                                vendorLatLng,
-                                tags,
-                                images,
-                                description,
-                                await user.getIdToken(),
-                                address,
-                              );
-
-                            setState(() => loading = false);
-
-                            if (result.statusCode != 200)
-                              setState(() {
-                                print(result.statusCode);
-                                error = 'could not add vendor';
-                              });
-                            else {
-                              Vendor vendor =
-                                  Vendor.fromJson(jsonDecode(result.body));
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) =>
-                                      VendorDetails(vendor: vendor)));
-                            }
-                          }
-                        },
-                      ),
-                      //error text:
-                      SizedBox(height: 12.0),
-                      Text(
-                        error,
-                        style: TextStyle(color: Colors.red, fontSize: 14.0),
-                      )
-                    ],
+            appBar: AppBar(
+                title: Text('Add Vendor'), backgroundColor: BACKGROUND_COLOR),
+            body: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  //name:
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                        maxLength: 50,
+                        initialValue: _name,
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Vendor Name'),
+                        onChanged: (val) => setState(() => _name = val)),
                   ),
-                ),
+                  //map:
+                  SizedBox(
+                    height: _size.height * 0.37,
+                    width: _size.width * 0.90,
+                    child: FlutterMap(
+                      mapController: _mapController,
+                      options: MapOptions(
+                        nePanBoundary: _mapBounds.northEast,
+                        swPanBoundary: _mapBounds.southWest,
+                        zoom: 18.45,
+                        center: _vendorLatLng,
+                        maxZoom: 18.45,
+                        minZoom: 18.45,
+                        onTap: _putMarkerOnMap,
+                      ),
+                      layers: [
+                        TileLayerOptions(
+                            urlTemplate:
+                                "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                            additionalOptions: {'subscriptionKey': mapApiKey}),
+                        MarkerLayerOptions(markers: [_marker]),
+                      ],
+                    ),
+                  ),
+                  //address
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      controller: _addressController,
+                      maxLength: 500,
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Address'),
+                    ),
+                  ),
+                  //add images
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: ElevatedButton(
+                      style: BS(_size.width * 0.4, _size.height * 0.065),
+                      child: Text('Upload Images'),
+                      onPressed: _loadAssets,
+                    ),
+                  ),
+                  _previewImages(),
+                  //description
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                        maxLength: 1000,
+                        initialValue: _description,
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Vendor description'),
+                        onChanged: (val) => setState(() => _description = val)),
+                  ),
+                  //tags:
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                        maxLength: 40,
+                        controller: _addTagController,
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Enter tags'),
+                        onChanged: (val) async {
+                          if (_tags.length < 20)
+                            _tagsSuggestionsOverlay =
+                                await _tagsSuggestions(val);
+                          else
+                            _tagsSuggestionsOverlay = Text(
+                              "Cannot add more than 20 tags",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: _size.width * 0.042),
+                            );
+                          setState(() {});
+                        }),
+                  ),
+                  _tagsSuggestionsOverlay,
+                  //add tag button:
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      style: BS(_size.width * 0.4, _size.height * 0.065),
+                      child: Text('Add tag'),
+                      onPressed: () {
+                        String tag = _addTagController.text;
+                        if (tag.isNotEmpty &&
+                            !_tags.contains(tag) &&
+                            _tags.length < 20) {
+                          tag = capitaliseFirstLetter(_addTagController.text);
+                          _tags.add(tag);
+                        }
+                        setState(() => _addTagController.clear());
+                      },
+                    ),
+                  ),
+                  //show tags
+                  Wrap(children: _tagWidgets.toList()),
+                  //submit button:
+                  ElevatedButton(
+                    style: BS(_size.width * 0.4, _size.height * 0.065),
+                    child: Text('Submit'),
+                    onPressed: _validateAndEditVendor,
+                  ),
+                  //error text:
+                  Text(_error, style: ERROR_TEXT_STYLE(_size.width))
+                ],
               ),
             ),
           );

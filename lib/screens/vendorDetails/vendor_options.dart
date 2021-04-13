@@ -10,15 +10,16 @@ import 'edit_vendor.dart';
 class VendorOptions extends StatelessWidget {
   final Vendor vendor;
   VendorOptions({this.vendor});
+
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
+    final _user = Provider.of<User>(context);
     //https://stackoverflow.com/questions/58144948/easiest-way-to-add-3-dot-pop-up-menu-appbar-in-flutter
     return PopupMenuButton<String>(
       onSelected: (value) async {
         switch (value) {
           case 'Edit':
-            if (user.isAnonymous)
+            if (_user.isAnonymous)
               showDialog<void>(
                   context: context,
                   builder: (_) => LoginPopup(to: "edit a vendor"));
@@ -38,7 +39,7 @@ class VendorOptions extends StatelessWidget {
                   builder: (_) => EditVendor(vendor: vendor)));
             break;
           case 'Report':
-            if (user.isAnonymous)
+            if (_user.isAnonymous)
               showDialog<void>(
                   context: context,
                   builder: (_) => LoginPopup(to: "report a vendor"));
@@ -83,19 +84,61 @@ class Report extends StatefulWidget {
 }
 
 class _ReportState extends State<Report> {
-  String selectedReport = '';
-  List<String> reasons = ['Reason 1', 'Reason 2', 'Reason 3', 'Other'];
-  String otherReportString = '';
-  String alertText = '';
+  String _selectedReport = '';
+  List<String> _reasons = [
+    'This vendor is duplicate.',
+    'This vendor is spam and does not exist',
+    'This vendor is not available anymore.',
+    'Other'
+  ];
+  TextEditingController _otherReportController = TextEditingController();
+  String _alertText = '';
+  double _h;
+  double _w;
+  Widget _bottomWidget = Container();
+  User _user;
 
-  void updateReport(String report) => setState(() => selectedReport = report);
+  @override
+  void initState() {
+    super.initState();
+    _user = Provider.of<User>(context, listen: false);
+  }
+
+  Text _alertTextWidget() => Text(_alertText, style: ERROR_TEXT_STYLE(_w));
+
+  void _updateReport(String report) => setState(() => _selectedReport = report);
+
+  void _reportVendor() async {
+    if (_selectedReport == _reasons[3])
+      _selectedReport += " " + _otherReportController.text;
+    if (_selectedReport.isNotEmpty) {
+      setState(() => _bottomWidget = CircularProgressIndicator());
+      final response = await VendorDBService.reportVendor(
+          _selectedReport, widget.vendor, await _user.getIdToken());
+      if (response.statusCode == 200) {
+        setState(() => widget.vendor.reported = true);
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Reported successfully!')));
+      } else
+        setState(() {
+          _alertText = "Could not report vendor";
+          _bottomWidget = _alertTextWidget();
+        });
+    } else
+      setState(() {
+        _alertText = "Please select a reason.";
+        _bottomWidget = _alertTextWidget();
+      });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
+    _h = MediaQuery.of(context).size.height;
+    _w = MediaQuery.of(context).size.width;
     return AlertDialog(
       content: Stack(
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: <Widget>[
           //close button
           Positioned(
@@ -104,97 +147,65 @@ class _ReportState extends State<Report> {
             child: InkResponse(
               onTap: () => Navigator.of(context).pop(),
               child: CircleAvatar(
-                child: Icon(Icons.close),
-                backgroundColor: Colors.red,
-              ),
+                  child: Icon(Icons.close), backgroundColor: Colors.red),
             ),
           ),
-          SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 400,
-                  width: 400,
-                  child: ListView(
-                    children: <Widget>[
-                      //1
-                      RadioListTile(
-                        value: reasons[0],
-                        groupValue: selectedReport,
-                        title: Text(reasons[0]),
-                        onChanged: (report) => updateReport(report),
-                        selected: true,
-                      ),
-                      //2
-                      RadioListTile(
-                        value: reasons[1],
-                        groupValue: selectedReport,
-                        title: Text(reasons[1]),
-                        onChanged: (report) => updateReport(report),
-                        selected: true,
-                      ),
-                      //3
-                      RadioListTile(
-                        value: reasons[2],
-                        groupValue: selectedReport,
-                        title: Text(reasons[2]),
-                        onChanged: (report) => updateReport(report),
-                        selected: true,
-                      ),
-                      //other
-                      Column(
-                        children: [
-                          RadioListTile(
-                            value: reasons[3],
-                            groupValue: selectedReport,
-                            title: Text(reasons[3]),
-                            onChanged: (report) => updateReport(report),
-                            selected: true,
-                          ),
-                          if (selectedReport == reasons[3])
-                            TextFormField(
-                                onChanged: (val) =>
-                                    setState(() => otherReportString = val),
-                                decoration: textInputDecoration.copyWith(
-                                    hintText: "Please enter your issue here"))
-                        ],
-                      ),
-                      RaisedButton(
-                        color: Colors.pink[400],
-                        child: Text('Submit',
-                            style: TextStyle(color: Colors.white)),
-                        onPressed: () async {
-                          if (selectedReport == reasons[3])
-                            selectedReport += " " + otherReportString;
-                          if (selectedReport.isNotEmpty) {
-                            final response = await VendorDBService.reportVendor(
-                                selectedReport,
-                                widget.vendor,
-                                await user.getIdToken());
-                            if (response.statusCode == 200) {
-                              setState(() => widget.vendor.reported = true);
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(SnackBar(
-                                content: Text('Reported successfully!'),
-                                duration: Duration(seconds: 3),
-                              ));
-                            } else
-                              setState(
-                                  () => alertText = "Could not report vendor");
-                          }
-                        },
-                      ),
-                      Text(alertText)
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildReportsColumn(),
         ],
       ),
     );
   }
+
+  Column _buildReportsColumn() => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          //1
+          RadioListTile(
+            value: _reasons[0],
+            groupValue: _selectedReport,
+            title: Text(_reasons[0]),
+            onChanged: _updateReport,
+            selected: true,
+          ),
+          //2
+          RadioListTile(
+            value: _reasons[1],
+            groupValue: _selectedReport,
+            title: Text(_reasons[1]),
+            onChanged: _updateReport,
+            selected: true,
+          ),
+          //3
+          RadioListTile(
+            value: _reasons[2],
+            groupValue: _selectedReport,
+            title: Text(_reasons[2]),
+            onChanged: _updateReport,
+            selected: true,
+          ),
+          //other
+          RadioListTile(
+            value: _reasons[3],
+            groupValue: _selectedReport,
+            title: Text(_reasons[3]),
+            onChanged: _updateReport,
+            selected: true,
+          ),
+          if (_selectedReport == _reasons[3])
+            TextFormField(
+                maxLength: 500,
+                controller: _otherReportController,
+                decoration: textInputDecoration.copyWith(
+                    hintText: "Please enter your issue here")),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              style: BS(_w * 0.1, _h * 0.05),
+              child: Text('Submit'),
+              onPressed: _reportVendor,
+            ),
+          ),
+          _bottomWidget,
+        ],
+      );
 }

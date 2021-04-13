@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:test_proj/screens/authenticate/tnc_pp.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
@@ -26,14 +25,16 @@ class _RegisterState extends State<Register> {
   Widget _buildUsernameRow() => Padding(
         padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: TextFormField(
+          maxLength: 50,
           controller: _usernameController,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.account_box,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Username',
-          ),
+              counterText: "",
+              prefixIcon: Icon(
+                Icons.account_box,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Username',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
           validator: (val) => (val.length < 2)
               ? 'Please enter a username greater than 2 characters'
               : (val.length > 30)
@@ -50,26 +51,19 @@ class _RegisterState extends State<Register> {
           validator: (val) =>
               val.length < 6 ? 'Enter a password 6+ characters long' : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.lock,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Password',
-          ),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Password',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
         ),
       );
 
   Widget _buildRegisterButton() => Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
         child: ElevatedButton(
-          style: ButtonStyle(
-            minimumSize:
-                MaterialStateProperty.all<Size>(Size(_w * 0.4, _h * 0.06)),
-            backgroundColor: MaterialStateProperty.all<Color>(TEXT_COLOR),
-            shape: MaterialStateProperty.all<OutlinedBorder>(
-                RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0))),
-          ),
+          style: BS(_w * 0.4, _h * 0.06),
           onPressed: () async {
             if (_checkboxvalue) {
               setState(() => _error = "");
@@ -108,19 +102,19 @@ class _RegisterState extends State<Register> {
           decoration: BoxDecoration(color: Colors.white),
           child: SingleChildScrollView(
             child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                buildEmailRow(_emailController),
-                _buildUsernameRow(),
-                _buildPasswordRow(),
-                _buildReEnterPassword(),
-                _buildCheckboxRow(),
-                _buildRegisterButton(),
-              ],
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  buildEmailRow(_emailController),
+                  _buildUsernameRow(),
+                  _buildPasswordRow(),
+                  _buildReEnterPassword(),
+                  _buildCheckboxRow(),
+                  _buildRegisterButton(),
+                ],
+              ),
             ),
-          ),
           ),
         ),
       );
@@ -147,7 +141,10 @@ class _RegisterState extends State<Register> {
         ),
         Text(
           'I have read and agree to the',
-          style: TextStyle(fontSize: _h / 53),
+          style: TextStyle(
+            fontSize: _h / 53,
+            color: ThemeData.light().textTheme.bodyText2.color,
+          ),
         ),
         TextButton(
           onPressed: goToPP,
@@ -157,7 +154,11 @@ class _RegisterState extends State<Register> {
           onPressed: goToPP,
           child: Text('Policy', style: _ts),
         ),
-        Text('and', style: TextStyle(fontSize: _h / 53)),
+        Text('and',
+            style: TextStyle(
+              fontSize: _h / 53,
+              color: ThemeData.light().textTheme.bodyText2.color,
+            )),
         TextButton(
           onPressed: goToTnC,
           child: Text('Terms', style: _ts),
@@ -182,12 +183,12 @@ class _RegisterState extends State<Register> {
           validator: (val) =>
               _passwordController.text != val ? 'Passwords do not match' : null,
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.lock,
-              color: TEXT_COLOR,
-            ),
-            hintText: 'Re-Enter Password',
-          ),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: TEXT_COLOR,
+              ),
+              hintText: 'Re-Enter Password',
+              hintStyle: TextStyle(color: ThemeData.light().hintColor)),
         ),
       );
 
@@ -229,36 +230,36 @@ class _RegisterState extends State<Register> {
     _w = MediaQuery.of(context).size.width;
     return _loading
         ? Loading()
-        : SafeArea(
-            child: Scaffold(
-              resizeToAvoidBottomInset: false,
-              backgroundColor: Color(0xfff2f3f7),
-              body: SingleChildScrollView(
-                child:Stack(
-                children: <Widget>[
-                  Container(
-                    height: _h * 0.7,
-                    width: _w,
-                    decoration: BoxDecoration(
-                      color: BACKGROUND_COLOR,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: const Radius.circular(70),
-                        bottomRight: const Radius.circular(70),
+        : Theme(
+            data: ThemeData.light(),
+            child: SafeArea(
+              child: Scaffold(
+                resizeToAvoidBottomInset: false,
+                backgroundColor: Color(0xfff2f3f7),
+                body: Stack(
+                  children: <Widget>[
+                    Container(
+                      height: _h * 0.7,
+                      width: _w,
+                      decoration: BoxDecoration(
+                        color: BACKGROUND_COLOR,
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: const Radius.circular(70),
+                            bottomRight: const Radius.circular(70)),
                       ),
                     ),
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      buildLogo(_h),
-                      _buildContainer(),
-                      _buildErrorText(),
-                      _buildSigninBtn(),
-                    ],
-                  )
-                ],
-              ) ,), 
-              
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        buildLogo(_h),
+                        _buildContainer(),
+                        _buildErrorText(),
+                        _buildSigninBtn(),
+                      ],
+                    )
+                  ],
+                ),
+              ),
             ),
           );
   }
@@ -266,7 +267,6 @@ class _RegisterState extends State<Register> {
   Padding _buildErrorText() {
     return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(_error,
-            style: TextStyle(color: Colors.red, fontSize: _w * 0.042)));
+        child: Text(_error, style: ERROR_TEXT_STYLE(_w)));
   }
 }

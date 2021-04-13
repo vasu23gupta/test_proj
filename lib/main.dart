@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         title: 'LocalPedia',
         debugShowCheckedModeBanner: false,
         theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
+        //darkTheme: ThemeData.dark(),
         home: Wrapper(),
       ),
     );

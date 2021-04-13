@@ -8,7 +8,6 @@ class Review {
   Review({this.byUser, this.review, this.stars, this.id});
 
   factory Review.fromJson(Map<String, dynamic> json) {
-    //print(json);
     return Review(
       id: json['_id'],
       byUser: json['by']['username'] != null ? json['by']['username'] : 'User',

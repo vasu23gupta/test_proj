@@ -12,7 +12,7 @@ class Vendor {
   String name;
   LatLng coordinates;
   List<String> tags;
-  List<NetworkImage> images;
+  List<NetworkImage> networkImages;
   List<String> imageIds;
   String description;
   List<String> reviewIds = [];
@@ -22,7 +22,7 @@ class Vendor {
   DateTime createdOn;
   bool reported;
   bool reviewed;
-  List<Asset> assetImages;
+  List<Asset> assetImages = [];
 
   Vendor({
     this.id,
@@ -38,7 +38,7 @@ class Vendor {
     this.reported,
     this.reviewed,
   }) {
-    this.images = this.imageIds == null ? null : List(imageIds.length);
+    this.networkImages = this.imageIds == null ? null : List(imageIds.length);
   }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
