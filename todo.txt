@@ -5,6 +5,7 @@ smooth home loading.
 dark theme.
 about screen.
 remove unused apis.
+change password.
 
 
 RELEASE:
