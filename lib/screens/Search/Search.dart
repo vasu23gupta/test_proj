@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 //import 'package:fluttertoast/fluttertoast.dart';
 import 'package:test_proj/screens/Search/Filter.dart';
 import 'package:test_proj/screens/Search/SearchResults.dart';
+import 'package:test_proj/screens/vendorDetails/full_screen_image.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:latlong/latlong.dart';
+import 'package:test_proj/shared/starrating.dart';
 import '../vendorDetails/vendor_details.dart';
 import 'package:flutter_map/flutter_map.dart';
 
@@ -28,6 +32,7 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   List<dynamic> searchResults = [];
+  Vendor vendor;
 
   @override
   void initState() {
@@ -78,6 +83,7 @@ class _SearchState extends State<Search> {
               ? ListView.builder(
                   shrinkWrap: true,
                   itemCount: this.searchResults.length,
+                  
                   itemBuilder: (context, index) {
                     //entered = 'true';
                     Vendor resultList = this.searchResults[index];
@@ -85,19 +91,122 @@ class _SearchState extends State<Search> {
                     return ListTile(
                       onTap: () => Navigator.of(context).push(MaterialPageRoute(
                           builder: (_) => VendorDetails(vendor: resultList))),
-                      title: Column(
+                          
+                      title: Card(
+                        elevation: 3,
+                         shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5)),
+                         ),
+                        child:
+                      Column(
+                        
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(resultList.name, style: TextStyle(fontSize: 20)),
-                          Row(
-                            children: resultList.tags
-                                .map((x) => Text(x,
-                                    style: TextStyle(color: Colors.grey)))
+                          
+                          Row(children: [ Column(
+                            children:[
+                              Container(
+                             height: 105,
+                                  width: 105,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                  width: 3,
+                ),
+                                      image: DecorationImage(
+                                          image: VendorDBService.getVendorImage(resultList.imageIds[0]),
+                                          fit: BoxFit.cover)),
+                                ),
+                               Container(
+                                 child: Text('X Kms away'),
+                                 width: 120,
+                               )
+                            ]
+                          ) ,
+                           Container(
+                                  height: 120,
+                                  width: 20,
+                                ),
+                           /*Container(
+                             height: 120,
+                                  width: 120,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      image: DecorationImage(
+                                          image: VendorDBService.getVendorImage(resultList.imageIds[0]),
+                                          fit: BoxFit.cover)),
+                                ),
+                                Container(
+                                  height: 120,
+                                  width: 20,
+                                ),*/
+                          Container(
+                            height: 120,
+                            child:
+                              Stack(children: [
+                                Wrap(
+                                  children: [
+                                    Column( 
+                                children: [
+                                Text(resultList.name.toUpperCase(), style: TextStyle(fontSize: 20)),
+                                 Row(
+                                   children:[SingleChildScrollView(
+                                     scrollDirection: Axis.horizontal,
+                                   child: Row(
+                                    children:  resultList.tags 
+                                .map((x) => Chip(
+                                  
+                                  backgroundColor:Theme.of(context).chipTheme.backgroundColor,
+                                  label: Text(x, style: TextStyle(fontSize: 20,color: Colors.grey)),
+                                ))
                                 .toList(),
+                                   ),
+                                 ),]
+                           /* children:  resultList.tags 
+                                .map((x) => Chip(
+                                  
+                                  backgroundColor:Theme.of(context).chipTheme.backgroundColor,
+                                  label: Text(x, style: TextStyle(fontSize: 20,color: Colors.grey)),
+                                ))
+                                .toList(),*/
                           ),
+                          /*
+                          x,
+                                    style: TextStyle(color: Colors.grey)
+                                    */ 
+                           Container(
+                                   width: 200,
+                                   height: 40,
+                                child:  Stack(children: [
+                                  Wrap(children: [
+                                    Row(children: [
+                                       Text(
+                            resultList.stars.toString(),
+                            style: TextStyle(
+                                fontSize: 25,
+                                fontFamily: 'Montserrat',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueAccent),
+                          ),
+                          StarRating(rating: resultList.stars),
+                                    ],)
+                                      
+                                  ])
+                                  
+                                ],)
+                                )
+                              ],),
+                                  ]
+                                )
+                             
+                            ],) ,
+                          ),  ],),
+                    
                           Divider()
                         ],
+                      
                       ),
+                    ),
                     );
                   },
                 )
@@ -118,8 +227,52 @@ class _SearchState extends State<Search> {
   String dropdownValue = "no limit: default";
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return Scaffold(
-        appBar: AppBar(
+       backgroundColor: Color(0xfff2f3f7),
+        appBar:AppBar(
+           leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context)),
+      backgroundColor: Colors.black,
+      elevation: 0,
+      title: Container(
+        width: size.width,
+        height: 35,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: Colors.grey.withOpacity(0.25)),
+        child: TextField(
+          decoration: InputDecoration(
+              border: InputBorder.none,
+              hintText: "Search",
+              prefixIcon: Icon(
+                Icons.search,
+                color: Colors.grey.withOpacity(0.7),
+              )),
+               onChanged: (value) async{
+                  List<dynamic> sR = [];
+              if (value.length > 1) {
+                print(value +
+                    " " +
+                    dropdownValue +
+                    " " +
+                    userLocFut.latitude.toString() +
+                    " " +
+                    userLocFut.longitude.toString());
+                sR = await VendorDBService.getVendorsFromSearch(
+                    value, dropdownValue, userLocFut);
+              }
+               setState(() {
+                this.searchResults = sR;
+                sortBy = SingingCharacter.Relevance;
+              });
+               }
+        ),
+      ),
+    ),
+        
+        /* AppBar(
           leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context)),
@@ -158,14 +311,17 @@ class _SearchState extends State<Search> {
               }),
             )
           ],
-        ),
-        body: Column(
+        ),*/
+        body: 
+        Column(
           children: [
             ButtonBar(
               mainAxisSize: MainAxisSize.max,
               alignment: MainAxisAlignment.spaceEvenly,
               children: [
-                DropdownButton<String>(
+                Row(
+                  children: <Widget>[
+                     DropdownButton<String>(
                   hint: Text(
                     "Search Radius",
                     style: TextStyle(
@@ -190,7 +346,217 @@ class _SearchState extends State<Search> {
                               ))
                       .toList(),
                 ),
-                FlatButton(
+                 FlatButton(
+                    onPressed: () {
+                        showModalBottomSheet(
+                        context: context,
+                      builder: (context){
+                          return Column(
+                            children: [
+                              ListTile(
+                              title: const Text("Relevance"),
+                              leading: Radio(
+                                value: SingingCharacter.Relevance,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Distance: Closest"),
+                              leading: Radio(
+                                value: SingingCharacter.DistanceClosest,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    this.searchResults.sort((a, b) {
+                                      Distance distance = new Distance();
+
+                                      double aDistance =
+                                          distance(a.coordinates, userLocFut);
+                                      print(aDistance);
+                                      double bDistance =
+                                          distance(b.coordinates, userLocFut);
+                                      print(bDistance);
+                                      aDistance.compareTo(bDistance);
+                                      return aDistance.compareTo(bDistance);
+                                    });
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Distance: Farthest"),
+                              leading: Radio(
+                                value: SingingCharacter.DistanceFarthest,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    this.searchResults.sort((a, b) {
+                                      Distance distance = new Distance();
+
+                                      double aDistance =
+                                          distance(a.coordinates, userLocFut);
+                                      print(aDistance);
+                                      double bDistance =
+                                          distance(b.coordinates, userLocFut);
+                                      print(bDistance);
+                                      aDistance.compareTo(bDistance);
+                                      return -1 *
+                                          aDistance.compareTo(bDistance);
+                                    });
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Rating: Low to High"),
+                              leading: Radio(
+                                value: SingingCharacter.RatingLowToHigh,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                    //print(searchResults[2].stars);
+                                    this.searchResults.sort(
+                                        (a, b) => a.stars.compareTo(b.stars));
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Rating: High To Low"),
+                              leading: Radio(
+                                value: SingingCharacter.RatingHighToLow,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                    //print(searchResults[2].stars);
+                                    this.searchResults.sort((a, b) =>
+                                        -1 * a.stars.compareTo(b.stars));
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Date: earliest added first"),
+                              leading: Radio(
+                                value: SingingCharacter.DateAddedEarliest,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    this.searchResults.sort((a, b) {
+                                      DateTime aDate = a.createdOn;
+                                      DateTime bDate = b.createdOn;
+                                      return aDate.compareTo(bDate);
+                                    });
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                  });
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text("Date: latest added first"),
+                              leading: Radio(
+                                value: SingingCharacter.DateAddedLatest,
+                                groupValue: sortBy,
+                                onChanged: (SingingCharacter value) {
+                                  setState(() {
+                                    sortBy = value;
+                                    this.searchResults.sort((a, b) {
+                                      DateTime aDate = a.createdOn;
+                                      DateTime bDate = b.createdOn;
+                                      return -1 * aDate.compareTo(bDate);
+                                    });
+                                    print(sortBy);
+                                    Navigator.pop(context);
+                                  });
+                                },
+                              ),
+                            ),
+                            ],
+                          );
+                      }
+                        );
+                        
+                    }, child: Row(
+                    children: [
+                      Icon(Icons.sort),
+                      Text(
+                        "Sort",
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                 ),
+                  FlatButton(
+                  onPressed: () {
+                    if (this.searchResults != null &&
+                        this.searchResults.isNotEmpty)
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => Filter(
+                                searchResults: this.searchResults,
+                              )));
+                    else
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Search Results are empty")));
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.filter_alt),
+                      Text("Filter", style: TextStyle(fontSize: 15)),
+                    ],
+                  ),
+                ),
+
+                  ],
+                )
+              /*  DropdownButton<String>(
+                  hint: Text(
+                    "Search Radius",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                  isExpanded: false,
+                  value: dropdownValue,
+                  icon: Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  elevation: 16,
+                  style: TextStyle(color: Colors.deepPurple),
+                  underline:
+                      Container(height: 2, color: Colors.deepPurpleAccent),
+                  onChanged: (String newValue) =>
+                      setState(() => dropdownValue = newValue),
+                  items: <String>['no limit: default', '10km', '15km', '5km']
+                      .map<DropdownMenuItem<String>>(
+                          (String value) => DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              ))
+                      .toList(),
+                ),*/
+               /* FlatButton(
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
@@ -352,8 +718,8 @@ class _SearchState extends State<Search> {
                       ),
                     ],
                   ),
-                ),
-                FlatButton(
+                ),*/
+              /*  FlatButton(
                   onPressed: () {
                     if (this.searchResults != null &&
                         this.searchResults.isNotEmpty)
@@ -371,8 +737,8 @@ class _SearchState extends State<Search> {
                       Text("Filter", style: TextStyle(fontSize: 15)),
                     ],
                   ),
-                ),
-                FlatButton(
+                ),*/
+             /*   FlatButton(
                   onPressed: () {
                     if (this.searchResults != null &&
                         this.searchResults.isEmpty)
@@ -390,7 +756,7 @@ class _SearchState extends State<Search> {
                       Text("Show On Map", style: TextStyle(fontSize: 15)),
                     ],
                   ),
-                ),
+                ),*/
               ],
             ),
             buildSuggestions(),

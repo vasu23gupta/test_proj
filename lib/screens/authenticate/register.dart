@@ -106,7 +106,8 @@ class _RegisterState extends State<Register> {
         child: Container(
           width: _w * 0.8,
           decoration: BoxDecoration(color: Colors.white),
-          child: Form(
+          child: SingleChildScrollView(
+            child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -119,6 +120,7 @@ class _RegisterState extends State<Register> {
                 _buildRegisterButton(),
               ],
             ),
+          ),
           ),
         ),
       );
@@ -231,7 +233,8 @@ class _RegisterState extends State<Register> {
             child: Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: Color(0xfff2f3f7),
-              body: Stack(
+              body: SingleChildScrollView(
+                child:Stack(
                 children: <Widget>[
                   Container(
                     height: _h * 0.7,
@@ -254,7 +257,8 @@ class _RegisterState extends State<Register> {
                     ],
                   )
                 ],
-              ),
+              ) ,), 
+              
             ),
           );
   }

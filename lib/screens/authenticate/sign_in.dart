@@ -200,7 +200,7 @@ class _SignInState extends State<SignIn> {
             child: Scaffold(
               resizeToAvoidBottomInset: false,
               backgroundColor: Color(0xfff2f3f7),
-              body: Stack(
+              body: SingleChildScrollView(child: Stack(
                 children: <Widget>[
                   Container(
                     height: _h * 0.7,
@@ -227,7 +227,7 @@ class _SignInState extends State<SignIn> {
                     ],
                   )
                 ],
-              ),
+              ),) 
             ),
           );
   }

@@ -59,7 +59,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        ClipRRect(
+        SingleChildScrollView(
+          child:ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(20)),
           child: Container(
             width: _w * 0.8,
@@ -74,6 +75,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             ),
           ),
         ),
+        )
       ],
     );
   }
