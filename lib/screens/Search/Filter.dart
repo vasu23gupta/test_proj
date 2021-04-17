@@ -1,8 +1,8 @@
 import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
+import 'package:test_proj/shared/constants.dart';
 
 class Filter extends StatefulWidget {
   final List<dynamic> searchResults;
@@ -13,18 +13,10 @@ class Filter extends StatefulWidget {
 
 class _FilterState extends State<Filter> {
   List<dynamic> finalList;
-  Color ratingButton = Colors.white;
-  Color tagsButton;
+  //Color ratingButton = Colors.white;
+  //Color tagsButton;
   String selectedFilter = "rating";
-  List<String> tags = List.from({
-    "food",
-    "north indian",
-    "chinese",
-    "south indian",
-    "services",
-    "tea",
-    "fast food",
-  });
+  List<String> tags = [];
   List<bool> stags = [false, false, false, false, false, false, false, false];
   HashSet<String> selTags = HashSet.from({});
   int selectedVal = 0;
@@ -38,6 +30,14 @@ class _FilterState extends State<Filter> {
   bool tea = false;
   bool fastFood = false;
   bool services = false;
+
+  @override
+  void initState() {
+    super.initState();
+    tags.addAll(FILTERS.keys);
+    for (List<String> item in FILTERS.values) tags.addAll(item);
+  }
+
   Widget myWidget(String filter) {
     Widget mywidget = Container();
     if (filter == 'rating') {
@@ -117,34 +117,35 @@ class _FilterState extends State<Filter> {
       ]);
     }
     if (filter == 'tags') {
-      mywidget = Column(
-        children: [
-          ListTile(
-            title: Text('tags'),
-          ),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: tags.length,
-            itemBuilder: (context, index) {
-              return CheckboxListTile(
-                title: Text(tags[index]),
-                value: stags[index],
-                onChanged: (bool value) {
-                  setState(() {
-                    stags[index] = value;
-                    if (value) {
-                      selTags.add(tags[index]);
-                    } else {
-                      if (selTags.contains(tags[index])) {
-                        selTags.remove(tags[index]);
+      mywidget = SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(title: Text('tags')),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: tags.length,
+              itemBuilder: (context, index) {
+                return CheckboxListTile(
+                  title: Text(tags[index]),
+                  value: stags[index],
+                  onChanged: (bool value) {
+                    setState(() {
+                      stags[index] = value;
+                      if (value) {
+                        selTags.add(tags[index]);
+                      } else {
+                        if (selTags.contains(tags[index])) {
+                          selTags.remove(tags[index]);
+                        }
                       }
-                    }
-                  });
-                },
-              );
-            },
-          ),
-        ],
+                    });
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       );
     }
     return Column(
@@ -194,17 +195,9 @@ class _FilterState extends State<Filter> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          actions: [],
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          title: Text(
-            "Filters",
-            style: TextStyle(fontSize: 20, color: Colors.white),
-          ),
+          backgroundColor: BACKGROUND_COLOR,
+          title: Text("Filter",
+              style: TextStyle(fontSize: 20, color: Colors.white)),
         ),
         body: Row(
           children: <Widget>[
@@ -214,40 +207,21 @@ class _FilterState extends State<Filter> {
                 color: Colors.grey,
                 child: Column(
                   children: [
-                    FlatButton(
-                      minWidth: double.infinity,
-                      onPressed: () {
-                        setState(() {
-                          ratingButton = Colors.white;
-                          selectedFilter = "rating";
-                          tagsButton = null;
-                        });
-                      },
+                    TextButton(
+                      onPressed: () =>
+                          setState(() => selectedFilter = "rating"),
                       child: Text("Rating"),
-                      color: ratingButton,
                     ),
-                    FlatButton(
-                      minWidth: double.infinity,
-                      onPressed: () {
-                        setState(() {
-                          tagsButton = Colors.white;
-                          selectedFilter = 'tags';
-                          ratingButton = null;
-                        });
-                      },
+                    TextButton(
+                      onPressed: () => setState(() => selectedFilter = 'tags'),
                       child: Text("Tags"),
-                      color: tagsButton,
                     ),
                   ],
                 ),
               ),
             ),
             Expanded(
-              flex: 6,
-              child: Container(
-                child: myWidget(selectedFilter),
-              ),
-            ),
+                flex: 6, child: Container(child: myWidget(selectedFilter))),
           ],
         ));
   }
