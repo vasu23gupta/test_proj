@@ -17,7 +17,7 @@ class _FilterState extends State<Filter> {
   //Color tagsButton;
   String selectedFilter = "rating";
   List<String> tags = [];
-  List<bool> stags = [false, false, false, false, false, false, false, false];
+  List<bool> stags ;
   HashSet<String> selTags = HashSet.from({});
   int selectedVal = 0;
   bool val4 = false;
@@ -36,6 +36,7 @@ class _FilterState extends State<Filter> {
     super.initState();
     tags.addAll(FILTERS.keys);
     for (List<String> item in FILTERS.values) tags.addAll(item);
+    stags=List<bool>.filled(tags.length, false); 
   }
 
   Widget myWidget(String filter) {
@@ -117,12 +118,12 @@ class _FilterState extends State<Filter> {
       ]);
     }
     if (filter == 'tags') {
-      mywidget = SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(title: Text('tags')),
-            ListView.builder(
+      mywidget = Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(title: Text('tags')),
+          Expanded(
+            child:ListView.builder(
               shrinkWrap: true,
               itemCount: tags.length,
               itemBuilder: (context, index) {
@@ -144,16 +145,17 @@ class _FilterState extends State<Filter> {
                 );
               },
             ),
-          ],
-        ),
+          ),
+        ],
       );
     }
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        mywidget,
-        BottomAppBar(
-          child: FlatButton(
+        Expanded(child:mywidget),
+        ListTile(
+          tileColor: Colors.orange[400],
+          title: FlatButton(
             onPressed: () {
               List<Vendor> filtered = [];
               for (Vendor v in widget.searchResults) {
