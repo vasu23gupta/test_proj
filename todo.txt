@@ -6,6 +6,7 @@ dark theme.
 about screen.
 remove unused apis.
 change password.
+delete vendors after report.
 
 
 RELEASE:

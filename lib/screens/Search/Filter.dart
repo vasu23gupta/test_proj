@@ -175,12 +175,8 @@ class _FilterState extends State<Filter> {
                   print(finalList);
                   Navigator.pop(context);
                   Navigator.pop(context);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Search(
-                                searchRes: finalList,
-                              )));
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => Search(searchRes: finalList)));
                 },
               );
             },
