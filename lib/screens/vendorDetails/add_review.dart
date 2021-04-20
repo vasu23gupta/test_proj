@@ -37,9 +37,9 @@ class _AddReviewState extends State<AddReview> {
 
   Future<void> addReview() async {
     if (_review.stars != 0 && _review.stars != null) {
-      if (_reviewController.text.isNotEmpty)
-        _review.review = _filter.censor(_reviewController.text);
       setState(() => _loading = true);
+      if (_reviewController.text.isNotEmpty)
+        _review.review = _filter.censor(_reviewController.text.trim());
       final response = await VendorDBService.addVendorReview(
           _review, widget.vendor, await _user.getIdToken());
       if (response.statusCode == 200) {

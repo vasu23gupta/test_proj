@@ -1,12 +1,10 @@
 APP:
 ui + mediaquery.
-categories, subcategories.
 smooth home loading.
-dark theme.
 about screen.
 remove unused apis.
 change password.
-delete vendors after report.
+improve filter.
 
 
 RELEASE:

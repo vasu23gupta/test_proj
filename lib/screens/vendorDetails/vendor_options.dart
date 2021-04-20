@@ -110,7 +110,7 @@ class _ReportState extends State<Report> {
 
   void _reportVendor() async {
     if (_selectedReport == _reasons[3])
-      _selectedReport += " " + _otherReportController.text;
+      _selectedReport += " " + _otherReportController.text.trim();
     if (_selectedReport.isNotEmpty) {
       setState(() => _bottomWidget = CircularProgressIndicator());
       final response = await VendorDBService.reportVendor(

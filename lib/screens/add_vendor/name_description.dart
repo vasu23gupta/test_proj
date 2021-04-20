@@ -62,34 +62,6 @@ class _AddVendorNameDescriptionState extends State<AddVendorNameDescription> {
                             'Add some description for the vendor. Try to include the product and services available, prices, timings and contact details.')),
               ),
             ),
-            /* TextField(
-                      controller: _nameController,
-                      decoration:
-                          textInputDecoration.copyWith(hintText: 'Vendor Name')),
-                  TextField(
-                      maxLines: 10,
-                      keyboardType: TextInputType.multiline,
-                      controller: _descriptionController,
-                      decoration: textInputDecoration.copyWith(
-                          hintText: 'Vendor description')),
-                  Text(errorText, style: TextStyle(color: Colors.red)),
-                  RaisedButton(
-                    color: Colors.pink[400],
-                    child: Text('Next >', style: TextStyle(color: Colors.white)),
-                    onPressed: () {
-                      if (_nameController.text.isNotEmpty &&
-                          _descriptionController.text.isNotEmpty) {
-                        errorText = '';
-                        vendor.name = _nameController.text;
-                        vendor.description = _descriptionController.text;
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                AddVendorLocationAddress(vendor: vendor)));
-                      } else
-                        setState(() =>
-                            errorText = "Name and description cannot be empty");
-                    },
-                  ),*/
           ],
         ),
       ),

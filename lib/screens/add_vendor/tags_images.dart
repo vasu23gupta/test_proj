@@ -68,9 +68,9 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
     for (var tag in _vendor.tags)
       if (_filter.hasProfanity(tag)) _vendor.tags.remove(tag);
 
-    _vendor.name = _filter.censor(_vendor.name);
-    _vendor.description = _filter.censor(_vendor.description);
-    _vendor.address = _filter.censor(_vendor.address);
+    _vendor.name = _filter.censor(_vendor.name.trim());
+    _vendor.description = _filter.censor(_vendor.description.trim());
+    _vendor.address = _filter.censor(_vendor.address.trim());
   }
 
   Future<void> _addVendor() async {
@@ -283,11 +283,8 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                           _tagsSuggestionsOverlay = await _tagsSuggestions(val);
                         else
                           _tagsSuggestionsOverlay = Text(
-                            "Cannot add more than 20 tags",
-                            style: TextStyle(
-                                color: Colors.red,
-                                fontSize: _size.width * 0.042),
-                          );
+                              "Cannot add more than 20 tags",
+                              style: ERROR_TEXT_STYLE(_size.width));
                         setState(() {});
                       },
                     ),
@@ -301,7 +298,8 @@ class _AddVendorTagsImagesState extends State<AddVendorTagsImages> {
                         if (tag.isNotEmpty &&
                             !_vendor.tags.contains(tag) &&
                             _vendor.tags.length < 20) {
-                          tag = capitaliseFirstLetter(_addTagController.text);
+                          tag = capitaliseFirstLetter(
+                              _addTagController.text.trim());
                           _vendor.tags.add(tag);
                         }
                         setState(() => _addTagController.clear());

@@ -72,7 +72,7 @@ class _RegisterState extends State<Register> {
                 dynamic result = await _auth.registerWithEmailAndPassword(
                     _emailController.text,
                     _passwordController.text,
-                    _usernameController.text);
+                    _usernameController.text.trim());
                 if (result == null) {
                   setState(() {
                     _error = 'Please enter a valid email';

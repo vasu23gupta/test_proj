@@ -110,9 +110,9 @@ class _EditVendorState extends State<EditVendor> {
   void _censorVendor() {
     for (var tag in _tags) if (_filter.hasProfanity(tag)) _tags.remove(tag);
 
-    _name = _filter.censor(_name);
-    _description = _filter.censor(_description);
-    _addressController.text = _filter.censor(_addressController.text);
+    _name = _filter.censor(_name.trim());
+    _description = _filter.censor(_description.trim());
+    _addressController.text = _filter.censor(_addressController.text.trim());
   }
 
   void _validateAndEditVendor() {
@@ -445,7 +445,7 @@ class _EditVendorState extends State<EditVendor> {
                             !_tags.contains(tag) &&
                             _tags.length < 20) {
                           tag = capitaliseFirstLetter(_addTagController.text);
-                          _tags.add(tag);
+                          _tags.add(tag.trim());
                         }
                         setState(() => _addTagController.clear());
                       },
