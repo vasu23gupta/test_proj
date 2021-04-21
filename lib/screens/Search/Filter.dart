@@ -20,16 +20,7 @@ class _FilterState extends State<Filter> {
   List<bool> stags ;
   HashSet<String> selTags = HashSet.from({});
   int selectedVal = 0;
-  bool val4 = false;
-  bool val3 = false;
-  bool val2 = false;
-  bool val1 = false;
-  bool val0 = true;
-  bool food = false;
-  bool none = true;
-  bool tea = false;
-  bool fastFood = false;
-  bool services = false;
+  List<bool> sratings=[false,false,false,false,false];
 
   @override
   void initState() {
@@ -42,78 +33,30 @@ class _FilterState extends State<Filter> {
   Widget myWidget(String filter) {
     Widget mywidget = Container();
     if (filter == 'rating') {
-      mywidget = Column(children: [
-        CheckboxListTile(
-          title: const Text('>= 4.0'),
-          value: val4,
-          onChanged: (bool value) {
-            setState(() {
-              selectedVal = 4;
-              val4 = value;
-              val3 = false;
-              val2 = false;
-              val1 = false;
-              val0 = false;
-              print(value);
-            });
-            print(val4);
-          },
-        ),
-        CheckboxListTile(
-          title: const Text('>= 3.0'),
-          value: val3,
-          onChanged: (bool value) {
-            setState(() {
-              selectedVal = 3;
-              val3 = value;
-              val4 = false;
-              val2 = false;
-              val1 = false;
-              val0 = false;
-            });
-          },
-        ),
-        CheckboxListTile(
-          title: const Text('>= 2.0'),
-          value: val2,
-          onChanged: (bool value) {
-            setState(() {
-              selectedVal = 2;
-              val2 = value;
-              val3 = false;
-              val4 = false;
-              val1 = false;
-              val0 = false;
-            });
-          },
-        ),
-        CheckboxListTile(
-          title: const Text('>= 1.0'),
-          value: val1,
-          onChanged: (bool value) {
-            setState(() {
-              selectedVal = 1;
-              val1 = value;
-              val3 = false;
-              val2 = false;
-              val4 = false;
-              val0 = false;
-            });
-          },
-        ),
-        CheckboxListTile(
-          title: const Text('>= 0'),
-          value: val0,
-          onChanged: (bool value) {
-            setState(() {
-              selectedVal = 0;
-              val0 = value;
-              val3 = false;
-              val2 = false;
-              val1 = false;
-              val4 = false;
-            });
-          },
+      mywidget = Column(
+        children: [
+          ListTile(title: Text('Ratings')),
+          Expanded(child:ListView.builder(
+            shrinkWrap: true,
+            itemCount: sratings.length,
+            itemBuilder: (context,index) {
+              return CheckboxListTile(
+                title: Text('>= ${sratings.length-index-1}.0'),
+                value: sratings[sratings.length-index-1],
+                onChanged: (bool value) {
+                  setState(() {
+                    sratings[sratings.length-index-1]=value;
+                    selectedVal = sratings.length-index-1;
+                    for(int i=0;i<sratings.length;i++)
+                    {
+                      if(sratings.length-index-1!=i)
+                      sratings[i]=false;
+                    }
+                  });
+                },
+              );
+            },
+          ),
         ),
       ]);
     }
