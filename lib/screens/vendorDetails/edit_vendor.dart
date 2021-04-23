@@ -235,7 +235,7 @@ class _EditVendorState extends State<EditVendor> {
           width: 45.0,
           height: 45.0,
           point: point,
-          builder: (context) => Icon(Icons.location_on, size: 40),
+          builder: (context) => pinMarker,
         );
       },
     );

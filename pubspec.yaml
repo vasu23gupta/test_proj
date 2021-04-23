@@ -43,7 +43,8 @@ dependencies:
   google_sign_in: 
   cached_network_image:
   webview_flutter: 
-  shared_preferences: ^2.0.5
+  shared_preferences: 
+  flutter_svg:
 
 
 dev_dependencies:

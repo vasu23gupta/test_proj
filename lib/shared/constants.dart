@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 const textInputDecoration = InputDecoration(
   counterText: "",
@@ -29,6 +30,11 @@ ButtonStyle BS(double w, double h) => ButtonStyle(
 const BACKGROUND_COLOR = Color(0xff73DCE2);
 const TEXT_COLOR = Color(0xff5C73FF);
 String mapApiKey = '';
+
+SvgPicture foodMarker = SvgPicture.asset('assets/food.svg');
+SvgPicture repairMarker = SvgPicture.asset('assets/repair.svg');
+SvgPicture shopMarker = SvgPicture.asset('assets/shop.svg');
+SvgPicture pinMarker = SvgPicture.asset('assets/pin.svg');
 
 // ignore: non_constant_identifier_names
 TextStyle ERROR_TEXT_STYLE(double _w) =>
@@ -72,15 +78,15 @@ HashMap<String, List<String>> FILTERS = HashMap.from({
     "Chinese"
   ],
   "Repair": ["Tailor", "Cobbler", "Car", "Bike", "Cycle"],
-  "Shops": ["Toys", "Crafts", "Clothing", "Grocery"],
+  "Shop": ["Toys", "Crafts", "Clothing", "Grocery"],
 });
 HashMap<String, List<bool>> areSelected = HashMap.from({
   "Food": [false, false, false, false, false, false],
   "Repair": [false, false, false, false, false],
-  "Shops": [false, false, false, false],
+  "Shop": [false, false, false, false],
 });
 HashMap<String, bool> isSelected = HashMap.from({
   "Food": false,
   "Repair": false,
-  "Shops": false,
+  "Shop": false,
 });

@@ -5,11 +5,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
 import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
+import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/shared/loading.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -198,10 +199,12 @@ class _HomeState extends State<Home> {
         builder: (_) => IconButton(
           color: Theme.of(context).iconTheme.color,
           icon: vendor.tags.contains('Food')
-              ? Icon(Icons.restaurant_rounded)
+              ? foodMarker
               : vendor.tags.contains('Repair')
-                  ? Icon(Icons.home_repair_service_rounded)
-                  : Icon(Icons.location_on),
+                  ? repairMarker
+                  : vendor.tags.contains('Shop')
+                      ? shopMarker
+                      : pinMarker,
           iconSize: 40.0,
           onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => VendorDetails(vendor: vendor))),

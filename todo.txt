@@ -1,5 +1,6 @@
 APP:
-ui + mediaquery.
+ui:
+profile,search,filter,settings.
 smooth home loading.
 about screen.
 remove unused apis.

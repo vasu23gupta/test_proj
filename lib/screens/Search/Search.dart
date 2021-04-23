@@ -59,7 +59,7 @@ class _SearchState extends State<Search> {
         height: 45.0,
         point: vendor.coordinates,
         builder: (context) => IconButton(
-          icon: Icon(Icons.circle),
+          icon: pinMarker,
           iconSize: 40.0,
           onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => VendorDetails(vendor: vendor))),
