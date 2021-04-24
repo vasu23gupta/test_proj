@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:test_proj/models/appUser.dart';
+import 'package:test_proj/screens/profile/change_password.dart';
 
 class ProfilePage extends StatelessWidget{
   AppUser user;
@@ -43,6 +44,7 @@ class ProfilePage extends StatelessWidget{
               Text('points',style: TextStyle(fontSize: 20),)
             ],
           ),
+          
         ],),
     );
   }}

@@ -43,6 +43,7 @@ dependencies:
   google_sign_in: 
   cached_network_image:
   webview_flutter: 
+  get_it: ^6.1.1
 
 
 dev_dependencies:

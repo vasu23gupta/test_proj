@@ -11,5 +11,7 @@ class AppUser {
     this.points=json['points'];
     this.nextLevelAt=json['nextLevelAt'];
     this.name=json['username'];
-  }  
+  }
+
+  
 }

@@ -1,9 +1,28 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:test_proj/models/appUser.dart';
+import 'package:test_proj/screens/profile/change_password.dart';
+import 'package:test_proj/services/database.dart';
 import 'package:test_proj/settings/darkthemebutton.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget{
+  _SettingsState createState() => _SettingsState();
+}
+
+class _SettingsState extends State<SettingsPage> {
+  User _user;
+
+   @override
+  void initState() {
+    super.initState(); 
+    _user = Provider.of<User>(context, listen: false);  
+    }
+  
+  
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
@@ -27,10 +46,19 @@ class SettingsPage extends StatelessWidget {
                   style: TextStyle(
                       color: Colors.white, fontWeight: FontWeight.w500),
                 ),
+                onTap: () async {
+                      Response response =
+                          await UserDBService(jwt: await _user.getIdToken())
+                              .getUserByJWT();
+                      AppUser us = AppUser(jsonDecode(response.body));
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (_) => ChangePassword(user: us)));
+                    },
                 trailing: Icon(
                   Icons.edit,
                   color: Colors.white,
                 ),
+               
               ),
             ),
             Card(
