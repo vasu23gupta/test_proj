@@ -1,5 +1,2 @@
-register, sign in, forgot password screen not scrolling
-error text not visible in register, forgot password
-forgot password screen ugly.
-all reviews button.
-slow marker in add vendor.
+register, sign in, forgot password screen not scrolling.
+marker size, offset.

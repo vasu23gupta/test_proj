@@ -1,12 +1,13 @@
 APP:
-ui.
-user points, quotas.
-mediaquery.
-categories, subcategories.
+ui:
+profile,search,filter,settings.
 smooth home loading.
-report reasons.
-dark theme.
+about screen.
+remove unused apis.
+change password.
+improve filter.
 
 
 RELEASE:
 graphics.
+new keys.

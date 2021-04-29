@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:http/http.dart';
 import 'package:location/location.dart';
-import 'package:test_proj/models/appUser.dart';
+import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
+import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
 import 'package:test_proj/shared/loading.dart';
-import 'package:test_proj/screens/add_vendor/name_description.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -40,21 +37,20 @@ class _HomeState extends State<Home> {
   List<Vendor> _vendors = [];
   List<Marker> _vendorMarkers = [];
   LocationService _locSer = LocationService();
-  var _brightness;
-  bool _darkModeOn;
+  // bool _darkModeOn;
   bool _loading = true;
-  String _mapApiKey = '';
   bool _isSnackbarActive = false;
   User _user;
+  double _h;
+  double _w;
 
   @override
   void initState() {
     super.initState();
-    _brightness = SchedulerBinding.instance.window.platformBrightness;
-    _darkModeOn = _brightness == Brightness.dark;
+    //_darkModeOn = SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
     _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _mapApiKey = await VendorDBService.getMapApiKey(_user);
+      mapApiKey = await VendorDBService.getMapApiKey(_user);
       setState(() => _loading = false);
       _moveMapToUserLocation();
     });
@@ -119,11 +115,6 @@ class _HomeState extends State<Home> {
                   _mainSelectedFilter = '';
                   _updateMarkers();
                   setState(() {});
-                  // String filters = '';
-                  // for (var item in widget.selectedFilters) {
-                  //   filters += item;
-                  // }
-                  // print(filters);
                 },
               ),
             );
@@ -151,14 +142,11 @@ class _HomeState extends State<Home> {
                     }
                     _updateMarkers();
                     setState(() {});
-                    // String filters = '';
-                    // for (var item in widget.selectedFilters) {
-                    //   filters += item;
-                    // }
-                    // print(filters);
                   },
                 ),
               );
+            else
+              return Container();
           }
         },
         scrollDirection: Axis.horizontal,
@@ -211,10 +199,12 @@ class _HomeState extends State<Home> {
         builder: (_) => IconButton(
           color: Theme.of(context).iconTheme.color,
           icon: vendor.tags.contains('Food')
-              ? Icon(Icons.restaurant_rounded)
-              : vendor.tags.contains('repair')
-                  ? Icon(Icons.home_repair_service_rounded)
-                  : Icon(Icons.location_on),
+              ? foodMarker
+              : vendor.tags.contains('Repair')
+                  ? repairMarker
+                  : vendor.tags.contains('Shop')
+                      ? shopMarker
+                      : pinMarker,
           iconSize: 40.0,
           onPressed: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => VendorDetails(vendor: vendor))),
@@ -225,7 +215,7 @@ class _HomeState extends State<Home> {
     setState(() {});
   }
 
-  void _onPositionChanged(MapPosition position, bool hasGesture) {
+  void _onPositionChanged(MapPosition position, bool hasGesture) async {
     if (!_loadingMarkers &&
         ((_controller.zoom > 16.5 && _selectedFilters.isEmpty) ||
             (_controller.zoom > 15 && _selectedFilters.isNotEmpty)))
@@ -236,26 +226,28 @@ class _HomeState extends State<Home> {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Zoom in to see more vendors.")));
       _isSnackbarActive = true;
+      await Future.delayed(Duration(seconds: 4));
+      _isSnackbarActive = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    _h = MediaQuery.of(context).size.height;
+    _w = MediaQuery.of(context).size.width;
     return _loading
         ? Loading()
         : Scaffold(
             key: _scaffoldKey,
             drawer: Drawer(
               child: ListView(
-                // Important: Remove any padding from the ListView.
-                padding: EdgeInsets.zero,
                 children: <Widget>[
                   DrawerHeader(
                       child: Text(_user.isAnonymous
                           ? "Guest"
                           : _user.displayName != null
                               ? _user.displayName
-                              : _user.uid),
+                              : "Welcome"),
                       decoration: BoxDecoration(color: Colors.blue)),
                   ListTile(
                       title: Text('Settings'),
@@ -263,14 +255,8 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(builder: (_) => SettingsPage()))),
                   ListTile(
                     title: Text('Profile'),
-                    onTap: () async {
-                      Response response =
-                          await UserDBService(jwt: await _user.getIdToken())
-                              .getUserByJWT();
-                      AppUser us = AppUser(jsonDecode(response.body));
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (_) => ProfilePage(user: us)));
-                    },
+                    onTap: () => Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (_) => ProfilePage())),
                   ),
                   ListTile(
                       title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
@@ -281,66 +267,22 @@ class _HomeState extends State<Home> {
             body: Stack(
               children: <Widget>[
                 //map
-                FlutterMap(
-                    mapController: _controller,
-                    options: MapOptions(
-                        maxZoom: 18.45,
-                        onPositionChanged: _onPositionChanged,
-                        zoom: 18.45,
-                        center: _mapCenter),
-                    layers: [
-                      TileLayerOptions(
-                          urlTemplate:
-                              "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-                          additionalOptions: {
-                            'subscriptionKey': _mapApiKey,
-                            'theme': _darkModeOn ? 'dark' : 'main'
-                          }),
-                      MarkerLayerOptions(markers: _vendorMarkers)
-                    ]),
+                _buildFlutterMap(),
                 //search bar
                 Positioned(
-                  top: 60,
-                  right: 15,
-                  left: 15,
-                  child: Container(
-                    color: Theme.of(context).backgroundColor,
-                    child: Row(
-                      children: <Widget>[
-                        //drawer
-                        IconButton(
-                          icon: Icon(Icons.menu),
-                          onPressed: () =>
-                              _scaffoldKey.currentState.openDrawer(),
-                        ),
-                        //search
-                        Expanded(
-                          child: TextField(
-                            onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context) => Search())),
-                            decoration: InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 15),
-                                hintText: "Search"),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  top: _h * 0.07,
+                  right: _w * 0.04,
+                  left: _w * 0.04,
+                  child: _buildSearchBar(context),
                 ),
                 //filter bar
                 Positioned(
-                  top: 110.0,
-                  left: 10,
-                  child: Row(children: [
-                    SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: _filterBar()),
-                  ]),
-                  height: 60.0,
-                  width: MediaQuery.of(context).size.width,
+                  top: _h * 0.14,
+                  left: _w * 0.02,
+                  child:
+                      Row(children: [SizedBox(width: _w, child: _filterBar())]),
+                  height: _h * 0.065,
+                  width: _w,
                 ),
               ],
             ),
@@ -359,44 +301,92 @@ class _HomeState extends State<Home> {
                 //add vendor
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    child: Icon(Icons.add),
-                    onPressed: () async {
-                      if (_user.isAnonymous)
-                        showDialog<void>(
-                            context: context,
-                            builder: (_) => LoginPopup(to: "add a vendor"));
-                      //DONT DELETE
-                      // else if (!user.emailVerified) {
-                      //   await user.reload();
-                      //   if (!user.emailVerified)
-                      //     showDialog<void>(
-                      //         context: context,
-                      //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
-                      //   else {
-                      //     Vendor vendor = Vendor();
-                      //      if (userLoc != null) vendor.coordinates =
-                      //         LatLng(userLoc.latitude, userLoc.longitude);
-                      //     Navigator.of(context).push(MaterialPageRoute(
-                      //         builder: (_) =>
-                      //             AddVendorNameDescription(vendor: vendor)));
-                      //   }
-                      // }
-                      else {
-                        Vendor vendor = Vendor();
-                        if (_userLoc != null)
-                          vendor.coordinates =
-                              LatLng(_userLoc.latitude, _userLoc.longitude);
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (_) =>
-                                AddVendorNameDescription(vendor: vendor)));
-                      }
-                    },
-                  ),
+                  child: _buildAddVendorFAB(),
                 ),
               ],
             ),
           );
   }
+
+  FlutterMap _buildFlutterMap() {
+    return FlutterMap(
+        mapController: _controller,
+        options: MapOptions(
+            maxZoom: 18.45,
+            onPositionChanged: _onPositionChanged,
+            zoom: 18.45,
+            center: _mapCenter),
+        layers: [
+          TileLayerOptions(
+              urlTemplate:
+                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+              additionalOptions: {
+                'subscriptionKey': mapApiKey,
+                //'theme': _darkModeOn ? 'dark' : 'main'
+              }),
+          MarkerLayerOptions(markers: _vendorMarkers)
+        ]);
+  }
+
+  FloatingActionButton _buildAddVendorFAB() => FloatingActionButton(
+        heroTag: null,
+        child: Icon(Icons.add),
+        onPressed: () async {
+          if (_user.isAnonymous)
+            showDialog<void>(
+                context: context,
+                builder: (_) => LoginPopup(to: "add a vendor"));
+          //DONT DELETE
+          // else if (!user.emailVerified) {
+          //   await user.reload();
+          //   if (!user.emailVerified)
+          //     showDialog<void>(
+          //         context: context,
+          //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
+          //   else {
+          //     Vendor vendor = Vendor();
+          //      if (userLoc != null) vendor.coordinates =
+          //         LatLng(userLoc.latitude, userLoc.longitude);
+          //     Navigator.of(context).push(MaterialPageRoute(
+          //         builder: (_) =>
+          //             AddVendorNameDescription(vendor: vendor)));
+          //   }
+          // }
+          else {
+            Vendor vendor = Vendor();
+            if (_userLoc != null)
+              vendor.coordinates =
+                  LatLng(_userLoc.latitude, _userLoc.longitude);
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => AddVendor(vendor: vendor, userLoc: _userLoc)));
+          }
+        },
+      );
+
+  Container _buildSearchBar(BuildContext context) => Container(
+        color: Theme.of(context).backgroundColor,
+        child: Row(
+          children: <Widget>[
+            //drawer
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () => _scaffoldKey.currentState.openDrawer(),
+            ),
+            //search
+            Expanded(
+              child: TextField(
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => Search(
+                        userLoc: _userLoc == null
+                            ? _controller.center
+                            : LatLng(_userLoc.latitude, _userLoc.longitude)))),
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                    hintText: "Search"),
+              ),
+            ),
+          ],
+        ),
+      );
 }

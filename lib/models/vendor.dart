@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:latlong/latlong.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +10,7 @@ class Vendor {
   String name;
   LatLng coordinates;
   List<String> tags;
-  List<NetworkImage> images;
+  List<NetworkImage> networkImages;
   List<String> imageIds;
   String description;
   List<String> reviewIds = [];
@@ -22,7 +20,7 @@ class Vendor {
   DateTime createdOn;
   bool reported;
   bool reviewed;
-  List<Asset> assetImages;
+  List<Asset> assetImages = [];
 
   Vendor({
     this.id,
@@ -38,12 +36,12 @@ class Vendor {
     this.reported,
     this.reviewed,
   }) {
-    this.images = this.imageIds == null ? null : List(imageIds.length);
+    this.networkImages = this.imageIds == null ? null : List(imageIds.length);
   }
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
     List<String> temp = [];
-    
+
     for (var item in json['tags']) temp.add(item.toString());
     this.tags = temp;
     this.id = json['_id'];
@@ -52,18 +50,10 @@ class Vendor {
   }
 
   factory Vendor.fromJsonSearch(Map<String, dynamic> json) {
-    
     List<String> temp = [];
     List<String> temp2 = [];
-    for (var item in json['tags']) {
-      temp.add(item.toString());
-    }
-    for (var item in json['images']) {
-      temp2.add(item.toString());
-    }
-    JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-String prettyprint = encoder.convert(temp2);
-debugPrint(prettyprint);
+    for (var item in json['tags']) temp.add(item.toString());
+    for (var item in json['images']) temp2.add(item.toString());
     return Vendor(
       id: json['_id'],
       name: json['name'],
@@ -74,26 +64,15 @@ debugPrint(prettyprint);
       createdOn: DateTime.parse(json['createdAt']),
       imageIds: temp2,
     );
-
   }
-  
-  
-   
-  
 
   factory Vendor.fromJson(Map<String, dynamic> json) {
     List<String> temp = [];
     List<String> temp2 = [];
     List<String> temp3 = [];
-    for (var item in json['tags']) {
-      temp.add(item.toString());
-    }
-    for (var item in json['images']) {
-      temp2.add(item.toString());
-    }
-    for (var item in json['reviews']) {
-      temp3.add(item);
-    }
+    for (var item in json['tags']) temp.add(item.toString());
+    for (var item in json['images']) temp2.add(item.toString());
+    for (var item in json['reviews']) temp3.add(item);
     return Vendor(
       id: json['_id'],
       name: json['name'],

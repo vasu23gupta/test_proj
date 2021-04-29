@@ -8,7 +8,7 @@ class LoginPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       content: Stack(
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: <Widget>[
           //close button
           Positioned(
@@ -71,7 +71,7 @@ class VerifyEmailPopup extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       content: Stack(
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none,
         children: <Widget>[
           //close button
           Positioned(

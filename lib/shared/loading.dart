@@ -6,18 +6,15 @@ class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        data == null
-            ? Text('')
-            : Text(
-                data,
-                style: TextStyle(
-                    color: Colors.red,
-                    decoration: TextDecoration.none,
-                    fontSize: 30),
-              ),
-        if (data == null) Center(child: CircularProgressIndicator()),
-      ]),
+      body: data == null || data.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : Text(
+              data,
+              style: TextStyle(
+                  color: Colors.red,
+                  decoration: TextDecoration.none,
+                  fontSize: 30),
+            ),
     );
   }
 }

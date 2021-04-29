@@ -17,8 +17,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Padding _buildErrorText() {
     return Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Text(_error,
-            style: TextStyle(color: Colors.red, fontSize: _w * 0.042)));
+        child: Text(_error, style: ERROR_TEXT_STYLE(_w)));
   }
 
   Widget _buildsendemailButton() {
@@ -60,21 +59,21 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         SingleChildScrollView(
-          child:ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          child: Container(
-            width: _w * 0.8,
-            decoration: BoxDecoration(color: Colors.white),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                buildEmailRow(_emailController),
-                _buildsendemailButton(),
-                _error.isNotEmpty ? _buildErrorText() : Container()
-              ],
+          child: ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            child: Container(
+              width: _w * 0.8,
+              decoration: BoxDecoration(color: Colors.white),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  buildEmailRow(_emailController),
+                  _buildsendemailButton(),
+                  _error.isNotEmpty ? _buildErrorText() : Container()
+                ],
+              ),
             ),
           ),
-        ),
         )
       ],
     );
@@ -84,33 +83,36 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget build(BuildContext context) {
     _h = MediaQuery.of(context).size.height;
     _w = MediaQuery.of(context).size.width;
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: <Widget>[
-            Container(
-              height: _h * 0.7,
-              width: _w,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: BACKGROUND_COLOR,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: const Radius.circular(70),
-                    bottomRight: const Radius.circular(70),
+    return Theme(
+      data: ThemeData.light(),
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: <Widget>[
+              Container(
+                height: _h * 0.7,
+                width: _w,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: BACKGROUND_COLOR,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: const Radius.circular(70),
+                      bottomRight: const Radius.circular(70),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                buildLogo(_h),
-                SizedBox(height: _h * 0.13),
-                _buildContainer(),
-              ],
-            )
-          ],
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  buildLogo(_h),
+                  SizedBox(height: _h * 0.13),
+                  _buildContainer(),
+                ],
+              )
+            ],
+          ),
         ),
       ),
     );
