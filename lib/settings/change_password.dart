@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:test_proj/screens/profile/usercontroller.dart';
+import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
-import '../../locator.dart';
 
 class ChangePassword extends StatefulWidget {
   ChangePassword();
@@ -16,6 +15,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   var _repeatPasswordController = TextEditingController();
   var _formKey = GlobalKey<FormState>();
   bool checkCurrentPasswordValid = true;
+  AuthService _auth = AuthService();
 
   @override
   void dispose() {
@@ -69,16 +69,15 @@ class _ChangePasswordState extends State<ChangePassword> {
                         )
                       ]))),
               SizedBox(height: 10),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () async {
-                  var userController = locator.get<UserController>();
-                  checkCurrentPasswordValid = await userController
-                      .validateCurrentPassword(_passwordController.text);
+                  //var userController = locator.get<UserController>();
+                  checkCurrentPasswordValid =
+                      await _auth.validatePassword(_passwordController.text);
                   setState(() {});
                   if (_formKey.currentState.validate() &&
                       checkCurrentPasswordValid) {
-                    userController
-                        .updateUserPassword(_newPasswordController.text);
+                    _auth.updatePassword(_newPasswordController.text);
                     Navigator.pop(context);
                   }
                 },

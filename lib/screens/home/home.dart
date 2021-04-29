@@ -10,7 +10,6 @@ import 'package:test_proj/shared/loading.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';

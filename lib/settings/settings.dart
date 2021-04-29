@@ -1,11 +1,7 @@
-import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/models/appUser.dart';
-import 'package:test_proj/screens/profile/change_password.dart';
-import 'package:test_proj/services/database.dart';
+import 'package:test_proj/settings/change_password.dart';
 import 'package:test_proj/settings/darkthemebutton.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -23,7 +19,7 @@ class _SettingsState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
+    //final user = Provider.of<User>(context);
     return Scaffold(
       appBar: AppBar(title: Text("Settings")),
       body: SingleChildScrollView(
@@ -44,10 +40,7 @@ class _SettingsState extends State<SettingsPage> {
                 ),
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (_) => ChangePassword())),
-                trailing: Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                ),
+                trailing: Icon(Icons.edit, color: Colors.white),
               ),
             ),
             Card(
@@ -68,16 +61,14 @@ class _SettingsState extends State<SettingsPage> {
                 ),
               ),
             ),
-            if (!user.emailVerified)
+            if (!_user.emailVerified)
               Card(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
                 margin: const EdgeInsets.all(8.0),
                 color: Colors.green[200],
                 child: ListTile(
-                  onTap: () {
-                    user.sendEmailVerification();
-                  },
+                  onTap: _user.sendEmailVerification,
                   title: Text(
                     'Resend verification email',
                     style: TextStyle(

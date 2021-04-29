@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart';
-import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/services/database.dart';
 
 class AuthService {
@@ -99,14 +98,14 @@ class AuthService {
     }
   }
 
-   Future<bool> validatePassword(String password) async {
-    var firebaseUser =  _auth.currentUser;
-
-    var authCredentials = EmailAuthProvider.getCredential(
+  //check entered password
+  Future<bool> validatePassword(String password) async {
+    var firebaseUser = _auth.currentUser;
+    var authCredentials = EmailAuthProvider.credential(
         email: firebaseUser.email, password: password);
     try {
-      var authResult = await firebaseUser
-          .reauthenticateWithCredential(authCredentials);
+      var authResult =
+          await firebaseUser.reauthenticateWithCredential(authCredentials);
       return authResult.user != null;
     } catch (e) {
       print(e);
@@ -114,8 +113,9 @@ class AuthService {
     }
   }
 
-   Future<void> updatePassword(String password) async {
-    var firebaseUser =  _auth.currentUser;
+  //change password
+  Future<void> updatePassword(String password) async {
+    var firebaseUser = _auth.currentUser;
     firebaseUser.updatePassword(password);
   }
 
