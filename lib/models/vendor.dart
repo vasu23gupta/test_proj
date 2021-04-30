@@ -59,10 +59,11 @@ class Vendor {
       name: json['name'],
       tags: temp,
       stars: json['rating'] * 1.0,
-      coordinates: new LatLng(json['location']['coordinates'][1].toDouble(),
+      coordinates: LatLng(json['location']['coordinates'][1].toDouble(),
           json['location']['coordinates'][0].toDouble()),
       createdOn: DateTime.parse(json['createdAt']),
       imageIds: temp2,
+      address: json['address'],
     );
   }
 

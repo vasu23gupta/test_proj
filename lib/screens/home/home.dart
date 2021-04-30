@@ -375,14 +375,11 @@ class _HomeState extends State<Home> {
             Expanded(
               child: TextField(
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Search(
-                        userLoc: _userLoc == null
-                            ? _controller.center
-                            : LatLng(_userLoc.latitude, _userLoc.longitude)))),
+                    builder: (context) => Search(userLoc: _controller.center))),
                 decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 15),
-                    hintText: "Search"),
+                    hintText: "Search here..."),
               ),
             ),
           ],
