@@ -187,7 +187,7 @@ class _SearchState extends State<Search> {
         onPressed: () {
           if (searchResults != null && searchResults.isNotEmpty)
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => Filter(searchResults: searchResults)));
+                builder: (_) => Filter(searchResults: searchResults, userLoc: _userLoc)));
           else
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Search Results are empty")));
