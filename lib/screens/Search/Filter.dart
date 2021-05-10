@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
 import 'package:test_proj/shared/constants.dart';
+import 'package:latlong/latlong.dart';
 
 class Filter extends StatefulWidget {
   final List<dynamic> searchResults;
-  Filter({this.searchResults = const []});
+  final LatLng userLoc;
+  Filter({this.searchResults = const [],this.userLoc});
   @override
   _FilterState createState() => _FilterState();
 }
@@ -90,7 +92,7 @@ class _FilterState extends State<Filter> {
                 Navigator.pop(context);
                 Navigator.pop(context);
                 Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Search(searchRes: _finalList)));
+                    builder: (context) => Search(searchRes: _finalList,userLoc: widget.userLoc,)));
               });
             },
             child: Text("Apply"),
