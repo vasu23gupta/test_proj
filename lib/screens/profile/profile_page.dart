@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/appUser.dart';
 import 'package:test_proj/services/database.dart';
+import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -39,34 +40,43 @@ class _ProfilePageState extends State<ProfilePage> {
         : Scaffold(
             appBar: AppBar(
               title: Text('Profile'),
+               backgroundColor: BACKGROUND_COLOR,
               leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
               ),
             ),
             body: Column(
-              children: [
-                Text(_appUser.name, style: TextStyle(fontSize: 30)),
+              children: <Widget>[
+                 Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: <Widget>[
+
+                        SizedBox(
+            height: 10,
+          ),
+          _profileName(_appUser.name),
                 Row(
                   children: [
                     Text('Points : ',
-                        style: TextStyle(fontSize: 20, color: Colors.green)),
+                        style: TextStyle(fontSize: 20, color: Colors.grey)),
                     SizedBox(
                       width: 10,
                     ),
                     Text(_appUser.points.toString(),
-                        style: TextStyle(fontSize: 20, color: Colors.yellow)),
+                        style: TextStyle(fontSize: 20, color: Colors.black)),
                   ],
                 ),
                 Row(
                   children: [
                     Text('Level : ',
-                        style: TextStyle(fontSize: 20, color: Colors.green)),
+                        style: TextStyle(fontSize: 20, color: Colors.grey)),
                     SizedBox(
                       width: 10,
                     ),
                     Text(_appUser.level.toString(),
-                        style: TextStyle(fontSize: 20, color: Colors.yellow)),
+                        style: TextStyle(fontSize: 20, color: Colors.black)),
                   ],
                 ),
                 Row(
@@ -123,8 +133,25 @@ class _ProfilePageState extends State<ProfilePage> {
                     )
                   ],
                 ),
+                      ],
+                    ),
+                 )
+               /* SizedBox(),*/
+      
               ],
             ),
           );
+  }
+  Widget _profileName(String name) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.80, //80% of width,
+      child: Center(
+        child: Text(
+          name,
+          style: TextStyle(
+              color: Colors.black, fontSize: 24, fontWeight: FontWeight.w800),
+        ),
+      ),
+    );
   }
 }

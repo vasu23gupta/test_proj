@@ -45,6 +45,7 @@ dependencies:
   webview_flutter: 
   shared_preferences: 
   flutter_svg:
+  flutter_screenutil: 
 
 
 dev_dependencies:

@@ -53,6 +53,8 @@ class _ChangePasswordState extends State<ChangePassword> {
                         TextFormField(
                           decoration: InputDecoration(hintText: "New Password"),
                           controller: _newPasswordController,
+                            validator: (val) =>
+              val.length < 6 ? 'Enter a password 6+ characters long' : null,
                           obscureText: true,
                         ),
                         TextFormField(

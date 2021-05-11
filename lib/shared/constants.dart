@@ -1,7 +1,10 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+
+const kSpacingUnit = 10;
 const textInputDecoration = InputDecoration(
   counterText: "",
   //fillColor: Colors.white,
@@ -18,6 +21,15 @@ const textInputDecoration = InputDecoration(
       width: 2.0,
     ),
   ),
+);
+final kTitleTextStyle = TextStyle(
+  fontSize: ScreenUtil().setSp(kSpacingUnit.w * 1.7),
+  fontWeight: FontWeight.w600,
+);
+
+final kCaptionTextStyle = TextStyle(
+  fontSize: ScreenUtil().setSp(kSpacingUnit.w * 1.3),
+  fontWeight: FontWeight.w100,
 );
 
 // ignore: non_constant_identifier_names
