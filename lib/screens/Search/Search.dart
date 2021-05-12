@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:test_proj/screens/Search/filter.dart';
+import 'package:test_proj/screens/Search/filters.dart';
 import 'package:test_proj/screens/Search/search_results.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -35,7 +37,7 @@ class _SearchState extends State<Search> {
   List<String> _searchRadii = ['no limit: default', '10km', '15km', '5km'];
   LatLng _userLoc;
   Size _size;
-
+  var filters;
   @override
   void initState() {
     super.initState();
@@ -43,8 +45,19 @@ class _SearchState extends State<Search> {
     _userLoc = widget.userLoc;
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    filters=Provider.of<Filters>(context);
+    print("SEARCH PAGE CHANGED");
+  }
+
   Future<void> _performSearch(value) async {
     List<dynamic> sR = [];
+    filters.setFinalList([]);
+    filters.setSrating(0);
+    filters.setTags(0);
+    filters.setSelectedTags(0);
     if (value.length > 1)
       sR = await VendorDBService.getVendorsFromSearch(
           value, _dropdownValue, _userLoc);
@@ -70,8 +83,14 @@ class _SearchState extends State<Search> {
   }
 
   Iterable<Widget> _buildSuggestions() sync* {
-    if (searchResults != null || searchResults.length != 0)
-      for (var item in searchResults) yield _buildVendorTile(item);
+    if ((searchResults != null || searchResults.length != 0) && filters.finalList.length==0)
+    {  print("unnfiltered results");
+      for (var item in searchResults) yield _buildVendorTile(item);}
+    else if(filters.finalList.length!=0)
+    {
+      print("calling filters ");
+      for (var item in filters.finalList) yield _buildVendorTile(item);
+    }  
     else
       yield Text('Enter tags/name');
   }
@@ -187,7 +206,7 @@ class _SearchState extends State<Search> {
         onPressed: () {
           if (searchResults != null && searchResults.isNotEmpty)
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => Filter(searchResults: searchResults, userLoc: _userLoc)));
+                builder: (context) => Filter(searchResults: searchResults, userLoc: _userLoc)));
           else
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Search Results are empty")));

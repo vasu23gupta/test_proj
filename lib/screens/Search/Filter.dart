@@ -1,7 +1,9 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
+import 'package:test_proj/screens/Search/filters.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:latlong/latlong.dart';
 
@@ -20,7 +22,7 @@ class _FilterState extends State<Filter> {
   List<bool> _stags;
   HashSet<String> _selTags = HashSet.from({});
   int _srating = 0;
-
+  var filters;
   @override
   void initState() {
     super.initState();
@@ -29,41 +31,47 @@ class _FilterState extends State<Filter> {
     _stags = List<bool>.filled(_tags.length, false);
   }
 
+  @override
+  void didChangeDependencies(){
+    super.didChangeDependencies();
+  }
+
   Widget myWidget(String filter) {
+    print("filters changed");
     Widget mywidget = Container();
     if (filter == 'rating') {
-      mywidget = Column(children: [
+      mywidget = /* filters.rats; */Column(children: [
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
             itemCount: 5,
             itemBuilder: (context, index) => RadioListTile(
-              groupValue: _srating,
+              groupValue: filters.sRating,
               title: Text('>= $index.0'),
               value: index,
-              onChanged: (val) => setState(() => _srating = index),
+              onChanged: (val) => setState(() => filters.setSrating(index)),
             ),
           ),
         ),
       ]);
     }
     if (filter == 'tags') {
-      mywidget = Column(
+      mywidget = /* filters.tags; */Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
             child: ListView.builder(
               shrinkWrap: true,
-              itemCount: _tags.length,
+              itemCount: filters.tags.length,
               itemBuilder: (context, index) => CheckboxListTile(
-                title: Text(_tags[index]),
-                value: _stags[index],
+                title: Text(filters.tags[index]),
+                value: filters.sTags[index],
                 onChanged: (bool val) => setState(() {
-                  _stags[index] = val;
+                  filters.sTags[index] = val;
                   if (val)
-                    _selTags.add(_tags[index]);
-                  else if (_selTags.contains(_tags[index]))
-                    _selTags.remove(_tags[index]);
+                    filters.selectedTags.add(_tags[index]);
+                  else if (filters.selectedTags.contains(filters.tags[index]))
+                    filters.selectedTags.remove(filters.tags[index]);
                 }),
               ),
             ),
@@ -81,18 +89,19 @@ class _FilterState extends State<Filter> {
             onPressed: () {
               List<Vendor> filtered = [];
               for (Vendor v in widget.searchResults) {
-                if (_selTags.isNotEmpty) {
-                  for (String tag in _selTags)
-                    if (v.tags.contains(tag) && v.stars >= _srating)
+                if (filters.selectedTags.isNotEmpty) {
+                  for (String tag in filters.selectedTags)
+                    if (v.tags.contains(tag) && v.stars >= filters.selectedRating)
                       filtered.add(v);
-                } else if (v.stars >= _srating) filtered.add(v);
+                } else if (v.stars >= filters.sRating) filtered.add(v);
               }
               setState(() {
                 _finalList = filtered;
+                filters.setFinalList(_finalList);
                 Navigator.pop(context);
-                Navigator.pop(context);
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Search(searchRes: _finalList,userLoc: widget.userLoc,)));
+                // Navigator.pop(context);
+                // Navigator.of(context).push(MaterialPageRoute(
+                //     builder: (context) => Search(userLoc: widget.userLoc,)));
               });
             },
             child: Text("Apply"),
@@ -104,6 +113,9 @@ class _FilterState extends State<Filter> {
 
   @override
   Widget build(BuildContext context) {
+    
+    filters=Provider.of<Filters>(context);
+    
     return Scaffold(
         appBar: AppBar(
           backgroundColor: BACKGROUND_COLOR,
