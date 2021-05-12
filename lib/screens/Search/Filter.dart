@@ -18,17 +18,10 @@ class Filter extends StatefulWidget {
 class _FilterState extends State<Filter> {
   List<dynamic> _finalList;
   String _selectedFilter = "rating";
-  List<String> _tags = [];
-  List<bool> _stags;
-  HashSet<String> _selTags = HashSet.from({});
-  int _srating = 0;
   var filters;
   @override
   void initState() {
     super.initState();
-    _tags.addAll(FILTERS.keys);
-    for (List<String> item in FILTERS.values) _tags.addAll(item);
-    _stags = List<bool>.filled(_tags.length, false);
   }
 
   @override
@@ -37,10 +30,9 @@ class _FilterState extends State<Filter> {
   }
 
   Widget myWidget(String filter) {
-    print("filters changed");
     Widget mywidget = Container();
     if (filter == 'rating') {
-      mywidget = /* filters.rats; */Column(children: [
+      mywidget = Column(children: [
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
@@ -56,7 +48,7 @@ class _FilterState extends State<Filter> {
       ]);
     }
     if (filter == 'tags') {
-      mywidget = /* filters.tags; */Column(
+      mywidget = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
@@ -69,7 +61,7 @@ class _FilterState extends State<Filter> {
                 onChanged: (bool val) => setState(() {
                   filters.sTags[index] = val;
                   if (val)
-                    filters.selectedTags.add(_tags[index]);
+                    filters.selectedTags.add(filters.tags[index]);
                   else if (filters.selectedTags.contains(filters.tags[index]))
                     filters.selectedTags.remove(filters.tags[index]);
                 }),

@@ -49,7 +49,6 @@ class _SearchState extends State<Search> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     filters=Provider.of<Filters>(context);
-    print("SEARCH PAGE CHANGED");
   }
 
   Future<void> _performSearch(value) async {
@@ -83,13 +82,15 @@ class _SearchState extends State<Search> {
   }
 
   Iterable<Widget> _buildSuggestions() sync* {
-    if ((searchResults != null || searchResults.length != 0) && filters.finalList.length==0)
-    {  print("unnfiltered results");
-      for (var item in searchResults) yield _buildVendorTile(item);}
-    else if(filters.finalList.length!=0)
+    if ((searchResults != null || searchResults.length != 0) && !filters.filtersApplied)
+    {  
+      for (var item in searchResults) yield _buildVendorTile(item);
+    }
+    else if(filters.filtersApplied)
     {
-      print("calling filters ");
       for (var item in filters.finalList) yield _buildVendorTile(item);
+      if(filters.finalList.isEmpty)
+      yield Text('Enter tags/name');
     }  
     else
       yield Text('Enter tags/name');
