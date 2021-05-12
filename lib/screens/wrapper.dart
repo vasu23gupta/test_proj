@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:test_proj/screens/Search/filters.dart';
 import 'package:test_proj/settings/app.dart';
 import 'authenticate/sign_in.dart';
 import 'home/home.dart';
@@ -51,7 +52,7 @@ class Wrapper extends StatelessWidget {
     if (_user == null) {
       return SignIn();
     } else {
-      return MaterialApp(
+      return ChangeNotifierProvider(create:(context) => Filters(), child:MaterialApp(
         home: Home(),
         theme: theme.useSystemTheme
             ? (!darkModeOn)
@@ -62,7 +63,7 @@ class Wrapper extends StatelessWidget {
                 : ThemeData.dark(),
         //darkTheme: theme.useSystemTheme?ThemeData.dark():theme.currentTheme,
         //themeMode: ThemeMode.system,
-      );
+      ));
     }
   }
 }
