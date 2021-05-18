@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
-import 'package:test_proj/screens/Search/Filter.dart';
-import 'package:test_proj/screens/Search/filters.dart';
 import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';

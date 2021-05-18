@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/screens/Search/filter.dart';
-import 'package:test_proj/screens/Search/filters.dart';
+import 'package:test_proj/services/filters.dart';
 import 'package:test_proj/screens/Search/search_results.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/models/vendor.dart';
@@ -29,7 +29,7 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
-  List<dynamic> searchResults = [];
+  List<dynamic> _searchResults = [];
   SingingCharacter _sortBy = SingingCharacter.Relevance;
   ListView suggestions;
   TextEditingController query = TextEditingController();
@@ -38,17 +38,18 @@ class _SearchState extends State<Search> {
   LatLng _userLoc;
   Size _size;
   var filters;
+
   @override
   void initState() {
     super.initState();
-    searchResults = widget.searchRes == null ? [] : widget.searchRes;
+    _searchResults = widget.searchRes == null ? [] : widget.searchRes;
     _userLoc = widget.userLoc;
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    filters=Provider.of<Filters>(context);
+    filters = Provider.of<Filters>(context);
   }
 
   Future<void> _performSearch(value) async {
@@ -60,7 +61,7 @@ class _SearchState extends State<Search> {
     if (value.length > 1)
       sR = await VendorDBService.getVendorsFromSearch(
           value, _dropdownValue, _userLoc);
-    setState(() => searchResults = sR);
+    setState(() => _searchResults = sR);
   }
 
   List<Marker> _buildMarkers(List<dynamic> searchResults) {
@@ -82,17 +83,13 @@ class _SearchState extends State<Search> {
   }
 
   Iterable<Widget> _buildSuggestions() sync* {
-    if ((searchResults != null || searchResults.length != 0) && !filters.filtersApplied)
-    {  
-      for (var item in searchResults) yield _buildVendorTile(item);
-    }
-    else if(filters.filtersApplied)
-    {
+    if ((_searchResults != null || _searchResults.length != 0) &&
+        !filters.filtersApplied) {
+      for (var item in _searchResults) yield _buildVendorTile(item);
+    } else if (filters.filtersApplied) {
       for (var item in filters.finalList) yield _buildVendorTile(item);
-      if(filters.finalList.isEmpty)
-      yield Text('Enter tags/name');
-    }  
-    else
+      if (filters.finalList.isEmpty) yield Text('Enter tags/name');
+    } else
       yield Text('Enter tags/name');
   }
 
@@ -190,13 +187,13 @@ class _SearchState extends State<Search> {
 
   FloatingActionButton _buildShowOnMapBtn() => FloatingActionButton(
         onPressed: () {
-          if (this.searchResults != null && this.searchResults.isEmpty)
+          if (this._searchResults != null && this._searchResults.isEmpty)
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Search Results are empty")));
           else
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => SearchResults(
-                    markers: _buildMarkers(this.searchResults),
+                    markers: _buildMarkers(this._searchResults),
                     mapCenter: _userLoc)));
         },
         child: Icon(Icons.map),
@@ -205,9 +202,10 @@ class _SearchState extends State<Search> {
 
   TextButton _buildFilterButton() => TextButton(
         onPressed: () {
-          if (searchResults != null && searchResults.isNotEmpty)
+          if (_searchResults != null && _searchResults.isNotEmpty)
             Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => Filter(searchResults: searchResults, userLoc: _userLoc)));
+                builder: (context) =>
+                    Filter(searchResults: _searchResults, userLoc: _userLoc)));
           else
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Search Results are empty")));
@@ -262,7 +260,7 @@ class _SearchState extends State<Search> {
                         onChanged: (SingingCharacter value) {
                           setState(() {
                             _sortBy = value;
-                            searchResults.sort((a, b) {
+                            _searchResults.sort((a, b) {
                               Distance distance = Distance();
                               double aDistance =
                                   distance(a.coordinates, _userLoc);
@@ -282,7 +280,7 @@ class _SearchState extends State<Search> {
                         groupValue: _sortBy,
                         onChanged: (SingingCharacter value) => setState(() {
                           _sortBy = value;
-                          searchResults.sort((a, b) {
+                          _searchResults.sort((a, b) {
                             Distance distance = Distance();
                             double aDistance =
                                 distance(a.coordinates, _userLoc);
@@ -304,7 +302,7 @@ class _SearchState extends State<Search> {
                           _sortBy = value;
                           print(_sortBy);
                           Navigator.pop(context);
-                          searchResults
+                          _searchResults
                               .sort((a, b) => a.stars.compareTo(b.stars));
                         }),
                       ),
@@ -317,7 +315,7 @@ class _SearchState extends State<Search> {
                         onChanged: (SingingCharacter value) => setState(() {
                           _sortBy = value;
                           Navigator.pop(context);
-                          searchResults
+                          _searchResults
                               .sort((a, b) => -1 * a.stars.compareTo(b.stars));
                         }),
                       ),
@@ -329,7 +327,7 @@ class _SearchState extends State<Search> {
                         groupValue: _sortBy,
                         onChanged: (SingingCharacter value) => setState(() {
                           _sortBy = value;
-                          searchResults.sort(
+                          _searchResults.sort(
                               (a, b) => a.createdOn.compareTo(b.createdOn));
                           Navigator.pop(context);
                         }),
@@ -342,7 +340,7 @@ class _SearchState extends State<Search> {
                         groupValue: _sortBy,
                         onChanged: (SingingCharacter value) => setState(() {
                           _sortBy = value;
-                          searchResults.sort((a, b) =>
+                          _searchResults.sort((a, b) =>
                               -1 * a.createdOn.compareTo(b.createdOn));
                           Navigator.pop(context);
                         }),

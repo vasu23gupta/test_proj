@@ -4,7 +4,6 @@ profile,search,filter,settings,change password.
 smooth home loading.
 about screen.
 remove unused apis.
-improve filter.
 penalties when deleting vendor after reports.
 
 

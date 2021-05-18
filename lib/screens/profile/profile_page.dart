@@ -21,8 +21,11 @@ class _ProfilePageState extends State<ProfilePage> {
   void getProfile() async {
     Response response =
         await UserDBService(jwt: await _user.getIdToken()).getUserByJWT();
-    _appUser = AppUser(jsonDecode(response.body));
-    setState(() => _loading = false);
+
+    setState(() {
+      _appUser = AppUser(jsonDecode(response.body));
+      _loading = false;
+    });
   }
 
   @override

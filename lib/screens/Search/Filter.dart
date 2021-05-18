@@ -1,16 +1,14 @@
-import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
-import 'package:test_proj/screens/Search/Search.dart';
-import 'package:test_proj/screens/Search/filters.dart';
-import 'package:test_proj/shared/constants.dart';
+import 'package:test_proj/services/filters.dart';
 import 'package:latlong/latlong.dart';
+import 'package:test_proj/shared/constants.dart';
 
 class Filter extends StatefulWidget {
   final List<dynamic> searchResults;
   final LatLng userLoc;
-  Filter({this.searchResults = const [],this.userLoc});
+  Filter({this.searchResults = const [], this.userLoc});
   @override
   _FilterState createState() => _FilterState();
 }
@@ -25,7 +23,7 @@ class _FilterState extends State<Filter> {
   }
 
   @override
-  void didChangeDependencies(){
+  void didChangeDependencies() {
     super.didChangeDependencies();
   }
 
@@ -83,8 +81,8 @@ class _FilterState extends State<Filter> {
               for (Vendor v in widget.searchResults) {
                 if (filters.selectedTags.isNotEmpty) {
                   for (String tag in filters.selectedTags)
-                    if (v.tags.contains(tag) && v.stars >= filters.selectedRating)
-                      filtered.add(v);
+                    if (v.tags.contains(tag) &&
+                        v.stars >= filters.selectedRating) filtered.add(v);
                 } else if (v.stars >= filters.sRating) filtered.add(v);
               }
               setState(() {
@@ -105,9 +103,8 @@ class _FilterState extends State<Filter> {
 
   @override
   Widget build(BuildContext context) {
-    
-    filters=Provider.of<Filters>(context);
-    
+    filters = Provider.of<Filters>(context);
+
     return Scaffold(
         appBar: AppBar(
           backgroundColor: BACKGROUND_COLOR,
