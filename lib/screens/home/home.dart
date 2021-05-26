@@ -49,9 +49,12 @@ class _HomeState extends State<Home> {
     //_darkModeOn = SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
     _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      mapApiKey = await VendorDBService.getMapApiKey(_user);
+      List<Future> futures = [];
+      futures.add(VendorDBService.getMapApiKey(_user));
+      futures.add(_moveMapToUserLocation());
+      List f = await Future.wait(futures);
+      mapApiKey = f[0];
       setState(() => _loading = false);
-      _moveMapToUserLocation();
     });
   }
 
@@ -83,11 +86,11 @@ class _HomeState extends State<Home> {
         },
         scrollDirection: Axis.horizontal,
       );
-    } else {
+    } else
       return ListView.builder(
         itemCount: FILTERS[_mainSelectedFilter].length + 1,
         itemBuilder: (context, index) {
-          if (index == 0) {
+          if (index == 0)
             return Container(
               margin: EdgeInsets.all(5),
               child: FilterChip(
@@ -103,21 +106,19 @@ class _HomeState extends State<Home> {
                       i++) {
                     String subFilter = FILTERS[_mainSelectedFilter][i];
                     areSelected[_mainSelectedFilter][i] = false;
-                    _selectedFilters.removeWhere((String name) {
-                      return name == subFilter;
-                    });
+                    _selectedFilters
+                        .removeWhere((String name) => name == subFilter);
                   }
                   _filtersHaveChanged = true;
-                  _selectedFilters.removeWhere((String name) {
-                    return name == _mainSelectedFilter;
-                  });
+                  _selectedFilters.removeWhere(
+                      (String name) => name == _mainSelectedFilter);
                   _mainSelectedFilter = '';
                   _updateMarkers();
                   setState(() {});
                 },
               ),
             );
-          } else {
+          else {
             int ind = index - 1;
             String fil = FILTERS[_mainSelectedFilter][ind];
             if (fil != null)
@@ -132,13 +133,12 @@ class _HomeState extends State<Home> {
                   onSelected: (val) {
                     areSelected[_mainSelectedFilter][ind] = val;
                     _filtersHaveChanged = true;
-                    if (val) {
+                    if (val)
                       _selectedFilters.add(fil);
-                    } else {
-                      _selectedFilters.removeWhere((String name) {
-                        return name == fil;
-                      });
-                    }
+                    else
+                      _selectedFilters
+                          .removeWhere((String name) => name == fil);
+
                     _updateMarkers();
                     setState(() {});
                   },
@@ -150,19 +150,15 @@ class _HomeState extends State<Home> {
         },
         scrollDirection: Axis.horizontal,
       );
-    }
   }
 
   Future<void> _moveMapToUserLocation() async {
-    _locSer.getLocation().then((value) {
-      if (value != null) {
-        setState(() {
-          _userLoc = value;
-          _mapCenter = LatLng(value.latitude, value.longitude);
-        });
-        _controller.move(_mapCenter, 18.45);
-      }
-    });
+    LocationData ld = await _locSer.getLocation();
+    if (ld != null) {
+      _userLoc = ld;
+      _mapCenter = LatLng(ld.latitude, ld.longitude);
+      _controller.move(_mapCenter, 18.45);
+    }
   }
 
   void _delayUpdate() async {
@@ -234,98 +230,95 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     _h = MediaQuery.of(context).size.height;
     _w = MediaQuery.of(context).size.width;
-    return _loading
-        ? Loading()
-        : Scaffold(
-            key: _scaffoldKey,
-            drawer: Drawer(
-              child: ListView(
-                children: <Widget>[
-                  DrawerHeader(
-                      child: Text(_user.isAnonymous
-                          ? "Guest"
-                          : _user.displayName != null
-                              ? _user.displayName
-                              : "Welcome"),
-                      decoration: BoxDecoration(color: Colors.blue)),
-                  ListTile(
-                      title: Text('Settings'),
-                      onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => SettingsPage()))),
-                  ListTile(
-                    title: Text('Profile'),
-                    onTap: () => Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (_) => ProfilePage())),
-                  ),
-                  ListTile(
-                      title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
-                      onTap: () async => await _auth.signOut()),
-                ],
-              ),
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+                child: Text(_user.isAnonymous
+                    ? "Guest"
+                    : _user.displayName != null
+                        ? _user.displayName
+                        : "Welcome"),
+                decoration: BoxDecoration(color: Colors.blue)),
+            ListTile(
+                title: Text('Settings'),
+                onTap: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => SettingsPage()))),
+            ListTile(
+              title: Text('Profile'),
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => ProfilePage())),
             ),
-            body: Stack(
-              children: <Widget>[
-                //map
-                _buildFlutterMap(),
-                //search bar
-                Positioned(
-                  top: _h * 0.07,
-                  right: _w * 0.04,
-                  left: _w * 0.04,
-                  child: _buildSearchBar(context),
-                ),
-                //filter bar
-                Positioned(
-                  top: _h * 0.14,
-                  left: _w * 0.02,
-                  child:
-                      Row(children: [SizedBox(width: _w, child: _filterBar())]),
-                  height: _h * 0.065,
-                  width: _w,
-                ),
-              ],
+            ListTile(
+                title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
+                onTap: () async => await _auth.signOut()),
+          ],
+        ),
+      ),
+      body: Stack(
+        children: <Widget>[
+          //map
+          _buildFlutterMap(),
+          //search bar
+          Positioned(
+            top: _h * 0.07,
+            right: _w * 0.04,
+            left: _w * 0.04,
+            child: _buildSearchBar(context),
+          ),
+          //filter bar
+          Positioned(
+            top: _h * 0.14,
+            left: _w * 0.02,
+            child: Row(children: [SizedBox(width: _w, child: _filterBar())]),
+            height: _h * 0.065,
+            width: _w,
+          ),
+          if (_loading) Positioned(child: Loading()),
+        ],
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          //move to location
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              heroTag: null,
+              child: Icon(Icons.location_searching),
+              onPressed: _moveMapToUserLocation,
             ),
-            floatingActionButton: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                //move to location
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: FloatingActionButton(
-                    heroTag: null,
-                    child: Icon(Icons.location_searching),
-                    onPressed: _moveMapToUserLocation,
-                  ),
-                ),
-                //add vendor
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: _buildAddVendorFAB(),
-                ),
-              ],
-            ),
-          );
+          ),
+          //add vendor
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: _buildAddVendorFAB(),
+          ),
+        ],
+      ),
+    );
   }
 
-  FlutterMap _buildFlutterMap() {
-    return FlutterMap(
-        mapController: _controller,
-        options: MapOptions(
-            maxZoom: 18.45,
-            onPositionChanged: _onPositionChanged,
-            zoom: 18.45,
-            center: _mapCenter),
-        layers: [
-          TileLayerOptions(
-              urlTemplate:
-                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-              additionalOptions: {
-                'subscriptionKey': mapApiKey,
-                //'theme': _darkModeOn ? 'dark' : 'main'
-              }),
-          MarkerLayerOptions(markers: _vendorMarkers)
-        ]);
-  }
+  FlutterMap _buildFlutterMap() => FlutterMap(
+          mapController: _controller,
+          options: MapOptions(
+              maxZoom: 18.45,
+              onPositionChanged: _onPositionChanged,
+              zoom: 18.45,
+              center: _mapCenter),
+          layers: [
+            if (mapApiKey.isNotEmpty)
+              TileLayerOptions(
+                  urlTemplate:
+                      "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                  additionalOptions: {
+                    'subscriptionKey': mapApiKey,
+                    //'theme': _darkModeOn ? 'dark' : 'main'
+                  }),
+            MarkerLayerOptions(markers: _vendorMarkers)
+          ]);
 
   FloatingActionButton _buildAddVendorFAB() => FloatingActionButton(
         heroTag: null,

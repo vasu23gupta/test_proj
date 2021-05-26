@@ -1,10 +1,9 @@
 APP:
 ui:
-profile,search,filter,settings,change password.
-smooth home loading.
+profile,search,filter,settings.
 about screen.
-remove unused apis.
 penalties when deleting vendor after reports.
+dark theme map.
 
 
 RELEASE:

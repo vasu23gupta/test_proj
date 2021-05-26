@@ -1,4 +1,6 @@
-register, sign in, forgot password screen not scrolling.
+register, screen not scrolling.
 marker size, offset.
-filter karte time agar koi filter lagane ke baad search results empty ho jaaye to filters reset nahi kar skte.
 decrease points when deleting review.
+shows all vendors on show on map even after filtering.
+search radius not working.
+accept tnc, pp when google sign in.
