@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:test_proj/screens/authenticate/authenticate.dart';
 import 'package:test_proj/services/filters.dart';
 import 'package:test_proj/settings/app.dart';
-import 'authenticate/sign_in.dart';
 import 'home/home.dart';
 
 class WrapperCaller extends StatelessWidget {
@@ -50,7 +50,7 @@ class Wrapper extends StatelessWidget {
     if (darkModeOn) print("darkmodeisonbroyeahhhhhh");
     print(theme.light);
     if (_user == null) {
-      return SignIn();
+      return Authenticate();
     } else {
       return ChangeNotifierProvider(
           create: (context) => Filters(),

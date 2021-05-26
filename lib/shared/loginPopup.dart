@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:test_proj/screens/authenticate/sign_in.dart';
+import 'package:test_proj/screens/authenticate/authenticate.dart';
+import 'package:test_proj/shared/constants.dart';
 
 class LoginPopup extends StatelessWidget {
   final String to;
   LoginPopup({this.to});
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return AlertDialog(
       content: Stack(
         clipBehavior: Clip.none,
@@ -15,46 +17,29 @@ class LoginPopup extends StatelessWidget {
             right: -40.0,
             top: -40.0,
             child: InkResponse(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
+              onTap: () => Navigator.of(context).pop(),
               child: CircleAvatar(
-                child: Icon(Icons.close),
-                backgroundColor: Colors.red,
-              ),
+                  child: Icon(Icons.close), backgroundColor: Colors.red),
             ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox(
-                child: Text(
-                  'You need to login to $to',
-                  textAlign: TextAlign.center,
-                  textScaleFactor: 1.25,
-                ),
-                height: 70,
-                width: 500,
+              Text(
+                'You need to login to $to.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: size.width * 0.05),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RaisedButton(
-                    color: Colors.pink[400],
-                    child: Text(
-                      'Login',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => SignIn(),
-                        ),
-                      );
-                    },
-                  ),
-                ],
+              SizedBox(height: 10),
+              ElevatedButton(
+                style: BS(size.width * 0.3, size.height * 0.06),
+                child: Text(
+                  'Login',
+                  style: TextStyle(
+                      color: Colors.white, fontSize: size.width * 0.05),
+                ),
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => Authenticate())),
               ),
             ],
           ),
@@ -69,6 +54,7 @@ class VerifyEmailPopup extends StatelessWidget {
   VerifyEmailPopup({this.to});
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return AlertDialog(
       content: Stack(
         clipBehavior: Clip.none,
@@ -78,13 +64,9 @@ class VerifyEmailPopup extends StatelessWidget {
             right: -40.0,
             top: -40.0,
             child: InkResponse(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
+              onTap: () => Navigator.of(context).pop(),
               child: CircleAvatar(
-                child: Icon(Icons.close),
-                backgroundColor: Colors.red,
-              ),
+                  child: Icon(Icons.close), backgroundColor: Colors.red),
             ),
           ),
           Column(
@@ -94,23 +76,20 @@ class VerifyEmailPopup extends StatelessWidget {
                 child: Text(
                   'You need to verify your email to $to. If you have not recieved the verification email you can resend it from settings.',
                   textAlign: TextAlign.center,
-                  textScaleFactor: 1.25,
+                  style: TextStyle(fontSize: size.width * 0.05),
                 ),
                 height: 70,
                 width: 500,
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RaisedButton(
-                    color: Colors.pink[400],
-                    child: Text(
-                      'I Understand',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
+              SizedBox(height: 15),
+              ElevatedButton(
+                style: BS(size.width * 0.4, size.height * 0.06),
+                child: Text(
+                  'I Understand',
+                  style: TextStyle(
+                      color: Colors.white, fontSize: size.width * 0.05),
+                ),
+                onPressed: () => Navigator.pop(context),
               ),
             ],
           ),

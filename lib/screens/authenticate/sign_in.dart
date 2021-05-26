@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:test_proj/screens/authenticate/forgot_password.dart';
-import 'package:test_proj/screens/authenticate/register.dart';
 import 'package:test_proj/services/auth.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
+  final Function toggleView;
+  SignIn({this.toggleView});
   @override
   _SignInState createState() => _SignInState();
 }
@@ -167,8 +168,7 @@ class _SignInState extends State<SignIn> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           TextButton(
-            onPressed: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => Register())),
+            onPressed: widget.toggleView,
             child: RichText(
               text: TextSpan(children: [
                 TextSpan(

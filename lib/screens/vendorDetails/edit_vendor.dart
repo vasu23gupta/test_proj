@@ -50,7 +50,6 @@ class _EditVendorState extends State<EditVendor> {
   List<String> _tags;
   List<String> _imageIds;
   List<Asset> _assetImages;
-  List<NetworkImage> _networkImages;
   LatLng _vendorLatLng;
 
   Future<void> _loadAssets() async {
@@ -95,7 +94,6 @@ class _EditVendorState extends State<EditVendor> {
     _tags = List.from(_vendor.tags);
     _imageIds = List.from(_vendor.imageIds);
     _assetImages = List.from(_vendor.assetImages);
-    _networkImages = List.from(_vendor.networkImages);
     _vendorLatLng =
         LatLng(_vendor.coordinates.latitude, _vendor.coordinates.longitude);
     //
@@ -244,23 +242,23 @@ class _EditVendorState extends State<EditVendor> {
     setState(() => _addressController.text = address);
   }
 
-  Widget _previewImages() => (_networkImages.length == 0 &&
-          _assetImages.length == 0)
+  Widget _previewImages() => (_imageIds.length == 0 && _assetImages.length == 0)
       ? Container()
       : SizedBox(
           height: 150,
           child: ListView.builder(
-            itemCount: _networkImages.length + _assetImages.length,
+            itemCount: _imageIds.length + _assetImages.length,
             itemBuilder: (context, index) => Stack(
               clipBehavior: Clip.none,
               children: <Widget>[
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: index < _networkImages.length
+                  child: index < _imageIds.length
                       ? Image(
-                          image: widget.vendor.getImageFomId(_imageIds[index]))
+                          image: VendorDBService.getVendorImage(
+                              _vendor.imageIds[index]))
                       : AssetThumb(
-                          asset: _assetImages[index - _networkImages.length],
+                          asset: _assetImages[index - _imageIds.length],
                           width: 150,
                           height: 150,
                         ),
@@ -275,7 +273,6 @@ class _EditVendorState extends State<EditVendor> {
                       if (index < _imageIds.length) {
                         _imageIdsToBeRemoved.add(_imageIds[index]);
                         _imageIds.removeAt(index);
-                        _networkImages.removeAt(index);
                       } else if (index < _assetImages.length + _imageIds.length)
                         _assetImages.removeAt(_imageIds.length - index);
                     }),

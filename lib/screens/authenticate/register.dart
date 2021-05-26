@@ -5,6 +5,8 @@ import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loading.dart';
 
 class Register extends StatefulWidget {
+  final Function toggleView;
+  Register({this.toggleView});
   @override
   _RegisterState createState() => _RegisterState();
 }
@@ -198,7 +200,7 @@ class _RegisterState extends State<Register> {
           Padding(
             padding: EdgeInsets.only(top: 40),
             child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: widget.toggleView,
               child: RichText(
                 text: TextSpan(children: [
                   TextSpan(
@@ -230,34 +232,40 @@ class _RegisterState extends State<Register> {
     _w = MediaQuery.of(context).size.width;
     return _loading
         ? Loading()
-        : Theme(
-            data: ThemeData.light(),
-            child: SafeArea(
-              child: Scaffold(
-                resizeToAvoidBottomInset: false,
-                backgroundColor: Color(0xfff2f3f7),
-                body: Stack(
-                  children: <Widget>[
-                    Container(
-                      height: _h * 0.7,
-                      width: _w,
-                      decoration: BoxDecoration(
-                        color: BACKGROUND_COLOR,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: const Radius.circular(70),
-                            bottomRight: const Radius.circular(70)),
+        : WillPopScope(
+            onWillPop: () {
+              widget.toggleView();
+              return Future.value(false);
+            },
+            child: Theme(
+              data: ThemeData.light(),
+              child: SafeArea(
+                child: Scaffold(
+                  resizeToAvoidBottomInset: false,
+                  backgroundColor: Color(0xfff2f3f7),
+                  body: Stack(
+                    children: <Widget>[
+                      Container(
+                        height: _h * 0.7,
+                        width: _w,
+                        decoration: BoxDecoration(
+                          color: BACKGROUND_COLOR,
+                          borderRadius: BorderRadius.only(
+                              bottomLeft: const Radius.circular(70),
+                              bottomRight: const Radius.circular(70)),
+                        ),
                       ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        buildLogo(_h),
-                        _buildContainer(),
-                        _buildErrorText(),
-                        _buildSigninBtn(),
-                      ],
-                    )
-                  ],
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          buildLogo(_h),
+                          _buildContainer(),
+                          _buildErrorText(),
+                          _buildSigninBtn(),
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

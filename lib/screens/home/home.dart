@@ -230,74 +230,79 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     _h = MediaQuery.of(context).size.height;
     _w = MediaQuery.of(context).size.width;
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            DrawerHeader(
-                child: Text(_user.isAnonymous
-                    ? "Guest"
-                    : _user.displayName != null
-                        ? _user.displayName
-                        : "Welcome"),
-                decoration: BoxDecoration(color: Colors.blue)),
-            ListTile(
-                title: Text('Settings'),
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (_) => SettingsPage()))),
-            ListTile(
-              title: Text('Profile'),
-              onTap: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => ProfilePage())),
+    return Stack(
+      children: [
+        Scaffold(
+          key: _scaffoldKey,
+          drawer: Drawer(
+            child: ListView(
+              children: <Widget>[
+                DrawerHeader(
+                    child: Text(_user.isAnonymous
+                        ? "Guest"
+                        : _user.displayName != null
+                            ? _user.displayName
+                            : "Welcome"),
+                    decoration: BoxDecoration(color: Colors.blue)),
+                ListTile(
+                    title: Text('Settings'),
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => SettingsPage()))),
+                ListTile(
+                  title: Text('Profile'),
+                  onTap: () => Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (_) => ProfilePage())),
+                ),
+                ListTile(
+                    title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
+                    onTap: () async => await _auth.signOut()),
+              ],
             ),
-            ListTile(
-                title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
-                onTap: () async => await _auth.signOut()),
-          ],
+          ),
+          body: Stack(
+            children: <Widget>[
+              //map
+              _buildFlutterMap(),
+              //search bar
+              Positioned(
+                top: _h * 0.07,
+                right: _w * 0.04,
+                left: _w * 0.04,
+                child: _buildSearchBar(context),
+              ),
+              //filter bar
+              Positioned(
+                top: _h * 0.14,
+                left: _w * 0.02,
+                child:
+                    Row(children: [SizedBox(width: _w, child: _filterBar())]),
+                height: _h * 0.065,
+                width: _w,
+              ),
+            ],
+          ),
+          floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              //move to location
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: FloatingActionButton(
+                  heroTag: null,
+                  child: Icon(Icons.location_searching),
+                  onPressed: _moveMapToUserLocation,
+                ),
+              ),
+              //add vendor
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: _buildAddVendorFAB(),
+              ),
+            ],
+          ),
         ),
-      ),
-      body: Stack(
-        children: <Widget>[
-          //map
-          _buildFlutterMap(),
-          //search bar
-          Positioned(
-            top: _h * 0.07,
-            right: _w * 0.04,
-            left: _w * 0.04,
-            child: _buildSearchBar(context),
-          ),
-          //filter bar
-          Positioned(
-            top: _h * 0.14,
-            left: _w * 0.02,
-            child: Row(children: [SizedBox(width: _w, child: _filterBar())]),
-            height: _h * 0.065,
-            width: _w,
-          ),
-          if (_loading) Positioned(child: Loading()),
-        ],
-      ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          //move to location
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: FloatingActionButton(
-              heroTag: null,
-              child: Icon(Icons.location_searching),
-              onPressed: _moveMapToUserLocation,
-            ),
-          ),
-          //add vendor
-          Padding(
-            padding: EdgeInsets.all(8.0),
-            child: _buildAddVendorFAB(),
-          ),
-        ],
-      ),
+        if (_loading) Positioned(child: Loading()),
+      ],
     );
   }
 
@@ -329,21 +334,22 @@ class _HomeState extends State<Home> {
                 context: context,
                 builder: (_) => LoginPopup(to: "add a vendor"));
           //DONT DELETE
-          // else if (!user.emailVerified) {
-          //   await user.reload();
-          //   if (!user.emailVerified)
+          // else if (!_user.emailVerified) {
+          //   await _user.reload();
+          //   if (!_user.emailVerified)
           //     showDialog<void>(
           //         context: context,
           //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
           //   else {
           //     Vendor vendor = Vendor();
-          //      if (userLoc != null) vendor.coordinates =
-          //         LatLng(userLoc.latitude, userLoc.longitude);
+          //     if (_userLoc != null)
+          //       vendor.coordinates =
+          //           LatLng(_userLoc.latitude, _userLoc.longitude);
           //     Navigator.of(context).push(MaterialPageRoute(
           //         builder: (_) =>
-          //             AddVendorNameDescription(vendor: vendor)));
+          //             AddVendor(vendor: vendor, userLoc: _userLoc)));
           //   }
-          // }
+          //}
           else {
             Vendor vendor = Vendor();
             if (_userLoc != null)

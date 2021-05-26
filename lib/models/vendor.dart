@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:latlong/latlong.dart';
-import 'package:flutter/material.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:test_proj/services/database.dart';
 import 'Review.dart';
@@ -10,7 +9,6 @@ class Vendor {
   String name;
   LatLng coordinates;
   List<String> tags;
-  List<NetworkImage> networkImages;
   List<String> imageIds;
   String description;
   List<String> reviewIds = [];
@@ -35,9 +33,7 @@ class Vendor {
     this.address,
     this.reported,
     this.reviewed,
-  }) {
-    this.networkImages = this.imageIds == null ? null : List(imageIds.length);
-  }
+  });
 
   Vendor.fromJsonCoords(Map<String, dynamic> json) {
     List<String> temp = [];
