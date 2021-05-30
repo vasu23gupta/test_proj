@@ -47,6 +47,13 @@ class _SearchState extends State<Search> {
   }
 
   @override
+  void dispose()
+  {
+    super.dispose();
+    filters.filtersApplied=false;
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     filters = Provider.of<Filters>(context);
@@ -187,14 +194,24 @@ class _SearchState extends State<Search> {
 
   FloatingActionButton _buildShowOnMapBtn() => FloatingActionButton(
         onPressed: () {
-          if (this._searchResults != null && this._searchResults.isEmpty)
+          if (this._searchResults != null && this._searchResults.isEmpty && !filters.filtersApplied)
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Search Results are empty")));
-          else
+          else if(!filters.filtersApplied)
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => SearchResults(
                     markers: _buildMarkers(this._searchResults),
                     mapCenter: _userLoc)));
+          else if(filters.filtersApplied) {
+            if(filters.finalList.isEmpty)
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Search Results are empty")));
+            else
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => SearchResults(
+                    markers: _buildMarkers(filters.finalList),
+                    mapCenter: _userLoc)));
+          }
         },
         child: Icon(Icons.map),
         tooltip: "Show results on map",
