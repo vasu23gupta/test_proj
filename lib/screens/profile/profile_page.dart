@@ -47,10 +47,82 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () => Navigator.pop(context),
               ),
             ),
-            body: Column(
+            body: SingleChildScrollView(
+               child: Column(  crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+             Text(_appUser.name, style: TextStyle(fontSize: 30)),
+             Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Text(
+                   'Points : ',
+                        style: TextStyle(fontSize: 20)),
+                subtitle:Text(_appUser.points.toString(),
+                        style: TextStyle(fontSize: 20)) ,
+                onTap: (){},            
+              ),
+            ),
+             Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Text(
+                   'Level : ',
+                        style: TextStyle(fontSize: 20)),
+                subtitle:Text(_appUser.level.toString(),
+                        style: TextStyle(fontSize: 20)) ,
+                onTap: (){},            
+              ),
+            ),
+             Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Text(
+                   'nextLevelAt : ',
+                        style: TextStyle(fontSize: 20)),
+                subtitle:Text(_appUser.nextLevelAt.toString(),
+                        style: TextStyle(fontSize: 20)) ,
+                onTap: (){},            
+              ),
+            ),
+             Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Text(
+                   'remaining Additions : ',
+                        style: TextStyle(fontSize: 20)),
+                subtitle:Text(_appUser.addsRemainig.toString(),
+                        style: TextStyle(fontSize: 20)) ,
+                onTap: (){},            
+              ),
+            ),
+             Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+                title: Text(
+                   'Remaining Edits : ',
+                        style: TextStyle(fontSize: 20)),
+                subtitle:Text(_appUser.editsRemaing.toString(),
+                        style: TextStyle(fontSize: 20)) ,
+                onTap: (){},            
+              ),
+            ),
+          ]),
+            ),
+            
+           /* Column(
               children: [
                 Text(_appUser.name, style: TextStyle(fontSize: 30)),
-                Row(
+               /* Row(
                   children: [
                     Text('Points : ',
                         style: TextStyle(fontSize: 20, color: Colors.green)),
@@ -71,8 +143,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     Text(_appUser.level.toString(),
                         style: TextStyle(fontSize: 20, color: Colors.yellow)),
                   ],
-                ),
-                Row(
+                ),*/
+              /*  Row(
                   children: [
                     Text('NextLevelAt : ',
                         style: TextStyle(fontSize: 20, color: Colors.green)),
@@ -89,8 +161,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: TextStyle(fontSize: 20),
                     )
                   ],
-                ),
-                Row(
+                ),*/
+               /* Row(
                   children: [
                     Text('Remaining Additions: ',
                         style: TextStyle(fontSize: 20, color: Colors.green)),
@@ -107,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: TextStyle(fontSize: 20),
                     )
                   ],
-                ),
+                ),*/
                 Row(
                   children: [
                     Text('Remaining Edits: ',
@@ -127,7 +199,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               ],
-            ),
+            ),*/
           );
   }
 }
