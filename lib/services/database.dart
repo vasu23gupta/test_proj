@@ -9,15 +9,19 @@ import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
+
+//const String _URL = "https://localpediabackend.herokuapp.com/";
+//const String _URL = "http://10.0.2.2:3000/";
+const String _URL = "https://localpediabackend.azurewebsites.net/";
+// const String URL = kReleaseMode
+//     ? "https://localpediabackend.azurewebsites.net/"
+//     : "https://localpediabackend.herokuapp.com/";
 
 class UserDBService {
   final String jwt;
   UserDBService({this.jwt});
-
-  static String url = "https://localpediabackend.herokuapp.com/";
-  //static String url = "http://10.0.2.2:3000/";
-  //static String url = "https://localpediabackend.azurewebsites.net/";
-  static String usersUrl = url + "users/";
+  static String usersUrl = _URL + "users/";
 
   Future<http.Response> addUser(String username) async {
     var body = jsonEncode({'username': username});
@@ -45,14 +49,11 @@ class UserDBService {
 }
 
 class VendorDBService {
-  static String url = "https://localpediabackend.herokuapp.com/";
-  //static String url = "https://localpediabackend.azurewebsites.net/";
-  //static String url = "http://10.0.2.2:3000/";
-  static String vendorsUrl = url + "vendors/";
-  static String reportsUrl = url + "reports/";
-  static String imagesUrl = url + "images/";
-  static String reviewsUrl = url + "reviews/";
-  static String utilsUrl = url + "utils/";
+  static String vendorsUrl = _URL + "vendors/";
+  static String reportsUrl = _URL + "reports/";
+  static String imagesUrl = _URL + "images/";
+  static String reviewsUrl = _URL + "reviews/";
+  static String utilsUrl = _URL + "utils/";
   static Dio dio = Dio();
 
   static Future<http.Response> addVendor(
@@ -297,7 +298,7 @@ class VendorDBService {
   //   //   final response = await http.get(vendorsUrl + id);
   //   //   return Vendor.fromJson(jsonDecode(response.body));
   //   // } else {
-  //   String url = vendorsUrl +
+  //   String URL = vendorsUrl +
   //       id +
   //       '/' +
   //       name.toString() +
@@ -314,7 +315,7 @@ class VendorDBService {
   //       '/' +
   //       stars.toString() +
   //       '/';
-  //   final response = await http.get(url);
+  //   final response = await http.get(URL);
 
   //   var json = jsonDecode(response.body);
   //   if (name) vendor.name = json['name'];

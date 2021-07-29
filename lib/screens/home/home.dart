@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
   List<Vendor> _vendors = [];
   List<Marker> _vendorMarkers = [];
   LocationService _locSer = LocationService();
-  // bool _darkModeOn;
+  bool _darkModeOn;
   bool _loading = true;
   bool _isSnackbarActive = false;
   User _user;
@@ -46,9 +46,11 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    //_darkModeOn = SchedulerBinding.instance.window.platformBrightness == Brightness.dark;
     _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      print(Theme.of(context).backgroundColor);
+      _darkModeOn = Theme.of(context).backgroundColor == Color(0xff616161);
+      print(_darkModeOn);
       List<Future> futures = [];
       futures.add(VendorDBService.getMapApiKey(_user));
       futures.add(_moveMapToUserLocation());
@@ -207,7 +209,7 @@ class _HomeState extends State<Home> {
       );
       if (!_vendorMarkers.contains(marker)) _vendorMarkers.add(marker);
     }
-    setState(() {});
+    if (this.mounted) setState(() {});
   }
 
   void _onPositionChanged(MapPosition position, bool hasGesture) async {
@@ -317,10 +319,10 @@ class _HomeState extends State<Home> {
             if (mapApiKey.isNotEmpty)
               TileLayerOptions(
                   urlTemplate:
-                      "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                      "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style={theme}&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
                   additionalOptions: {
                     'subscriptionKey': mapApiKey,
-                    //'theme': _darkModeOn ? 'dark' : 'main'
+                    'theme': _darkModeOn ? 'dark' : 'main'
                   }),
             MarkerLayerOptions(markers: _vendorMarkers)
           ]);

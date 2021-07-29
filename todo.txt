@@ -1,11 +1,6 @@
 APP:
-ui:
-profile,search,filter,settings.
 about screen.
-penalties when deleting vendor after reports.
-dark theme map.
 
 
 RELEASE:
 graphics.
-new keys.

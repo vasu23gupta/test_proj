@@ -8,44 +8,44 @@ class AppProvider with ChangeNotifier {
   Preferences pref = Preferences();
   BuildContext context;
   AppProvider(BuildContext context) {
-    this.context=context;
-    print("constructor called");
+    this.context = context;
     getSystemTheme();
   }
 
   Future useLightTheme() async {
-    light=true;
-    useSystemTheme=false;
+    light = true;
+    useSystemTheme = false;
     await pref.setSystemThemeFalse();
     await pref.setThemeFalse();
-    
+
     notifyListeners();
   }
 
   Future useDarkTheme() async {
-    light=false;
-    useSystemTheme=false;
+    light = false;
+    useSystemTheme = false;
     await pref.setSystemThemeFalse();
     await pref.setTheme();
-    
+
     notifyListeners();
   }
 
-  Future useSystemThem() async{
-    useSystemTheme=true;
+  Future useSystemThem() async {
+    useSystemTheme = true;
     var brightness = MediaQuery.of(context).platformBrightness;
     bool darkModeOn = brightness == Brightness.dark;
-    if(darkModeOn)
-    light = false;
+    if (darkModeOn)
+      light = false;
     else
-    light=true;
+      light = true;
     notifyListeners();
     await pref.setSystemTheme();
-    if(light)
-    await pref.setThemeFalse();
+    if (light)
+      await pref.setThemeFalse();
     else
-    await pref.setTheme();
+      await pref.setTheme();
   }
+
   ThemeData get currentTheme => _currentTheme;
 
   set currentTheme(value) {
@@ -53,68 +53,60 @@ class AppProvider with ChangeNotifier {
 
     notifyListeners();
   }
-  void switchTheme(){
-    currentTheme=currentTheme==ThemeData.dark()?ThemeData.light():ThemeData.dark();
+
+  void switchTheme() {
+    currentTheme =
+        currentTheme == ThemeData.dark() ? ThemeData.light() : ThemeData.dark();
     notifyListeners();
   }
+
   Future getSystemTheme() async {
-    if(await pref.getSystemTheme()=="f")
-    {
-      useSystemTheme=false;
-      if(await pref.getTheme()=="t")
-      {
-        light=false;
+    if (await pref.getSystemTheme() == "f") {
+      useSystemTheme = false;
+      if (await pref.getTheme() == "t") {
+        light = false;
+      } else {
+        light = true;
       }
-      else
-      {
-        light=true;
-      }
-      print("here");
-      
       notifyListeners();
-    }
-    else{
+    } else {
       print("using system theme");
-      useSystemTheme=true;
+      useSystemTheme = true;
       var brightness = MediaQuery.of(context).platformBrightness;
       bool darkModeOn = brightness == Brightness.dark;
-      if(darkModeOn)
-      light = false;
+      if (darkModeOn)
+        light = false;
       else
-      light=true;
-      
+        light = true;
+
       notifyListeners();
-      if(light)
-      await pref.setThemeFalse();
+      if (light)
+        await pref.setThemeFalse();
       else
-      await pref.setTheme();
+        await pref.setTheme();
     }
   }
 
-  Future getTheme() async{
-    light=await pref.getTheme()=="f"?true:false;
+  Future getTheme() async {
+    light = await pref.getTheme() == "f" ? true : false;
     notifyListeners();
   }
 
-  Future<void> switchSystemTheme() async
-  {
+  Future<void> switchSystemTheme() async {
     var th = await pref.getSystemTheme();
-  
+
     await pref.switchSystemTheme();
-    if(th=="f")
-    {
+    if (th == "f") {
       print(th);
       var brightness = MediaQuery.of(context).platformBrightness;
       bool darkModeOn = brightness == Brightness.dark;
-      if(darkModeOn)
-      _currentTheme = ThemeData.dark();
+      if (darkModeOn)
+        _currentTheme = ThemeData.dark();
       else
-      _currentTheme=ThemeData.light();
-      useSystemTheme=true;
-    }
-    else
-    useSystemTheme=false;
+        _currentTheme = ThemeData.light();
+      useSystemTheme = true;
+    } else
+      useSystemTheme = false;
     notifyListeners();
-  
   }
 }

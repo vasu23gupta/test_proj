@@ -1,6 +1,3 @@
-register, screen not scrolling.
+register screen not scrolling.
 marker size, offset.
-decrease points when deleting review.
-shows all vendors on show on map even after filtering.
-search radius not working.
 accept tnc, pp when google sign in.

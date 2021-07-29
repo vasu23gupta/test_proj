@@ -38,17 +38,12 @@ class Wrapper extends StatelessWidget {
     //return either home or authenticate
     // Future<String> getSystemTheme() async {
     //   th= await pref.getSystemTheme();
-    //   print(th);
     //   return th;
     // }
     // getSystemTheme();
 
     var brightness = SchedulerBinding.instance.window.platformBrightness;
     bool darkModeOn = brightness == Brightness.dark;
-    //print("darrtsdfjghdlhgdj");
-    print("hrere2");
-    if (darkModeOn) print("darkmodeisonbroyeahhhhhh");
-    print(theme.light);
     if (_user == null) {
       return Authenticate();
     } else {
