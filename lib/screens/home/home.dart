@@ -336,23 +336,22 @@ class _HomeState extends State<Home> {
                 context: context,
                 builder: (_) => LoginPopup(to: "add a vendor"));
           //DONT DELETE
-          // else if (!_user.emailVerified) {
-          //   await _user.reload();
-          //   if (!_user.emailVerified)
-          //     showDialog<void>(
-          //         context: context,
-          //         builder: (_) => VerifyEmailPopup(to: "add a vendor"));
-          //   else {
-          //     Vendor vendor = Vendor();
-          //     if (_userLoc != null)
-          //       vendor.coordinates =
-          //           LatLng(_userLoc.latitude, _userLoc.longitude);
-          //     Navigator.of(context).push(MaterialPageRoute(
-          //         builder: (_) =>
-          //             AddVendor(vendor: vendor, userLoc: _userLoc)));
-          //   }
-          //}
-          else {
+          else if (!_user.emailVerified) {
+            await _user.reload();
+            if (!_user.emailVerified)
+              showDialog<void>(
+                  context: context,
+                  builder: (_) => VerifyEmailPopup(to: "add a vendor"));
+            else {
+              Vendor vendor = Vendor();
+              if (_userLoc != null)
+                vendor.coordinates =
+                    LatLng(_userLoc.latitude, _userLoc.longitude);
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) =>
+                      AddVendor(vendor: vendor, userLoc: _userLoc)));
+            }
+          } else {
             Vendor vendor = Vendor();
             if (_userLoc != null)
               vendor.coordinates =

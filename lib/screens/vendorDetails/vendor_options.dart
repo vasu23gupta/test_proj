@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/vendor.dart';
+import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/services/database.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loginPopup.dart';
@@ -24,17 +25,16 @@ class VendorOptions extends StatelessWidget {
                   context: context,
                   builder: (_) => LoginPopup(to: "edit a vendor"));
             //DONT DELETE
-            // else if (!user.emailVerified) {
-            //   await user.reload();
-            //   if (!user.emailVerified)
-            //     showDialog<void>(
-            //         context: context,
-            //         builder: (_) => VerifyEmailPopup(to: "edit a vendor"));
-            //   else
-            //     Navigator.of(context).push(MaterialPageRoute(
-            //         builder: (_) => AddVendor(vendor: vendor)));
-            //}
-            else
+            else if (!_user.emailVerified) {
+              await _user.reload();
+              if (!_user.emailVerified)
+                showDialog<void>(
+                    context: context,
+                    builder: (_) => VerifyEmailPopup(to: "edit a vendor"));
+              else
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => AddVendor(vendor: vendor)));
+            } else
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => EditVendor(vendor: vendor)));
             break;
@@ -44,20 +44,19 @@ class VendorOptions extends StatelessWidget {
                   context: context,
                   builder: (_) => LoginPopup(to: "report a vendor"));
             //DONT DELETE
-            // else if (!user.emailVerified) {
-            //   await user.reload();
-            //   if (!user.emailVerified)
-            //     showDialog<void>(
-            //         context: context,
-            //         builder: (_) => VerifyEmailPopup(to: "report a vendor"));
-            //   else
-            //     vendor.reported
-            //         ? print('reported')
-            //         : showDialog<void>(
-            //             context: context,
-            //             builder: (_) => Report(vendor: vendor));
-            // }
-            else
+            else if (!_user.emailVerified) {
+              await _user.reload();
+              if (!_user.emailVerified)
+                showDialog<void>(
+                    context: context,
+                    builder: (_) => VerifyEmailPopup(to: "report a vendor"));
+              else
+                vendor.reported
+                    ? print('reported')
+                    : showDialog<void>(
+                        context: context,
+                        builder: (_) => Report(vendor: vendor));
+            } else
               vendor.reported
                   ? print('reported')
                   : showDialog<void>(

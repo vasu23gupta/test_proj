@@ -185,18 +185,16 @@ class _VendorDetailsState extends State<VendorDetails> {
                   context: context,
                   builder: (_) => LoginPopup(to: "add a review"));
             //DONT DELETE
-            // else if (!user.emailVerified) {
-            //   await user.reload();
-            //   if (!user.emailVerified)
-            //     showDialog<void>(
-            //         context: context,
-            //         builder: (_) =>
-            //             VerifyEmailPopup(to: "add a review"));
-            //   else
-            //     Navigator.of(context).push(MaterialPageRoute(
-            //         builder: (_) => AddReview(vendor: vendor)));
-            // }
-            else
+            else if (!_user.emailVerified) {
+              await _user.reload();
+              if (!_user.emailVerified)
+                showDialog<void>(
+                    context: context,
+                    builder: (_) => VerifyEmailPopup(to: "add a review"));
+              else
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => AddReview(vendor: _vendor)));
+            } else
               Navigator.of(context).push(MaterialPageRoute(
                   builder: (_) => AddReview(vendor: _vendor)));
           },
