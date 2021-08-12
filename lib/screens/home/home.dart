@@ -36,7 +36,7 @@ class _HomeState extends State<Home> {
   List<Vendor> _vendors = [];
   List<Marker> _vendorMarkers = [];
   LocationService _locSer = LocationService();
-  bool _darkModeOn;
+  bool _darkModeOn = false;
   bool _loading = true;
   bool _isSnackbarActive = false;
   User _user;
