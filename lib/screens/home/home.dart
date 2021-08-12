@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:location/location.dart';
+import 'package:test_proj/screens/about%20us/aboutus.dart';
 import 'package:test_proj/screens/add_vendor/add_vendor.dart';
 import 'package:test_proj/screens/profile/profile_page.dart';
 import 'package:test_proj/screens/vendorDetails/vendor_details.dart';
@@ -258,6 +259,10 @@ class _HomeState extends State<Home> {
                 ListTile(
                     title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
                     onTap: () async => await _auth.signOut()),
+                     ListTile(
+                    title: Text('About Us'),
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => AboutUsPage()))),
               ],
             ),
           ),

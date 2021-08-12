@@ -142,8 +142,9 @@ class _VendorDetailsState extends State<VendorDetails> {
                             deleteReviewFromUi: _deleteReviewFromUi,
                             w: _w)
                         : Container(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                    Container(
+                      padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                      alignment: Alignment.centerLeft,
                       child: Text(
                         "Reviews:",
                         style: TextStyle(
@@ -300,6 +301,7 @@ class _VendorDetailsState extends State<VendorDetails> {
             destination: Coords(
                 _vendor.coordinates.latitude, _vendor.coordinates.longitude)),
         child: Icon(Icons.navigation),
+        backgroundColor: TEXT_COLOR,
       );
 
   Row _buildTopRow() => Row(
@@ -418,39 +420,43 @@ class MyReview extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "Your Review:",
-              style: TextStyle(
-                  fontSize: 25.0,
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey),
-            ),
-            PopupMenuButton<String>(
-              onSelected: (value) async {
-                switch (value) {
-                  case 'Edit':
-                    showDialog<void>(
-                        context: context, builder: (_) => EditReviewDialogue());
-                    break;
-                  case 'Delete':
-                    var res = await VendorDBService.deleteReview(
-                        myReview.id, await user.getIdToken());
-                    if (res.statusCode == 200) deleteReviewFromUi();
-                    break;
-                }
-              },
-              itemBuilder: (BuildContext context) {
-                return {'Edit', 'Delete'}
-                    .map((String choice) => PopupMenuItem<String>(
-                        value: choice, child: Text(choice)))
-                    .toList();
-              },
-            ),
-          ],
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Your Review:",
+                style: TextStyle(
+                    fontSize: 25.0,
+                    fontFamily: 'Montserrat',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (value) async {
+                  switch (value) {
+                    case 'Edit':
+                      showDialog<void>(
+                          context: context,
+                          builder: (_) => EditReviewDialogue());
+                      break;
+                    case 'Delete':
+                      var res = await VendorDBService.deleteReview(
+                          myReview.id, await user.getIdToken());
+                      if (res.statusCode == 200) deleteReviewFromUi();
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  return {'Edit', 'Delete'}
+                      .map((String choice) => PopupMenuItem<String>(
+                          value: choice, child: Text(choice)))
+                      .toList();
+                },
+              ),
+            ],
+          ),
         ),
         ReviewTile(
           review: myReview,
