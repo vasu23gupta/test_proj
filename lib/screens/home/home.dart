@@ -49,9 +49,7 @@ class _HomeState extends State<Home> {
     super.initState();
     _user = Provider.of<User>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      print(Theme.of(context).backgroundColor);
       _darkModeOn = Theme.of(context).backgroundColor == Color(0xff616161);
-      print(_darkModeOn);
       List<Future> futures = [];
       futures.add(VendorDBService.getMapApiKey(_user));
       futures.add(_moveMapToUserLocation());
@@ -259,7 +257,7 @@ class _HomeState extends State<Home> {
                 ListTile(
                     title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
                     onTap: () async => await _auth.signOut()),
-                     ListTile(
+                ListTile(
                     title: Text('About Us'),
                     onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => AboutUsPage()))),

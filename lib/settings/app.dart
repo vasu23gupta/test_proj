@@ -70,7 +70,6 @@ class AppProvider with ChangeNotifier {
       }
       notifyListeners();
     } else {
-      print("using system theme");
       useSystemTheme = true;
       var brightness = MediaQuery.of(context).platformBrightness;
       bool darkModeOn = brightness == Brightness.dark;
