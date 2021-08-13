@@ -55,7 +55,7 @@ class _HomeState extends State<Home> {
       futures.add(_moveMapToUserLocation());
       List f = await Future.wait(futures);
       mapApiKey = f[0];
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     });
   }
 
@@ -154,12 +154,14 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> _moveMapToUserLocation() async {
-    LocationData ld = await _locSer.getLocation();
-    if (ld != null) {
-      _userLoc = ld;
-      _mapCenter = LatLng(ld.latitude, ld.longitude);
-      _controller.move(_mapCenter, 18.45);
-    }
+    try {
+      LocationData ld = await _locSer.getLocation();
+      if (ld != null) {
+        _userLoc = ld;
+        _mapCenter = LatLng(ld.latitude, ld.longitude);
+        _controller.move(_mapCenter, 18.45);
+      }
+    } catch (err) {}
   }
 
   void _delayUpdate() async {
