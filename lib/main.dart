@@ -13,7 +13,6 @@ Future<void> main() async {
   theme = await preferences.getSystemTheme();
   if (theme == null) await preferences.setSystemTheme();
   await Firebase.initializeApp();
-  runApp(MyApp());
   runApp(ChangeNotifierProvider<Preferences>(
       create: (_) => Preferences(), child: MyApp()));
 }

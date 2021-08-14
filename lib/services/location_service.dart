@@ -15,28 +15,18 @@ class LocationService {
   LocationData _locationData;
 
   Future<LocationData> getLocation() async {
-    //   try {
-    //     LocationData userLocation = await location.getLocation();
-    //     _currentLocation = LatLng(userLocation.latitude, userLocation.longitude);
-    //   } catch (e) {
-    //     print('Could not get location: ${e.toString()}');
-    //   }
-
-    //   return _currentLocation;
-    // }
+    _serviceEnabled = await location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await location.requestService();
+      if (!_serviceEnabled) {
+        return null;
+      }
+    }
 
     _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
       _permissionGranted = await location.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
-        return null;
-      }
-    }
-
-    _serviceEnabled = await location.serviceEnabled();
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
         return null;
       }
     }
