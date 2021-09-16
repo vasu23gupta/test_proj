@@ -241,30 +241,34 @@ class _RegisterState extends State<Register> {
               data: ThemeData.light(),
               child: SafeArea(
                 child: Scaffold(
-                  resizeToAvoidBottomInset: false,
+                  resizeToAvoidBottomInset: true,
                   backgroundColor: Color(0xfff2f3f7),
-                  body: Stack(
-                    children: <Widget>[
-                      Container(
-                        height: _h * 0.7,
-                        width: _w,
-                        decoration: BoxDecoration(
-                          color: BACKGROUND_COLOR,
-                          borderRadius: BorderRadius.only(
-                              bottomLeft: const Radius.circular(70),
-                              bottomRight: const Radius.circular(70)),
-                        ),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  body: SingleChildScrollView(
+                    child:Center(
+                      child:Stack(
                         children: <Widget>[
-                          buildLogo(_h),
-                          _buildContainer(),
-                          _buildErrorText(),
-                          _buildSigninBtn(),
+                          Container(
+                            height: _h * 0.7,
+                            width: _w,
+                            decoration: BoxDecoration(
+                              color: BACKGROUND_COLOR,
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft: const Radius.circular(70),
+                                  bottomRight: const Radius.circular(70)),
+                            ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              buildLogo(_h),
+                              _buildContainer(),
+                              _buildErrorText(),
+                              _buildSigninBtn(),
+                            ],
+                          )
                         ],
-                      )
-                    ],
+                      ),
+                    ),
                   ),
                 ),
               ),

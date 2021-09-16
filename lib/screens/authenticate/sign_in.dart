@@ -203,36 +203,40 @@ class _SignInState extends State<SignIn> {
             data: ThemeData.light(),
             child: SafeArea(
               child: Scaffold(
-                resizeToAvoidBottomInset: false,
+                resizeToAvoidBottomInset: true,
                 backgroundColor: Color(0xfff2f3f7),
-                body: Stack(
-                  children: <Widget>[
-                    Container(
-                      height: _h * 0.7,
-                      width: _w,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: BACKGROUND_COLOR,
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: const Radius.circular(70),
-                            bottomRight: const Radius.circular(70),
+                body: SingleChildScrollView(
+                  child: Center(
+                    child: Stack(
+                      children: <Widget>[
+                        Container(
+                          height: _h * 0.7,
+                          width: _w,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: BACKGROUND_COLOR,
+                              borderRadius: BorderRadius.only(
+                                bottomLeft: const Radius.circular(70),
+                                bottomRight: const Radius.circular(70),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: <Widget>[
-                        buildLogo(_h),
-                        _buildContainer(),
-                        _buildErrorText(),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: _buildSignUpBtn(),
-                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            buildLogo(_h),
+                            _buildContainer(),
+                            _buildErrorText(),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: _buildSignUpBtn(),
+                            ),
+                          ],
+                        )
                       ],
-                    )
-                  ],
+                    ),
+                  ),
                 ),
               ),
             ),
