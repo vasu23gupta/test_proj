@@ -244,30 +244,31 @@ class _RegisterState extends State<Register> {
                   resizeToAvoidBottomInset: true,
                   backgroundColor: Color(0xfff2f3f7),
                   body: SingleChildScrollView(
-                    child:Center(
-                      child:Stack(
-                        children: <Widget>[
-                          Container(
-                            height: _h * 0.7,
-                            width: _w,
-                            decoration: BoxDecoration(
-                              color: BACKGROUND_COLOR,
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: const Radius.circular(70),
-                                  bottomRight: const Radius.circular(70)),
-                            ),
+                    child:Stack(
+                      children: <Widget>[
+                        Container(
+                          height: _h * 0.68,
+                          width: _w,
+                          decoration: BoxDecoration(
+                            color: BACKGROUND_COLOR,
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: const Radius.circular(70),
+                                bottomRight: const Radius.circular(70)),
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              buildLogo(_h),
-                              _buildContainer(),
-                              _buildErrorText(),
-                              _buildSigninBtn(),
-                            ],
-                          )
-                        ],
-                      ),
+                        ),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            buildLogo(_h),
+                            _buildContainer(),
+                            _buildErrorText(),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(8.0, _h*0.03, 8, 8),
+                              child: _buildSigninBtn(),
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                   ),
                 ),

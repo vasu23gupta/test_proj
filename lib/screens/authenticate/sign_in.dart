@@ -206,36 +206,34 @@ class _SignInState extends State<SignIn> {
                 resizeToAvoidBottomInset: true,
                 backgroundColor: Color(0xfff2f3f7),
                 body: SingleChildScrollView(
-                  child: Center(
-                    child: Stack(
-                      children: <Widget>[
-                        Container(
-                          height: _h * 0.7,
-                          width: _w,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: BACKGROUND_COLOR,
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: const Radius.circular(70),
-                                bottomRight: const Radius.circular(70),
-                              ),
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        height: _h * 0.67,
+                        width: _w,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: BACKGROUND_COLOR,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: const Radius.circular(70),
+                              bottomRight: const Radius.circular(70),
                             ),
                           ),
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            buildLogo(_h),
-                            _buildContainer(),
-                            _buildErrorText(),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: _buildSignUpBtn(),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          buildLogo(_h),
+                          _buildContainer(),
+                          _buildErrorText(),
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(8.0, _h*0.08, 8, 8),
+                            child: _buildSignUpBtn(),
+                          ),
+                        ],
+                      )
+                    ],
                   ),
                 ),
               ),
