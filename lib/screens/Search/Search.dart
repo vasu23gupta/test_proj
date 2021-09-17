@@ -100,6 +100,9 @@ class _SearchState extends State<Search> {
   }
 
   Widget _buildVendorTile(Vendor result) => Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => Navigator.of(context).push(
@@ -126,15 +129,24 @@ class _SearchState extends State<Search> {
                 children: [
                   Text(result.name,
                       style: TextStyle(fontSize: _size.width * 0.05)),
-                  SizedBox(
+                  Container(
                     width: _size.width * 0.66,
+                    padding: EdgeInsets.only(top: 1.5, right: 4, bottom: 1.5),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: result.tags
                             .map((x) => Padding(
-                                padding: const EdgeInsets.only(right: 2),
-                                child: Chip(label: Text(x))))
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Chip(
+                                  label: Text(
+                                    x,
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  //elevation: 3,
+                                  side: BorderSide(color: Colors.grey),
+                                )))
                             .toList(),
                       ),
                     ),
@@ -169,14 +181,19 @@ class _SearchState extends State<Search> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              ButtonBar(
-                mainAxisSize: MainAxisSize.max,
-                alignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildSearchRadiusDropdown(),
-                  _buildSortButton(),
-                  _buildFilterButton()
-                ],
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildSearchRadiusDropdown(),
+                    _buildSortButton(),
+                    _buildFilterButton()
+                  ],
+                ),
               ),
               Column(children: _buildSuggestions().toList()),
             ],
@@ -373,7 +390,7 @@ class _SearchState extends State<Search> {
 
   AppBar _buildAppBar() => AppBar(
         backgroundColor: BACKGROUND_COLOR,
-        elevation: 5,
+        elevation: 0,
         title: Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),

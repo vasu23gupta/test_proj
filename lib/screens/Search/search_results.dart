@@ -13,6 +13,7 @@ class SearchResults extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
         body: _buildFlutterMap(),
         floatingActionButton: FloatingActionButton(
+          backgroundColor: TEXT_COLOR,
           child: Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),

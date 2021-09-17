@@ -309,7 +309,6 @@ class _VendorDetailsState extends State<VendorDetails> {
         children: <Widget>[
           IconButton(
             icon: Icon(Icons.arrow_back_ios),
-            color: Colors.black,
             onPressed: () => Navigator.of(context).pop(),
           ),
           VendorOptions(vendor: _vendor),

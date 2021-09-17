@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/settings/change_password.dart';
 import 'package:test_proj/settings/darkthemebutton.dart';
+import 'package:test_proj/shared/constants.dart';
 
 class SettingsPage extends StatefulWidget {
   _SettingsState createState() => _SettingsState();
@@ -23,8 +24,7 @@ class _SettingsState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Settings"),
-
-        /*backgroundColor: BACKGROUND_COLOR,*/
+        backgroundColor: BACKGROUND_COLOR,
       ),
       body: SingleChildScrollView(
         child: Column(

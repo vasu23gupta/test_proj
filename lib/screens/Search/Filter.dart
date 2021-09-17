@@ -74,7 +74,7 @@ class _FilterState extends State<Filter> {
       children: [
         Expanded(child: mywidget),
         ListTile(
-          tileColor: Colors.orange[400],
+          tileColor: TEXT_COLOR,
           title: TextButton(
             onPressed: () {
               List<Vendor> filtered = [];
@@ -94,7 +94,10 @@ class _FilterState extends State<Filter> {
                 //     builder: (context) => Search(userLoc: widget.userLoc,)));
               });
             },
-            child: Text("Apply"),
+            child: Text(
+              "Apply",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         )
       ],
@@ -116,31 +119,37 @@ class _FilterState extends State<Filter> {
             Expanded(
               flex: 4,
               child: Container(
-                color: Colors.grey,
+                color: Colors.grey[300],
                 child: Column(
                   children: [
                     Container(
                       color: _selectedFilter == 'rating'
                           ? Colors.white
-                          : Colors.grey,
+                          : Colors.grey[300],
                       height: 50,
                       width: 200,
                       child: TextButton(
                         onPressed: () =>
                             setState(() => _selectedFilter = "rating"),
-                        child: Text("Rating"),
+                        child: Text(
+                          "Rating",
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                     Container(
                       color: _selectedFilter == 'tags'
                           ? Colors.white
-                          : Colors.grey,
+                          : Colors.grey[300],
                       height: 50,
                       width: 200,
                       child: TextButton(
                         onPressed: () =>
                             setState(() => _selectedFilter = 'tags'),
-                        child: Text("Tags"),
+                        child: Text(
+                          "Tags",
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                   ],

@@ -15,7 +15,7 @@ import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
-import 'package:test_proj/settings/settings.dart';
+import 'package:test_proj/screens/settings.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loginPopup.dart';
 
@@ -246,23 +246,23 @@ class _HomeState extends State<Home> {
                         : _user.displayName != null
                             ? _user.displayName
                             : "Welcome"),
-                    decoration: BoxDecoration(color: Colors.blue)),
-                ListTile(
-                    title: Text('Settings'),
-                    onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => SettingsPage()))),
+                    decoration: BoxDecoration(color: BACKGROUND_COLOR)),
                 ListTile(
                   title: Text('Profile'),
                   onTap: () => Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => ProfilePage())),
                 ),
                 ListTile(
-                    title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
-                    onTap: () async => await _auth.signOut()),
+                    title: Text('Settings'),
+                    onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => SettingsPage()))),
                 ListTile(
                     title: Text('About Us'),
                     onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => AboutUsPage()))),
+                ListTile(
+                    title: Text(_user.isAnonymous ? 'Sign In' : 'Logout'),
+                    onTap: () async => await _auth.signOut()),
               ],
             ),
           ),
@@ -296,6 +296,7 @@ class _HomeState extends State<Home> {
                 padding: const EdgeInsets.all(8.0),
                 child: FloatingActionButton(
                   heroTag: null,
+                  backgroundColor: TEXT_COLOR,
                   child: Icon(Icons.location_searching),
                   onPressed: _moveMapToUserLocation,
                 ),
@@ -333,6 +334,7 @@ class _HomeState extends State<Home> {
           ]);
 
   FloatingActionButton _buildAddVendorFAB() => FloatingActionButton(
+        backgroundColor: TEXT_COLOR,
         heroTag: null,
         child: Icon(Icons.add),
         onPressed: () async {
