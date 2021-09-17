@@ -47,10 +47,9 @@ class _SearchState extends State<Search> {
   }
 
   @override
-  void dispose()
-  {
+  void dispose() {
     super.dispose();
-    filters.filtersApplied=false;
+    filters.filtersApplied = false;
   }
 
   @override
@@ -100,40 +99,46 @@ class _SearchState extends State<Search> {
       yield Text('Enter tags/name');
   }
 
-  Container _buildVendorTile(Vendor result) => Container(
-        padding: EdgeInsets.fromLTRB(8, 2, 8, 2),
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 5,
-              blurRadius: 2,
-              offset: Offset(0, 5), // changes position of shadow
-            ),
-          ],
-        ),
-        child: ListTile(
-          tileColor: Theme.of(context).cardColor,
+  Widget _buildVendorTile(Vendor result) => Card(
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
           onTap: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => VendorDetails(vendor: result))),
-          title: Row(
+          child: Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(4.0),
+              Container(
+                padding: EdgeInsets.fromLTRB(8, 8, _size.width * 0.05, 8),
                 child: result.imageIds.length == 0
                     ? Icon(Icons.image_outlined, size: _size.width * 0.25)
-                    : Image(
-                        image:
-                            VendorDBService.getVendorImage(result.imageIds[0]),
-                        fit: BoxFit.cover,
-                        height: _size.width * 0.25,
-                        width: _size.width * 0.25),
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image(
+                            image: VendorDBService.getVendorImage(
+                                result.imageIds[0]),
+                            fit: BoxFit.cover,
+                            height: _size.width * 0.25,
+                            width: _size.width * 0.25),
+                      ),
               ),
               Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(result.name,
                       style: TextStyle(fontSize: _size.width * 0.05)),
+                  SizedBox(
+                    width: _size.width * 0.66,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: result.tags
+                            .map((x) => Padding(
+                                padding: const EdgeInsets.only(right: 2),
+                                child: Chip(label: Text(x))))
+                            .toList(),
+                      ),
+                    ),
+                  ),
                   Row(
                     children: [
                       Text(
@@ -147,19 +152,6 @@ class _SearchState extends State<Search> {
                       ),
                       Icon(Icons.star, color: Colors.amber),
                     ],
-                  ),
-                  SizedBox(
-                    width: _size.width * 0.61,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: result.tags
-                            .map((x) => Padding(
-                                padding: const EdgeInsets.all(2.0),
-                                child: Chip(label: Text(x))))
-                            .toList(),
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -193,24 +185,27 @@ class _SearchState extends State<Search> {
   }
 
   FloatingActionButton _buildShowOnMapBtn() => FloatingActionButton(
+        backgroundColor: TEXT_COLOR,
         onPressed: () {
-          if (this._searchResults != null && this._searchResults.isEmpty && !filters.filtersApplied)
+          if (this._searchResults != null &&
+              this._searchResults.isEmpty &&
+              !filters.filtersApplied)
             ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Search Results are empty")));
-          else if(!filters.filtersApplied)
+          else if (!filters.filtersApplied)
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (_) => SearchResults(
                     markers: _buildMarkers(this._searchResults),
                     mapCenter: _userLoc)));
-          else if(filters.filtersApplied) {
-            if(filters.finalList.isEmpty)
+          else if (filters.filtersApplied) {
+            if (filters.finalList.isEmpty)
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Search Results are empty")));
+                  SnackBar(content: Text("Search Results are empty")));
             else
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => SearchResults(
-                    markers: _buildMarkers(filters.finalList),
-                    mapCenter: _userLoc)));
+                  builder: (_) => SearchResults(
+                      markers: _buildMarkers(filters.finalList),
+                      mapCenter: _userLoc)));
           }
         },
         child: Icon(Icons.map),
@@ -229,8 +224,8 @@ class _SearchState extends State<Search> {
         },
         child: Row(
           children: [
-            Icon(Icons.filter_alt),
-            Text("Filter", style: TextStyle(fontSize: 15)),
+            Icon(Icons.filter_alt, color: TEXT_COLOR),
+            Text("Filter", style: TextStyle(fontSize: 15, color: TEXT_COLOR)),
           ],
         ),
       );
@@ -241,8 +236,8 @@ class _SearchState extends State<Search> {
         value: _dropdownValue,
         iconSize: 24,
         elevation: 16,
-        style: TextStyle(color: Colors.deepPurple),
-        underline: Container(height: 2, color: Colors.deepPurpleAccent),
+        style: TextStyle(color: TEXT_COLOR),
+        underline: Container(height: 2, color: TEXT_COLOR),
         onChanged: (String newValue) =>
             setState(() => _dropdownValue = newValue),
         items: _searchRadii
@@ -367,8 +362,11 @@ class _SearchState extends State<Search> {
                 )),
         child: Row(
           children: [
-            Icon(Icons.sort),
-            Text("Sort", style: TextStyle(fontSize: 15)),
+            Icon(
+              Icons.sort,
+              color: TEXT_COLOR,
+            ),
+            Text("Sort", style: TextStyle(fontSize: 15, color: TEXT_COLOR)),
           ],
         ),
       );
