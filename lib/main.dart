@@ -20,16 +20,19 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamProvider<User>.value(
-      value: AuthService().user,
-      child: MaterialApp(
-        title: 'LocalPedia',
-        debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.system,
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-        home: WrapperCaller(),
+    return GestureDetector(
+      child: StreamProvider<User>.value(
+        value: AuthService().user,
+        child: MaterialApp(
+          title: 'LocalPedia',
+          debugShowCheckedModeBanner: false,
+          themeMode: ThemeMode.system,
+          theme: ThemeData.light(),
+          darkTheme: ThemeData.dark(),
+          home: WrapperCaller(),
+        ),
       ),
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
     );
   }
 }
