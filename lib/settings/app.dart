@@ -9,7 +9,7 @@ class AppProvider with ChangeNotifier {
   BuildContext context;
   AppProvider(BuildContext context) {
     this.context = context;
-    getSystemTheme();
+    useLightTheme();
   }
 
   Future useLightTheme() async {

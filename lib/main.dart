@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'LocalPedia',
           debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.system,
+          themeMode: ThemeMode.light,//ThemeMode.system,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
           home: WrapperCaller(),

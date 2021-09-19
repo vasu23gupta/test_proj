@@ -51,13 +51,14 @@ class Wrapper extends StatelessWidget {
           create: (context) => Filters(),
           child: MaterialApp(
             home: Home(),
-            theme: theme.useSystemTheme
+            theme: /* theme.useSystemTheme
                 ? (!darkModeOn)
                     ? ThemeData.light()
                     : ThemeData.dark()
                 : theme.light
                     ? ThemeData.light()
-                    : ThemeData.dark(),
+                    : ThemeData.dark(), */
+                    ThemeData.light(),
             //darkTheme: theme.useSystemTheme?ThemeData.dark():theme.currentTheme,
             //themeMode: ThemeMode.system,
           ));
