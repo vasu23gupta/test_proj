@@ -15,7 +15,7 @@ import 'package:latlong/latlong.dart';
 import 'package:test_proj/services/location_service.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:test_proj/screens/Search/Search.dart';
-import 'package:test_proj/screens/settings.dart';
+import 'package:test_proj/screens/settings/settings.dart';
 import 'package:test_proj/shared/constants.dart';
 import 'package:test_proj/shared/loginPopup.dart';
 
@@ -275,7 +275,7 @@ class _HomeState extends State<Home> {
                 top: _h * 0.07,
                 right: _w * 0.04,
                 left: _w * 0.04,
-                child: _buildSearchBar(context),
+                child: _buildSearchBar(),
               ),
               //filter bar
               Positioned(
@@ -369,7 +369,7 @@ class _HomeState extends State<Home> {
         },
       );
 
-  Container _buildSearchBar(BuildContext context) => Container(
+  Container _buildSearchBar() => Container(
         color: Theme.of(context).backgroundColor,
         child: Row(
           children: <Widget>[
@@ -379,16 +379,27 @@ class _HomeState extends State<Home> {
               onPressed: () => _scaffoldKey.currentState.openDrawer(),
             ),
             //search
-            Expanded(
-              child: TextField(
-                onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => Search(userLoc: _controller.center))),
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 15),
-                    hintText: "Search here..."),
+            // Expanded(
+            //   child: TextField(
+            //     onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            //         builder: (context) => Search(userLoc: _controller.center))),
+            //     decoration: InputDecoration(
+            //         border: InputBorder.none,
+            //         contentPadding: EdgeInsets.symmetric(horizontal: 15),
+            //         hintText: "Search here..."),
+            //   ),
+            // ),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => Search(userLoc: _controller.center))),
+              child: Text(
+                "Search here...",
+                style: TextStyle(color: Colors.black54, fontSize: _w * 0.04),
               ),
-            ),
+              style: TextButton.styleFrom(
+                  fixedSize: Size(_w * 0.8, 10),
+                  alignment: Alignment.centerLeft),
+            )
           ],
         ),
       );

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:test_proj/settings/change_password.dart';
-import 'package:test_proj/settings/darkthemebutton.dart';
+import 'package:test_proj/screens/settings/change_password.dart';
+import 'package:test_proj/screens/settings/darkthemebutton.dart';
 import 'package:test_proj/shared/constants.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -46,24 +46,24 @@ class _SettingsState extends State<SettingsPage> {
                 trailing: Icon(Icons.edit),
               ),
             ),
-            Card(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
-              margin: const EdgeInsets.all(8.0),
-              /*color: Colors.green[200],*/
-              child: ListTile(
-                title: Text(
-                  'Themes',
-                  style: TextStyle(
-                      /*color: Colors.white,*/ fontWeight: FontWeight.w500),
-                ),
-                trailing: Icon(Icons.keyboard_arrow_right),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ThemeButton()),
-                ),
-              ),
-            ),
+            // Card(
+            //   shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(10.0)),
+            //   margin: const EdgeInsets.all(8.0),
+            //   /*color: Colors.green[200],*/
+            //   child: ListTile(
+            //     title: Text(
+            //       'Themes',
+            //       style: TextStyle(
+            //           /*color: Colors.white,*/ fontWeight: FontWeight.w500),
+            //     ),
+            //     trailing: Icon(Icons.keyboard_arrow_right),
+            //     onTap: () => Navigator.push(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => ThemeButton()),
+            //     ),
+            //   ),
+            // ),
             if (!_user.emailVerified)
               Card(
                 shape: RoundedRectangleBorder(

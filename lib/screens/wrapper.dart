@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:test_proj/screens/authenticate/authenticate.dart';
+import 'package:test_proj/screens/settings/app.dart';
 import 'package:test_proj/services/filters.dart';
-import 'package:test_proj/settings/app.dart';
 import 'home/home.dart';
 
 class WrapperCaller extends StatelessWidget {
@@ -51,14 +51,15 @@ class Wrapper extends StatelessWidget {
           create: (context) => Filters(),
           child: MaterialApp(
             home: Home(),
-            theme: /* theme.useSystemTheme
+            theme:
+                /* theme.useSystemTheme
                 ? (!darkModeOn)
                     ? ThemeData.light()
                     : ThemeData.dark()
                 : theme.light
                     ? ThemeData.light()
                     : ThemeData.dark(), */
-                    ThemeData.light(),
+                ThemeData.light(),
             //darkTheme: theme.useSystemTheme?ThemeData.dark():theme.currentTheme,
             //themeMode: ThemeMode.system,
           ));

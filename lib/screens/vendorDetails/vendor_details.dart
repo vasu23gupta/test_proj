@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_map/flutter_map.dart' hide Coords;
 import 'package:provider/provider.dart';
 import 'package:test_proj/models/Review.dart';
@@ -17,6 +18,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:test_proj/shared/starRating.dart';
 import 'package:test_proj/shared/loginPopup.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;
@@ -40,6 +42,7 @@ class _VendorDetailsState extends State<VendorDetails> {
   double _h;
   double _w;
   MapController _controller = MapController();
+  int _imgInd = 0;
 
   Marker _vendorMarker() => Marker(
       width: 45.0,
@@ -112,12 +115,19 @@ class _VendorDetailsState extends State<VendorDetails> {
         : Scaffold(
             body: SafeArea(
               child: SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   children: <Widget>[
                     Stack(
                       children: <Widget>[
                         _buildGallery(),
                         _buildTopRow(),
+                        Positioned.fill(
+                          bottom: -_h * 0.33,
+                          child: SelectedPhoto(
+                              photoIndex: _imgInd,
+                              numberOfDots: _vendor.imageIds.length),
+                        )
                       ],
                     ),
                     //name description address rating tags
@@ -142,6 +152,8 @@ class _VendorDetailsState extends State<VendorDetails> {
                             deleteReviewFromUi: _deleteReviewFromUi,
                             w: _w)
                         : Container(),
+                    //add review button
+                    _vendor.reviewed ? Container() : _buildAddReviewBtn(),
                     Container(
                       padding: const EdgeInsets.only(top: 8.0, left: 8.0),
                       alignment: Alignment.centerLeft,
@@ -149,14 +161,11 @@ class _VendorDetailsState extends State<VendorDetails> {
                         "Reviews:",
                         style: TextStyle(
                             fontSize: 25.0,
-                            fontFamily: 'Montserrat',
                             fontWeight: FontWeight.bold,
                             color: Colors.grey),
                       ),
                     ),
                     _buildReviewsContainer(),
-                    //add review button
-                    _vendor.reviewed ? Container() : _buildAddReviewBtn(),
                   ],
                 ),
               ),
@@ -164,23 +173,18 @@ class _VendorDetailsState extends State<VendorDetails> {
           );
   }
 
-  Container _buildReviewsContainer() => Container(
-        height: _h * 0.37,
-        child: ListView.builder(
-            controller: _scrollController,
-            itemCount: _vendorReviews.length,
-            itemBuilder: (context, index) =>
-                _vendorReviews[index].review.isNotEmpty
-                    ? ReviewTile(review: _vendorReviews[index], w: _w)
-                    : Container()),
-      );
+  ListView _buildReviewsContainer() => ListView.builder(
+      shrinkWrap: true,
+      itemCount: _vendorReviews.length,
+      itemBuilder: (context, index) => _vendorReviews[index].review.isNotEmpty
+          ? ReviewTile(review: _vendorReviews[index], w: _w)
+          : Container());
 
-  Padding _buildAddReviewBtn() => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ElevatedButton(
-          style: BS(_w * 0.02, _h * 0.05),
-          child: Text('Add review', style: TextStyle(color: Colors.white)),
-          onPressed: () async {
+  Widget _buildAddReviewBtn() => Card(
+        child: ListTile(
+          title: Text('Write a review'),
+          trailing: Icon(Icons.navigate_next_outlined),
+          onTap: () async {
             if (_user.isAnonymous)
               showDialog<void>(
                   context: context,
@@ -203,26 +207,64 @@ class _VendorDetailsState extends State<VendorDetails> {
       );
 
   Container _buildTextDetails() => Container(
-        padding: EdgeInsets.only(left: 15.0),
+        padding: EdgeInsets.only(left: _w * 0.05, right: _w * 0.03),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             //name
-            Text(
-              (_vendor.name),
-              style: TextStyle(
-                  color: Colors.black,
-                  fontFamily: 'Montserrat',
-                  fontSize: _w * 0.13,
-                  fontWeight: FontWeight.bold),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                _vendor.name,
+                style: TextStyle(
+                  fontSize: _w * 0.09,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             //description
-            Text(
-              _vendor.description,
-              style: TextStyle(
-                  color: Colors.grey,
-                  fontFamily: 'Montserrat',
-                  fontSize: _w * 0.06),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
+              child: Text(
+                _vendor.description,
+                style: TextStyle(color: Colors.grey, fontSize: _w * 0.05),
+              ),
+            ),
+            //tags
+            SingleChildScrollView(
+              child: Row(
+                children: _vendor.tags
+                    .map((tag) => Padding(
+                          padding: const EdgeInsets.only(right: 2.0, left: 2.0),
+                          child: Chip(
+                            backgroundColor: Colors.white,
+                            side: BorderSide(color: Colors.grey),
+                            label: Text(tag,
+                                style: TextStyle(fontSize: _w * 0.04)),
+                          ),
+                        ))
+                    .toList(),
+              ),
+              scrollDirection: Axis.horizontal,
+            ),
+            //rating
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 4, 0, 4),
+              child: Row(
+                children: <Widget>[
+                  Text(
+                    _vendor.stars.toString(),
+                    style: TextStyle(
+                        fontSize: _w * 0.065,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 0, 2),
+                    child: StarRating(rating: _vendor.stars, size: _w * 0.065),
+                  ),
+                ],
+              ),
             ),
             //address
             Padding(
@@ -231,44 +273,9 @@ class _VendorDetailsState extends State<VendorDetails> {
                 _vendor.address,
                 style: TextStyle(
                     color: Colors.green[200],
-                    fontFamily: 'Montserrat',
-                    fontSize: _w * 0.05,
+                    fontSize: _w * 0.045,
                     fontWeight: FontWeight.bold),
               ),
-            ),
-            //rating
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-              child: Row(
-                children: <Widget>[
-                  Text(
-                    _vendor.stars.toString(),
-                    style: TextStyle(
-                        fontSize: _w * 0.07,
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 0, 0, 2),
-                    child: StarRating(rating: _vendor.stars, size: _w * 0.07),
-                  ),
-                ],
-              ),
-            ),
-            //tags
-            Wrap(
-              children: _vendor.tags
-                  .map((tag) => Padding(
-                        padding: const EdgeInsets.only(right: 2.0, left: 2.0),
-                        child: Chip(
-                          backgroundColor:
-                              Theme.of(context).chipTheme.backgroundColor,
-                          label: Text(tag, style: TextStyle(fontSize: 20)),
-                        ),
-                      ))
-                  .toList(),
-              textDirection: TextDirection.ltr,
             ),
           ],
         ),
@@ -318,19 +325,20 @@ class _VendorDetailsState extends State<VendorDetails> {
   Container _buildGallery() => Container(
         height: _h * 0.37,
         child: PhotoViewGallery.builder(
+          onPageChanged: (int newImg) => setState(() => _imgInd = newImg),
           scrollPhysics: const BouncingScrollPhysics(),
-          builder: (BuildContext context, int index) =>
+          builder: (BuildContext context, _imgInd) =>
               PhotoViewGalleryPageOptions(
             onTapDown: (context, details, controllerValue) =>
                 Navigator.of(context).push(MaterialPageRoute(
                     builder: (_) => FullScreenImage(
-                        imageIDs: _vendor.imageIds, index: index))),
+                        imageIDs: _vendor.imageIds, index: _imgInd))),
             maxScale: PhotoViewComputedScale.contained * 2.0,
             minScale: PhotoViewComputedScale.contained * 0.8,
             imageProvider:
-                VendorDBService.getVendorImage(_vendor.imageIds[index]),
+                VendorDBService.getVendorImage(_vendor.imageIds[_imgInd]),
             heroAttributes:
-                PhotoViewHeroAttributes(tag: _vendor.imageIds[index]),
+                PhotoViewHeroAttributes(tag: _vendor.imageIds[_imgInd]),
           ),
           itemCount: _vendor.imageIds.length,
           loadingBuilder: (context, event) => Center(
@@ -500,6 +508,63 @@ class EditReviewDialogue extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SelectedPhoto extends StatelessWidget {
+  final int numberOfDots;
+  final int photoIndex;
+
+  SelectedPhoto({this.numberOfDots, this.photoIndex});
+
+  Widget _inactivePhoto() {
+    return Container(
+        child: Padding(
+      padding: const EdgeInsets.only(left: 3.0, right: 3.0),
+      child: Container(
+        height: 8.0,
+        width: 8.0,
+        decoration: BoxDecoration(
+            color: Colors.grey, borderRadius: BorderRadius.circular(4.0)),
+      ),
+    ));
+  }
+
+  Widget _activePhoto() {
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.only(left: 3.0, right: 3.0),
+        child: Container(
+          height: 10.0,
+          width: 10.0,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.0),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey, spreadRadius: 0.0, blurRadius: 2.0)
+              ]),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildDots() {
+    List<Widget> dots = [];
+    for (int i = 0; i < numberOfDots; ++i)
+      dots.add(i == photoIndex ? _activePhoto() : _inactivePhoto());
+
+    return dots;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: _buildDots(),
       ),
     );
   }

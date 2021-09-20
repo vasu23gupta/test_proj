@@ -36,38 +36,39 @@ class _ChangePasswordState extends State<ChangePassword> {
         child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              Flexible(
-                  child: Form(
-                      key: _formKey,
-                      child: Column(children: <Widget>[
-                        TextFormField(
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: "Current Password",
-                            errorText: checkCurrentPasswordValid
-                                ? null
-                                : "Please double check your current password",
-                          ),
-                          controller: _passwordController,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(hintText: "New Password"),
-                          controller: _newPasswordController,
-                          obscureText: true,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            hintText: "Repeat Password",
-                          ),
-                          obscureText: true,
-                          controller: _repeatPasswordController,
-                          validator: (value) {
-                            return _newPasswordController.text == value
-                                ? null
-                                : "Please validate your entered password";
-                          },
-                        )
-                      ]))),
+              Form(
+                  key: _formKey,
+                  child: Column(children: <Widget>[
+                    TextFormField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: "Current Password",
+                        errorText: checkCurrentPasswordValid
+                            ? null
+                            : "Please double check your current password",
+                      ),
+                      controller: _passwordController,
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      decoration: InputDecoration(hintText: "New Password"),
+                      controller: _newPasswordController,
+                      obscureText: true,
+                    ),
+                    SizedBox(height: 10),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Repeat Password",
+                      ),
+                      obscureText: true,
+                      controller: _repeatPasswordController,
+                      validator: (value) {
+                        return _newPasswordController.text == value
+                            ? null
+                            : "Please validate your entered password";
+                      },
+                    )
+                  ])),
               SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () async {
@@ -81,7 +82,8 @@ class _ChangePasswordState extends State<ChangePassword> {
                     Navigator.pop(context);
                   }
                 },
-                child: Text("Save Profile"),
+                child: Text("Change Password"),
+                style: ElevatedButton.styleFrom(primary: TEXT_COLOR),
               )
             ])),
       ),
