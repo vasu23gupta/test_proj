@@ -17,8 +17,9 @@ class WrapperCaller extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: Wrapper(),
         theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
-        themeMode: ThemeMode.system,
+        //darkTheme: ThemeData.dark(),
+        //themeMode: ThemeMode.system,
+        themeMode: ThemeMode.light,
       ),
     );
   }
