@@ -181,36 +181,39 @@ class _VendorDetailsState extends State<VendorDetails> {
           : Container());
 
   Widget _buildAddReviewBtn() => Container(
-    margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(10)),
-      border: Border.all(color: Colors.grey),
-    ),
-    child: ListTile(
-      // tileColor: Colors.pink[300],                   
-      title: Text('Write a Review',style: TextStyle(fontFamily: 'Montserrat',fontSize: _w * 0.04),),
-      trailing: Icon(Icons.navigate_next_outlined),
-      onTap: () async {
-        if (_user.isAnonymous)
-          showDialog<void>(
-              context: context,
-              builder: (_) => LoginPopup(to: "add a review"));
-        //DONT DELETE
-        else if (!_user.emailVerified) {
-          await _user.reload();
-          if (!_user.emailVerified)
-            showDialog<void>(
-                context: context,
-                builder: (_) => VerifyEmailPopup(to: "add a review"));
-          else
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => AddReview(vendor: _vendor)));
-        } else
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => AddReview(vendor: _vendor)));
-      },
-    ),
-  );
+        margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+          border: Border.all(color: Colors.grey),
+        ),
+        child: ListTile(
+          // tileColor: Colors.pink[300],
+          title: Text(
+            'Write a Review',
+            style: TextStyle(fontFamily: 'Montserrat', fontSize: _w * 0.04),
+          ),
+          trailing: Icon(Icons.navigate_next_outlined),
+          onTap: () async {
+            if (_user.isAnonymous)
+              showDialog<void>(
+                  context: context,
+                  builder: (_) => LoginPopup(to: "add a review"));
+            //DONT DELETE
+            else if (!_user.emailVerified) {
+              await _user.reload();
+              if (!_user.emailVerified)
+                showDialog<void>(
+                    context: context,
+                    builder: (_) => VerifyEmailPopup(to: "add a review"));
+              else
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => AddReview(vendor: _vendor)));
+            } else
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => AddReview(vendor: _vendor)));
+          },
+        ),
+      );
 
   Container _buildTextDetails() => Container(
         padding: EdgeInsets.only(left: _w * 0.05, right: _w * 0.03),
@@ -223,7 +226,7 @@ class _VendorDetailsState extends State<VendorDetails> {
               child: Text(
                 _vendor.name,
                 style: TextStyle(
-                  fontSize: _w * 0.09,
+                  fontSize: _w * 0.085,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -233,7 +236,7 @@ class _VendorDetailsState extends State<VendorDetails> {
               padding: const EdgeInsets.fromLTRB(4, 4, 4, 8),
               child: Text(
                 _vendor.description,
-                style: TextStyle(color: Colors.grey, fontSize: _w * 0.05),
+                style: TextStyle(color: Colors.grey, fontSize: _w * 0.045),
               ),
             ),
             //tags
@@ -252,6 +255,7 @@ class _VendorDetailsState extends State<VendorDetails> {
                     .toList(),
               ),
               scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
             ),
             //rating
             Padding(
@@ -288,17 +292,19 @@ class _VendorDetailsState extends State<VendorDetails> {
       );
 
   Widget _buildMap() => Container(
-    margin: EdgeInsets.all(15),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-      child: FlutterMap(
+        margin: EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          child: FlutterMap(
             mapController: _controller,
             options: MapOptions(
-              nePanBoundary: HardcoreMath.toBounds(_vendor.coordinates).northEast,
-              swPanBoundary: HardcoreMath.toBounds(_vendor.coordinates).southWest,
+              nePanBoundary:
+                  HardcoreMath.toBounds(_vendor.coordinates).northEast,
+              swPanBoundary:
+                  HardcoreMath.toBounds(_vendor.coordinates).southWest,
               zoom: 18.45,
               center: _vendor.coordinates,
             ),
@@ -314,8 +320,8 @@ class _VendorDetailsState extends State<VendorDetails> {
               MarkerLayerOptions(markers: [_vendorMarker()]),
             ],
           ),
-    ),
-  );
+        ),
+      );
 
   FloatingActionButton _buildMapFAB() => FloatingActionButton(
         onPressed: () async => await MapLauncher.showDirections(
@@ -385,9 +391,9 @@ class ReviewTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(5)),
         side: BorderSide(
-          width: 5,
+          width: 2,
           color: review.stars > 4
-              ? Colors.green[900]
+              ? Colors.green[700]
               : review.stars > 3
                   ? Colors.green[300]
                   : review.stars > 2

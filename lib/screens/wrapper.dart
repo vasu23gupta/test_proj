@@ -50,6 +50,7 @@ class Wrapper extends StatelessWidget {
       return ChangeNotifierProvider(
           create: (context) => Filters(),
           child: MaterialApp(
+            debugShowCheckedModeBanner: false,
             home: Home(),
             theme:
                 /* theme.useSystemTheme
