@@ -396,6 +396,7 @@ class _SearchState extends State<Search> {
               borderRadius: BorderRadius.circular(5),
               color: Colors.grey.withOpacity(0.25)),
           child: TextField(
+              autofocus: true,
               decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: "Search",

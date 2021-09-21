@@ -9,14 +9,10 @@ import 'package:latlong/latlong.dart';
 import 'package:test_proj/models/vendor.dart';
 import 'package:dio/dio.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart' show kReleaseMode;
 
 const String _URL = "https://localpediabackend.herokuapp.com/";
 //const String _URL = "http://10.0.2.2:3000/";
 //const String _URL = "https://localpediabackend.azurewebsites.net/";
-// const String URL = kReleaseMode
-//     ? "https://localpediabackend.azurewebsites.net/"
-//     : "https://localpediabackend.herokuapp.com/";
 
 class UserDBService {
   final String jwt;

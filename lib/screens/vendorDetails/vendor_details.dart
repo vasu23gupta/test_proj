@@ -18,7 +18,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:test_proj/shared/starRating.dart';
 import 'package:test_proj/shared/loginPopup.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class VendorDetails extends StatefulWidget {
   final Vendor vendor;

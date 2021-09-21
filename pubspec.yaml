@@ -46,7 +46,6 @@ dependencies:
   shared_preferences: 
   flutter_svg:
   url_launcher: 
-  google_fonts:
 
 
 dev_dependencies:
