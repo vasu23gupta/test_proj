@@ -180,31 +180,37 @@ class _VendorDetailsState extends State<VendorDetails> {
           ? ReviewTile(review: _vendorReviews[index], w: _w)
           : Container());
 
-  Widget _buildAddReviewBtn() => Card(
-        child: ListTile(
-          title: Text('Write a review'),
-          trailing: Icon(Icons.navigate_next_outlined),
-          onTap: () async {
-            if (_user.isAnonymous)
-              showDialog<void>(
-                  context: context,
-                  builder: (_) => LoginPopup(to: "add a review"));
-            //DONT DELETE
-            else if (!_user.emailVerified) {
-              await _user.reload();
-              if (!_user.emailVerified)
-                showDialog<void>(
-                    context: context,
-                    builder: (_) => VerifyEmailPopup(to: "add a review"));
-              else
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => AddReview(vendor: _vendor)));
-            } else
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => AddReview(vendor: _vendor)));
-          },
-        ),
-      );
+  Widget _buildAddReviewBtn() => Container(
+    margin: EdgeInsets.fromLTRB(15, 0, 15, 0),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(10)),
+      border: Border.all(color: Colors.grey),
+    ),
+    child: ListTile(
+      // tileColor: Colors.pink[300],                   
+      title: Text('Write a Review',style: TextStyle(fontFamily: 'Montserrat',fontSize: _w * 0.04),),
+      trailing: Icon(Icons.navigate_next_outlined),
+      onTap: () async {
+        if (_user.isAnonymous)
+          showDialog<void>(
+              context: context,
+              builder: (_) => LoginPopup(to: "add a review"));
+        //DONT DELETE
+        else if (!_user.emailVerified) {
+          await _user.reload();
+          if (!_user.emailVerified)
+            showDialog<void>(
+                context: context,
+                builder: (_) => VerifyEmailPopup(to: "add a review"));
+          else
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => AddReview(vendor: _vendor)));
+        } else
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => AddReview(vendor: _vendor)));
+      },
+    ),
+  );
 
   Container _buildTextDetails() => Container(
         padding: EdgeInsets.only(left: _w * 0.05, right: _w * 0.03),
@@ -281,26 +287,35 @@ class _VendorDetailsState extends State<VendorDetails> {
         ),
       );
 
-  FlutterMap _buildMap() => FlutterMap(
-        mapController: _controller,
-        options: MapOptions(
-          nePanBoundary: HardcoreMath.toBounds(_vendor.coordinates).northEast,
-          swPanBoundary: HardcoreMath.toBounds(_vendor.coordinates).southWest,
-          zoom: 18.45,
-          center: _vendor.coordinates,
-        ),
-        layers: [
-          TileLayerOptions(
-              urlTemplate:
-                  "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
-              additionalOptions: {
-                'subscriptionKey':
-                    '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
-                //'theme': _darkModeOn ? 'dark' : 'main'
-              }),
-          MarkerLayerOptions(markers: [_vendorMarker()]),
-        ],
-      );
+  Widget _buildMap() => Container(
+    margin: EdgeInsets.all(15),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      child: FlutterMap(
+            mapController: _controller,
+            options: MapOptions(
+              nePanBoundary: HardcoreMath.toBounds(_vendor.coordinates).northEast,
+              swPanBoundary: HardcoreMath.toBounds(_vendor.coordinates).southWest,
+              zoom: 18.45,
+              center: _vendor.coordinates,
+            ),
+            layers: [
+              TileLayerOptions(
+                  urlTemplate:
+                      "https://atlas.microsoft.com/map/tile/png?api-version=1&layer=basic&style=main&tileSize=256&view=Auto&zoom={z}&x={x}&y={y}&subscription-key={subscriptionKey}",
+                  additionalOptions: {
+                    'subscriptionKey':
+                        '6QKwOYYBryorrSaUj2ZqHEdWd3b4Ey_8ZFo6VOj_7xw',
+                    //'theme': _darkModeOn ? 'dark' : 'main'
+                  }),
+              MarkerLayerOptions(markers: [_vendorMarker()]),
+            ],
+          ),
+    ),
+  );
 
   FloatingActionButton _buildMapFAB() => FloatingActionButton(
         onPressed: () async => await MapLauncher.showDirections(
